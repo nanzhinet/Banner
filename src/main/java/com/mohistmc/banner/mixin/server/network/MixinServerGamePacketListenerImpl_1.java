@@ -26,6 +26,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,6 +44,7 @@ public abstract class MixinServerGamePacketListenerImpl_1 {
     Entity outerEntity;
     @Shadow(aliases = {"field_39991"}, remap = false)
     ServerLevel outerLevel;
+
 
     private void performInteraction(InteractionHand enumhand, ServerGamePacketListenerImpl.EntityInteraction playerconnection_a, PlayerInteractEntityEvent event) { // CraftBukkit
         ItemStack itemstack = outerThis.player.getItemInHand(enumhand);

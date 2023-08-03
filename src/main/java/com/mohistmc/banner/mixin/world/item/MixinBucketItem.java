@@ -50,6 +50,7 @@ public abstract class MixinBucketItem extends Item {
 
     private AtomicReference<PlayerBucketFillEvent> banner$bucketFillEvent = new AtomicReference<>();
 
+    /*
     @Inject(method = "use",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/BucketPickup;pickupBlock(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/item/ItemStack;"),
@@ -69,15 +70,19 @@ public abstract class MixinBucketItem extends Item {
             ((ServerPlayer) player).getBukkitEntity().updateInventory(); // SPIGOT-4541
             cir.setReturnValue(InteractionResultHolder.fail(itemStack));
         }
-    }
+    }*/
+    // Banner TODO
 
+    /*
     @Redirect(method = "use",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemUtils;createFilledResult(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack banner$filledResult(ItemStack emptyStack, Player player, ItemStack filledStack) {
         return ItemUtils.createFilledResult(emptyStack, player, CraftItemStack.asNMSCopy(banner$bucketFillEvent.get().getItemStack())); // CraftBukkit
-    }
+    }*/
+    // Banner TODO
 
+    /*
     @Inject(method = "emptyContents", at = @At("HEAD"),
             cancellable = true)
     private void banner$bucketFillEvent(Player entityhuman, Level world, BlockPos blockposition, BlockHitResult movingobjectpositionblock,
@@ -100,5 +105,6 @@ public abstract class MixinBucketItem extends Item {
                 }
             }
         }
-    }
+    }*/
+    // Banner TODO
 }

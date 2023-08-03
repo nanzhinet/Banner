@@ -1,6 +1,9 @@
 accessWidener	v1	named
 # Banner
 
+# 1.20.2
+accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
+
 # paper
 accessible field net/minecraft/server/level/ServerPlayer seenCredits Z
 
@@ -69,8 +72,6 @@ accessible method net/minecraft/world/entity/Display createTransformation (Lnet/
 accessible method net/minecraft/world/entity/Display getBrightnessOverride ()Lnet/minecraft/util/Brightness;
 accessible method net/minecraft/world/entity/Display getGlowColorOverride ()I
 accessible method net/minecraft/world/entity/Display getHeight ()F
-accessible method net/minecraft/world/entity/Display getInterpolationDelay ()I
-accessible method net/minecraft/world/entity/Display getInterpolationDuration ()I
 accessible method net/minecraft/world/entity/Display getShadowRadius ()F
 accessible method net/minecraft/world/entity/Display getShadowStrength ()F
 accessible method net/minecraft/world/entity/Display getViewRange ()F
@@ -79,8 +80,6 @@ accessible method net/minecraft/world/entity/Display setBillboardConstraints (Ln
 accessible method net/minecraft/world/entity/Display setBrightnessOverride (Lnet/minecraft/util/Brightness;)V
 accessible method net/minecraft/world/entity/Display setGlowColorOverride (I)V
 accessible method net/minecraft/world/entity/Display setHeight (F)V
-accessible method net/minecraft/world/entity/Display setInterpolationDelay (I)V
-accessible method net/minecraft/world/entity/Display setInterpolationDuration (I)V
 accessible method net/minecraft/world/entity/Display setShadowRadius (F)V
 accessible method net/minecraft/world/entity/Display setShadowStrength (F)V
 accessible method net/minecraft/world/entity/Display setTransformation (Lcom/mojang/math/Transformation;)V
@@ -221,8 +220,6 @@ accessible field net/minecraft/commands/CommandSourceStack source Lnet/minecraft
 accessible field net/minecraft/network/Connection address Ljava/net/SocketAddress;
 accessible field net/minecraft/network/Connection channel Lio/netty/channel/Channel;
 accessible field net/minecraft/network/chat/TextColor name Ljava/lang/String;
-accessible field net/minecraft/network/protocol/game/ServerboundCustomPayloadPacket data Lnet/minecraft/network/FriendlyByteBuf;
-accessible field net/minecraft/network/protocol/game/ServerboundCustomPayloadPacket identifier Lnet/minecraft/resources/ResourceLocation;
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket hasPos Z
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket hasRot Z
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket x D
@@ -230,7 +227,6 @@ accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket y D
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket yRot F
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket z D
-accessible field net/minecraft/network/protocol/game/ServerboundResourcePackPacket action Lnet/minecraft/network/protocol/game/ServerboundResourcePackPacket$Action;
 accessible field net/minecraft/network/protocol/game/ServerboundClientInformationPacket language Ljava/lang/String;
 accessible field net/minecraft/network/protocol/game/ServerboundClientInformationPacket viewDistance I
 accessible field net/minecraft/network/protocol/game/ClientboundBlockUpdatePacket blockState Lnet/minecraft/world/level/block/state/BlockState;
@@ -547,7 +543,6 @@ accessible field net/minecraft/world/entity/item/FallingBlockEntity fallDamagePe
 accessible field net/minecraft/world/level/block/entity/LecternBlockEntity book Lnet/minecraft/world/item/ItemStack;
 accessible field net/minecraft/world/level/block/entity/BlockEntity level Lnet/minecraft/world/level/Level;
 accessible field net/minecraft/world/level/block/entity/BlockEntity worldPosition Lnet/minecraft/core/BlockPos;
-accessible field net/minecraft/server/network/ServerGamePacketListenerImpl connection Lnet/minecraft/network/Connection;
 accessible field net/minecraft/world/entity/AreaEffectCloud DATA_COLOR Lnet/minecraft/network/syncher/EntityDataAccessor;
 accessible field net/minecraft/world/entity/Entity boardingCooldown I
 accessible field net/minecraft/world/level/storage/DerivedLevelData wrapped Lnet/minecraft/world/level/storage/ServerLevelData;

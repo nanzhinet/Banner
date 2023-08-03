@@ -88,9 +88,11 @@ public final class CraftPlayerProfile implements PlayerProfile {
     void setProperty(String propertyName, @Nullable Property property) {
         // Assert: (property == null) || property.getName().equals(propertyName)
         removeProperty(propertyName);
+        /*
         if (property != null) {
             properties.put(property.getName(), property);
-        }
+        }*/
+        // Banner TODO
     }
 
     void removeProperty(String propertyName) {
@@ -129,6 +131,7 @@ public final class CraftPlayerProfile implements PlayerProfile {
         DedicatedServer server = ((CraftServer) Bukkit.getServer()).getServer();
         GameProfile profile = this.buildGameProfile();
 
+        /*
         // If missing, look up the uuid by name:
         if (profile.getId() == null) {
             profile = server.getProfileCache().get(profile.getName()).orElse(profile);
@@ -140,7 +143,8 @@ public final class CraftPlayerProfile implements PlayerProfile {
             if (newProfile != null) {
                 profile = newProfile;
             }
-        }
+        }*/
+        // Banner TODO
 
         return new CraftPlayerProfile(profile);
     }
@@ -266,7 +270,7 @@ public final class CraftPlayerProfile implements PlayerProfile {
             for (Object propertyData : (List<?>) map.get("properties")) {
                 Preconditions.checkArgument(propertyData instanceof Map, "Propertu data (%s) is not a valid Map", propertyData);
                 Property property = CraftProfileProperty.deserialize((Map<?, ?>) propertyData);
-                profile.properties.put(property.getName(), property);
+                // profile.properties.put(property.getName(), property);        // Banner TODO
             }
         }
 

@@ -51,12 +51,13 @@ public class CraftDisplay extends CraftEntity implements Display {
 
     @Override
     public int getInterpolationDuration() {
-        return getHandle().getInterpolationDuration();
+        //return getHandle().getInterpolationDuration();        // Banner TODO
+        return 0;
     }
 
     @Override
     public void setInterpolationDuration(int duration) {
-        getHandle().setInterpolationDuration(duration);
+        //getHandle().setInterpolationDuration(duration);        // Banner TODO
     }
 
     @Override
@@ -111,12 +112,13 @@ public class CraftDisplay extends CraftEntity implements Display {
 
     @Override
     public int getInterpolationDelay() {
-        return getHandle().getInterpolationDelay();
+        //return getHandle().getInterpolationDelay();         // Banner TODO
+        return 0;
     }
 
     @Override
     public void setInterpolationDelay(int ticks) {
-        getHandle().setInterpolationDelay(ticks);
+        //getHandle().setInterpolationDelay(ticks);         // Banner TODO
     }
 
     @Override

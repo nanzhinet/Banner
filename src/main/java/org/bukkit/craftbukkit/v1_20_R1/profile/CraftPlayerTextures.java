@@ -91,6 +91,8 @@ final class CraftPlayerTextures implements PlayerTextures {
     }
 
     private void ensureLoaded() {
+        // Banner TODO
+        /*
         if (loaded) return;
         loaded = true;
 
@@ -103,7 +105,7 @@ final class CraftPlayerTextures implements PlayerTextures {
             loadSkin(texturesMap);
             loadCape(texturesMap);
             loadTimestamp();
-        }
+        }*/
     }
 
     private void loadSkin(@Nullable JsonObject texturesMap) {

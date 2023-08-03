@@ -18,9 +18,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+// Banner TODO
 @Mixin(MobEffect.class)
 public class MixinMobEffect {
 
+    /*
     @Inject(method = "applyEffectTick", at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/entity/LivingEntity;heal(F)V"))
     public void banner$healReason1(LivingEntity livingEntity, int amplifier, CallbackInfo ci) {
          livingEntity.pushHealReason(EntityRegainHealthEvent.RegainReason.MAGIC_REGEN);
@@ -52,5 +54,5 @@ public class MixinMobEffect {
         ((ServerPlayer) playerEntity).connection.send(new ClientboundSetHealthPacket(((ServerPlayer) playerEntity).getBukkitEntity().getScaledHealth(),
                 playerEntity.getFoodData().getFoodLevel(), playerEntity.getFoodData().getSaturationLevel()));
 
-    }
+    }*/
 }

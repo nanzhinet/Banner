@@ -630,7 +630,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         if (true) {
             ServerLevel worldserver1 = worldserver;
             // CraftBukkit end
-            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
 
             if (forcedchunk != null) {
                 LongIterator longiterator = forcedchunk.getChunks().iterator();
@@ -690,7 +690,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         if (true) {
             ServerLevel worldserver1 = worldserver;
             // CraftBukkit end
-            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
 
             if (forcedchunk != null) {
                 LongIterator longiterator = forcedchunk.getChunks().iterator();

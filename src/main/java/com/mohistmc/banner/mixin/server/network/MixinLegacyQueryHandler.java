@@ -19,18 +19,13 @@ import java.util.Locale;
 @Mixin(LegacyQueryHandler.class)
 public abstract class MixinLegacyQueryHandler {
 
-    @Shadow @Final private ServerConnectionListener serverConnectionListener;
-
     @Shadow @Final private static Logger LOGGER;
-
-    @Shadow protected abstract void sendFlushAndClose(ChannelHandlerContext ctx, ByteBuf data);
-
-    @Shadow protected abstract ByteBuf createReply(String string);
 
     /**
      * @author wdog5
      * @reason bukkit
      */
+    /*
     @Overwrite
     public void channelRead(ChannelHandlerContext channelhandlercontext, Object object) {
         ByteBuf bytebuf = (ByteBuf) object;
@@ -44,7 +39,7 @@ public abstract class MixinLegacyQueryHandler {
             }
 
             InetSocketAddress inetsocketaddress = (InetSocketAddress) channelhandlercontext.channel().remoteAddress();
-            MinecraftServer minecraftserver = this.serverConnectionListener.getServer();
+            MinecraftServer minecraftserver = this.serverConnectionListenr.getServer();
             int i = bytebuf.readableBytes();
             String s;
             org.bukkit.event.server.ServerListPingEvent event = CraftEventFactory.callServerListPingEvent(minecraftserver.bridge$server(), inetsocketaddress.getAddress(), minecraftserver.getMotd(), minecraftserver.getPlayerCount(), minecraftserver.getMaxPlayers()); // CraftBukkit
@@ -101,5 +96,5 @@ public abstract class MixinLegacyQueryHandler {
             }
 
         }
-    }
+    }*/
 }

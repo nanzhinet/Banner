@@ -37,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Iterator;
 import java.util.List;
 
+// Banner TODO
 @Mixin(AbstractMinecart.class)
 public abstract class MixinAbstractMinecart extends Entity {
 
@@ -48,12 +49,6 @@ public abstract class MixinAbstractMinecart extends Entity {
     @Shadow public abstract float getDamage();
     @Shadow public abstract void destroy(DamageSource source);
     @Shadow public abstract int getHurtTime();
-    @Shadow private int lSteps;
-    @Shadow private double lx;
-    @Shadow private double ly;
-    @Shadow private double lz;
-    @Shadow private double lyr;
-    @Shadow private double lxr;
     @Shadow protected abstract void moveAlongTrack(BlockPos pos, BlockState state);
     @Shadow public abstract void activateMinecart(int x, int y, int z, boolean receivingPower);
     @Shadow private boolean flipped;
@@ -146,6 +141,7 @@ public abstract class MixinAbstractMinecart extends Entity {
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public void tick() {
         // CraftBukkit start
@@ -301,7 +297,7 @@ public abstract class MixinAbstractMinecart extends Entity {
 
             this.firstTick = false;
         }
-    }
+    }*/
 
     /**
      * @author wdog5

@@ -566,6 +566,8 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         this.clientViewDistance = packetIn.viewDistance();
     }
 
+    // Banner TODO
+    /*
     @Inject(method = "trackChunk",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V",
@@ -588,7 +590,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
             new io.papermc.paper.event.packet.PlayerChunkUnloadEvent(this.getBukkitEntity().getWorld().getChunkAt(chunkPos.x, chunkPos.z), this.getBukkitEntity()).callEvent();
         }
         // Paper end
-    }
+    }*/
 
     @Inject(method = "setCamera",
             at = @At(value = "INVOKE",

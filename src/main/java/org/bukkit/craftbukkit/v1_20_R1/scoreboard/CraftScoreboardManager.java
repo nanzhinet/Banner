@@ -72,13 +72,15 @@ public final class CraftScoreboardManager implements ScoreboardManager {
 
         // Old objective tracking
         HashSet<net.minecraft.world.scores.Objective> removed = new HashSet<>();
+        // Banner TODO
+        /*
         for (int i = 0; i < 3; ++i) {
             net.minecraft.world.scores.Objective scoreboardobjective = oldboard.getDisplayObjective(i);
             if (scoreboardobjective != null && !removed.contains(scoreboardobjective)) {
                 entityplayer.connection.send(new ClientboundSetObjectivePacket(scoreboardobjective, 1));
                 removed.add(scoreboardobjective);
             }
-        }
+        }*/
 
         // Old team tracking
         Iterator<?> iterator = oldboard.getPlayerTeams().iterator();

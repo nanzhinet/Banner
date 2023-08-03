@@ -35,6 +35,7 @@ public class MixinServerHandshakePacketListenerImpl {
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public void handleIntention(ClientIntentionPacket packet) {
         this.connection.banner$setHostName(packet.hostName + ":" + packet.port); // CraftBukkit  - set hostname
@@ -101,5 +102,6 @@ public class MixinServerHandshakePacketListenerImpl {
             default -> throw new UnsupportedOperationException("Invalid intention " + packet.getIntention());
         }
 
-    }
+    }*/
+    // Banner TODO
 }

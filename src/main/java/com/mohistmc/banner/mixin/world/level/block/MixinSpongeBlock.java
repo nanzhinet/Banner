@@ -35,6 +35,8 @@ public abstract class MixinSpongeBlock extends Block {
      * @author wdog5
      * @reason bukkit
      */
+    // Banner TODO
+    /*
     @Overwrite
     private boolean removeWaterBreadthFirstSearch(Level world, BlockPos blockposition) {
         BlockStateListPopulator blockList = new BlockStateListPopulator(world); // CraftBukkit - Use BlockStateListPopulator
@@ -121,5 +123,5 @@ public abstract class MixinSpongeBlock extends Block {
         }
         return false;
         // CraftBukkit end
-    }
+    }*/
 }

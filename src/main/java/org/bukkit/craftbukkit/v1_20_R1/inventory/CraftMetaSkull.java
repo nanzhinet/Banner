@@ -139,6 +139,8 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
     void applyToItem(CompoundTag tag) {
         super.applyToItem(tag);
 
+        // Banner TODO
+        /*
         if (profile != null) {
             // SPIGOT-6558: Set initial textures
             tag.put(SKULL_OWNER.NBT, serializedProfile);
@@ -153,7 +155,7 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
             CompoundTag nbtTagCompound = new CompoundTag();
             nbtTagCompound.putString(NOTE_BLOCK_SOUND.NBT, this.noteBlockSound.toString());
             tag.put(BLOCK_ENTITY_TAG.NBT, nbtTagCompound);
-        }
+        }*/
     }
 
     @Override

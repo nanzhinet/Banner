@@ -2,7 +2,6 @@ package org.bukkit.craftbukkit.v1_20_R1.entity;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.BaseEncoding;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -19,11 +18,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
@@ -1671,7 +1670,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         if (channels.contains(channel)) {
             channel = StandardMessenger.validateAndCorrectChannel(channel);
-            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation(channel), new FriendlyByteBuf(Unpooled.wrappedBuffer(message)));
+            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(/*new ResourceLocation(channel),*/
+            new FriendlyByteBuf(Unpooled.wrappedBuffer(message)));
             getHandle().connection.send(packet);
         }
     }
@@ -1702,9 +1702,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (hash != null) {
             Preconditions.checkArgument(hash.length == 20, "Resource pack hash should be 20 bytes long but was %s", hash.length);
 
-            getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true));
+            // getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true)); // Banner - TODO
         } else {
-            getHandle().sendTexturePack(url, "", force, CraftChatMessage.fromStringOrNull(prompt, true));
+            // getHandle().sendTexturePack(url, "", force, CraftChatMessage.fromStringOrNull(prompt, true)); // Banner - TODO
         }
     }
 
@@ -1714,7 +1714,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         Validate.notNull(hash, "Resource pack hash cannot be null");
         Validate.isTrue(hash.length == 20, "Resource pack hash should be 20 bytes long but was " + hash.length);
 
-        getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), false, null);
+        // getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), false, null); // Banner - TODO
     }
 
     public void addChannel(String channel) {
@@ -1753,7 +1753,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                 }
             }
 
-            getHandle().connection.send(new ClientboundCustomPayloadPacket(new ResourceLocation("register"), new FriendlyByteBuf(Unpooled.wrappedBuffer(stream.toByteArray()))));
+            getHandle().connection.send(new ClientboundCustomPayloadPacket(/*new ResourceLocation("register"), */new FriendlyByteBuf(Unpooled.wrappedBuffer(stream.toByteArray())))); // Banner - TODO
         }
     }
 
@@ -2119,7 +2119,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public int getPing() {
-        return getHandle().latency;
+       // return getHandle().latency; // Banner - TODO
+        return 0;
     }
 
     @Override

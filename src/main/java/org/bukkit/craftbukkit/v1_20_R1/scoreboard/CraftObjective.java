@@ -70,6 +70,7 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
 
     @Override
     public void setDisplaySlot(DisplaySlot slot) {
+        /*
         CraftScoreboard scoreboard = checkState();
         Scoreboard board = scoreboard.board;
         net.minecraft.world.scores.Objective objective = this.objective;
@@ -82,11 +83,13 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
         if (slot != null) {
             int slotNumber = CraftScoreboardTranslations.fromBukkitSlot(slot);
             board.setDisplayObjective(slotNumber, getHandle());
-        }
+        }*/
+        // Banner TODO
     }
 
     @Override
     public DisplaySlot getDisplaySlot() {
+        /*
         CraftScoreboard scoreboard = checkState();
         Scoreboard board = scoreboard.board;
         net.minecraft.world.scores.Objective objective = this.objective;
@@ -95,7 +98,8 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
             if (board.getDisplayObjective(i) == objective) {
                 return CraftScoreboardTranslations.toBukkitSlot(i);
             }
-        }
+        }*/
+        // Banner TODO
         return null;
     }
 

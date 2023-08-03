@@ -61,8 +61,10 @@ public class CraftAttributeInstance implements AttributeInstance {
 
     @Override
     public void removeModifier(AttributeModifier modifier) {
+        // Banner TODO
+        /*
         Preconditions.checkArgument(modifier != null, "modifier");
-        handle.removeModifier(convert(modifier));
+        handle.removeModifier(convert(modifier));*/
     }
 
     @Override

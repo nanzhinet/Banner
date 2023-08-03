@@ -24,7 +24,6 @@ import net.minecraft.network.chat.SignedMessageChain;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
@@ -37,7 +36,6 @@ import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
-import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -45,7 +43,6 @@ import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
-import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
@@ -157,9 +154,6 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
     @Shadow public ServerPlayer player;
     @Mutable
     @Shadow @Final private FutureChain chatMessageChain;
-    @Shadow @Final private MinecraftServer server;
-    @Shadow @Final public Connection connection;
-
     @Shadow public abstract void onDisconnect(Component reason);
 
     @Shadow
@@ -176,9 +170,6 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
 
     @Shadow @Final
     static Logger LOGGER;
-
-    @Shadow protected abstract boolean isSingleplayerOwner();
-
     @Shadow private int receivedMovePacketCount;
     @Shadow private int knownMovePacketCount;
     @Shadow private double vehicleFirstGoodZ;
@@ -206,7 +197,6 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
     @Shadow private double lastGoodZ;
     @Shadow private boolean clientIsFloating;
     @Shadow public abstract void ackBlockChangesUpTo(int i);
-    @Shadow public abstract void send(Packet<?> packet);
     @Shadow private static boolean isChatMessageIllegal(String message) {return false;}
     @Shadow protected abstract Optional<LastSeenMessages> tryHandleChat(String message, Instant timestamp, LastSeenMessages.Update update);
     @Shadow protected abstract PlayerChatMessage getSignedMessage(ServerboundChatPacket packet, LastSeenMessages lastSeenMessages) throws SignedMessageChain.DecodeException;
@@ -251,9 +241,9 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void banner$init(MinecraftServer server, Connection networkManagerIn, ServerPlayer playerIn, CallbackInfo ci) {
+    private void banner$init(MinecraftServer minecraftServer, Connection connection, ServerPlayer serverPlayer, int i, CallbackInfo ci) {
         this.cserver = ((CraftServer) Bukkit.getServer());
-        this.chatMessageChain = new FutureChain(server.bridge$chatExecutor());
+        this.chatMessageChain = new FutureChain(minecraftServer.bridge$chatExecutor());
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -266,14 +256,17 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
         SpigotTimings.playerConnectionTimer.stopTiming(); // Spigot
     }
 
+
     /**
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public void disconnect(Component textComponent) {
         this.disconnect(CraftChatMessage.fromComponent(textComponent));
-    }
+    }*/
+    // Banner - TODO
 
     @Override
     public void disconnect(String s) {
@@ -289,7 +282,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
                 }
             };
 
-            this.server.bridge$queuedProcess(waitable);
+            // this.server.bridge$queuedProcess(waitable); // Banner TODO
 
             try {
                 waitable.get();
@@ -310,21 +303,22 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
         }
         player.banner$setKickLeaveMessage(event.getLeaveMessage());
         Component textComponent = CraftChatMessage.fromString(event.getReason(), true)[0];
-        this.connection.send(new ClientboundDisconnectPacket(textComponent), PacketSendListener.thenRun(() -> this.connection.disconnect(textComponent)));
+        //this.connection.send(new ClientboundDisconnectPacket(textComponent), PacketSendListener.thenRun(() -> this.connection.disconnect(textComponent)));// Banner TODO
         this.onDisconnect(textComponent);
-        this.connection.setReadOnly();
-        this.server.executeBlocking(this.connection::handleDisconnection);
+       // this.connection.setReadOnly();// Banner TODO
+        //this.server.executeBlocking(this.connection::handleDisconnection);// Banner TODO
     }
 
     /**
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public void handleMoveVehicle(final ServerboundMoveVehiclePacket packetplayinvehiclemove) {
         PacketUtils.ensureRunningOnSameThread(packetplayinvehiclemove, ((ServerGamePacketListener) (Object) this), this.player.serverLevel());
         if (containsInvalidValues(packetplayinvehiclemove.getX(), packetplayinvehiclemove.getY(), packetplayinvehiclemove.getZ(), packetplayinvehiclemove.getYRot(), packetplayinvehiclemove.getXRot())) {
-            this.disconnect(Component.translatable("multiplayer.disconnect.invalid_vehicle_movement"));
+           // this.disconnect(Component.translatable("multiplayer.disconnect.invalid_vehicle_movement"));// Banner TODO
         } else {
             Entity entity = this.player.getRootVehicle();
 
@@ -485,7 +479,8 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
             }
 
         }
-    }
+    }*/
+    // Banner TODO
 
     @Inject(method = "handleAcceptTeleportPacket",
             at = @At(value = "FIELD",
@@ -567,6 +562,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
      * @author wdog5
      * @reason bukkit
      */
+    /*
     @Overwrite
     public void handleMovePlayer(ServerboundMovePlayerPacket packetplayinflying) {
         PacketUtils.ensureRunningOnSameThread(packetplayinflying, ((ServerGamePacketListenerImpl) (Object) this ), this.player.serverLevel());
@@ -800,7 +796,8 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
                 }
             }
         }
-    }
+    }*/
+    // Banner TODO
 
     @Redirect(method = "handlePlayerAction",
             at = @At(value = "INVOKE",
@@ -938,10 +935,12 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
         // CraftBukkit end
     }
 
+    /*
     @Inject(method = "handleResourcePackResponse", at = @At("RETURN"))
     private void banner$handleResourcePackStatus(ServerboundResourcePackPacket packetIn, CallbackInfo ci) {
         this.cserver.getPluginManager().callEvent(new PlayerResourcePackStatusEvent(this.getCraftPlayer(), PlayerResourcePackStatusEvent.Status.values()[packetIn.action.ordinal()]));
-    }
+    }*/
+    // Banner TODO
 
     @Inject(method = "onDisconnect", cancellable = true, at = @At("HEAD"))
     private void banner$returnIfProcessed(Component reason, CallbackInfo ci) {
@@ -952,6 +951,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
         }
     }
 
+    /*
     @Redirect(method = "onDisconnect", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"))
     private void banner$setQuitMsg(PlayerList instance, Component message, boolean bypassHiddenChat) {
@@ -970,7 +970,8 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
         if (packetIn instanceof ClientboundSetDefaultSpawnPositionPacket packet6) {
              this.player.banner$setCompassTarget(new Location(this.getCraftPlayer().getWorld(), packet6.pos.getX(), packet6.pos.getY(), packet6.pos.getZ()));
         }
-    }
+    }*/
+    // Banner TODO
 
     @Inject(method = "handleAnimate",
             at = @At(value = "INVOKE",
@@ -1019,6 +1020,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
      * @author wdog5
      * @reason bukkit
      */
+    /*
     @Overwrite
     public void handleSetCarriedItem(ServerboundSetCarriedItemPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, (ServerGamePacketListenerImpl) (Object) this, this.player.serverLevel());
@@ -1042,12 +1044,14 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
             LOGGER.warn("{} tried to set an invalid carried item", this.player.getName().getString());
             this.disconnect("Invalid hotbar selection (Hacking?)");
         }
-    }
+    }*/
+    // Banner TODO
 
     /**
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public void handleChat(ServerboundChatPacket packet) {
         if (this.server.isStopped()) {
@@ -1079,12 +1083,14 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
                 });
             }
         }
-    }
+    }*/
+    // Banner TODO
 
     /**
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     private void performChatCommand(ServerboundChatCommandPacket packet, LastSeenMessages lastseenmessages) {
         String command = "/" + packet.command();
@@ -1113,7 +1119,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
 
         parseresults = Commands.mapSource(parseresults, (stack) -> stack.withSigningContext(arguments));
         this.server.getCommands().performCommand(parseresults, command);
-    }
+    }// Banner TODO
 
     @Inject(method = "tryHandleChat", cancellable = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;unpackAndApplyLastSeen(Lnet/minecraft/network/chat/LastSeenMessages$Update;)Ljava/util/Optional;"))
     private void banner$deadMenTellNoTales(String p_242372_, Instant p_242311_, LastSeenMessages.Update p_242217_, CallbackInfoReturnable<Optional<LastSeenMessages>> cir) {
@@ -1121,7 +1127,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
             this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), false));
             cir.setReturnValue(Optional.empty());
         }
-    }
+    }// Banner TODO
 
     // TODO ChatType.RAW
     @Override
@@ -1209,7 +1215,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
                 }
             }
             Bukkit.getConsoleSender().sendMessage(s);
-        }
+        }// Banner TODO
     }
 
     @Override
@@ -1238,13 +1244,14 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
             return;
         } finally {
             SpigotTimings.playerCommandTimer.stopTiming(); // Spigot
-        }
-    }
+        }// Banner TODO
+    }*/
 
     /**
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     private void broadcastChatMessage(PlayerChatMessage playerchatmessage) {
         String s = playerchatmessage.signedContent();
@@ -1265,7 +1272,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
     @Override
     public boolean isDisconnected() {
         return !this.player.bridge$joining() && !this.connection.isConnected();
-    }
+    }*/// Banner TODO
 
     @Inject(method = "handlePlayerCommand", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V"))
     private void banner$toggleAction(ServerboundPlayerCommandPacket packetIn, CallbackInfo ci) {
@@ -1730,6 +1737,8 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
     private static final ResourceLocation CUSTOM_REGISTER = new ResourceLocation("register");
     private static final ResourceLocation CUSTOM_UNREGISTER = new ResourceLocation("unregister");
 
+    // Banner TODO
+    /*
     @Inject(method = "handleCustomPayload", at = @At("HEAD"))
     private void banner$handleCustomPayload(ServerboundCustomPayloadPacket packet, CallbackInfo ci) {
         PacketUtils.ensureRunningOnSameThread(packet, (ServerGamePacketListenerImpl) (Object) this, this.player.serverLevel());
@@ -1772,7 +1781,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
                 }
             }
         }
-    }
+    }*/
 
     private transient PlayerTeleportEvent.TeleportCause banner$cause;
 

@@ -181,9 +181,11 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         this.uuid = WorldUUID.getUUID(levelStorageAccess.getDimensionPath(this.dimension()).toFile());
         this.getWorldBorder().banner$setWorld((ServerLevel) (Object) this);
         this.K.setWorld((ServerLevel) (Object) this);
+        /*
         var data = this.getDataStorage().computeIfAbsent(LevelPersistentData::new,
                 () -> new LevelPersistentData(null), "bukkit_pdc");
-        this.getWorld().readBukkitValues(data.getTag());
+        this.getWorld().readBukkitValues(data.getTag());*/
+        // Banner TODO
     }
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE",
@@ -200,8 +202,10 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
 
     @Inject(method = "saveLevelData", at = @At("RETURN"))
     private void banner$savePdc(CallbackInfo ci) {
+        // Banner TODO
+        /*
         var data = this.getDataStorage().computeIfAbsent(LevelPersistentData::new, () -> new LevelPersistentData(null), "bukkit_pdc");
-        data.save(this.getWorld());
+        data.save(this.getWorld());*/
     }
 
     @Inject(method = "gameEvent", cancellable = true, at = @At("HEAD"))
@@ -351,10 +355,12 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         return this.addFreshEntity(entity);
     }
 
-    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    /*
+    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "setBlockAndUpdated"))
     public boolean banner$snowForm(ServerLevel serverWorld, BlockPos pos, BlockState state) {
         return CraftEventFactory.handleBlockFormEvent(serverWorld, pos, state, null);
-    }
+    }*/
+    // Banner TODO
 
     @Inject(method = "save", at = @At(value = "JUMP", ordinal = 0, opcode = Opcodes.IFNULL))
     private void banner$worldSaveEvent(ProgressListener progress, boolean flush, boolean skipSave, CallbackInfo ci) {
@@ -449,6 +455,8 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
      * @author wdog5
      * @reason functionallyy replaced
      */
+    // Banner TODO
+    /*
     @Overwrite
     @Nullable
     public MapItemSavedData getMapData(String mapName) {
@@ -459,7 +467,7 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
             Bukkit.getServer().getPluginManager().callEvent(event);
             return newMap;
         }, mapName);
-    }
+    }*/
 
     @Inject(method = "setMapData", at = @At("HEAD"))
     private void banner$mapSetId(String id, MapItemSavedData data, CallbackInfo ci) {

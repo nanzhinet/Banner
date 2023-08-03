@@ -9,7 +9,6 @@ import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
 import net.minecraft.network.protocol.login.ClientboundHelloPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket;
@@ -44,9 +43,11 @@ import java.security.PrivateKey;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+// Banner - TODO, fix
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginPacketListener, TickablePacketListener,InjectionServerLoginPacketListenerImpl {
 
+    /*
     @Shadow public abstract void disconnect(Component reason);
 
     @Shadow @Nullable GameProfile gameProfile;
@@ -90,6 +91,7 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
      * @author wdog5
      * @reason bukkit
      */
+    /*
     @Overwrite
     public void handleAcceptedLogin() {
         if (!this.gameProfile.isComplete()) {
@@ -149,6 +151,7 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
      * @author wdog5
      * @reason bukkit
      */
+    /*
     public void handleHello(ServerboundHelloPacket packet) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet", new Object[0]);
         // Validate.validState(isValidUsername(packet.name()), "Invalid characters in username", new Object[0]); // Mohist Chinese and other special characters are allowed
@@ -178,12 +181,14 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
             }
 
         }
-    }
+    }*/
 
+    /*
     /**
      * @author wdog5
      * @reason bukkit
      */
+    /*
     @Overwrite
     public void handleKey(ServerboundKeyPacket packetIn) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet");
@@ -285,5 +290,5 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
         }
         LOGGER.info("UUID of player {} is {}", gameProfile.getName(), gameProfile.getId());
         state = ServerLoginPacketListenerImpl.State.READY_TO_ACCEPT;
-    }
+    }*/
 }
