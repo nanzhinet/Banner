@@ -3,6 +3,7 @@ package com.mohistmc.banner.mixin.world.level.storage.loot;
 import com.mohistmc.banner.injection.world.level.storage.loot.InjectionLootTable;
 import io.izzel.arclight.mixin.Eject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
@@ -33,7 +34,7 @@ public abstract class MixinLootTable implements InjectionLootTable {
     @Shadow protected abstract List<Integer> getAvailableSlots(Container inventory, RandomSource random);
 
     @Shadow protected abstract void shuffleAndSplitItems(ObjectArrayList<ItemStack> stacks, int emptySlotsCount, RandomSource random);
-    @Shadow @Final @Nullable ResourceLocation randomSequence;
+    @Shadow @Final @Nullable Optional<ResourceLocation> randomSequence;
 
     @Shadow protected abstract ObjectArrayList<ItemStack> getRandomItems(LootContext context);
 

@@ -2,8 +2,8 @@ package com.mohistmc.banner.mixin.interaction.dispenser;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.BoatDispenseItemBehavior;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
@@ -14,6 +14,7 @@ import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.spongepowered.asm.mixin.Final;
@@ -36,12 +37,13 @@ public abstract class MixinBoatDispenseItemBehavior {
      */
     @Overwrite
     public ItemStack execute(BlockSource source, ItemStack stack) {
-        Direction direction = (Direction)source.getBlockState().getValue(DispenserBlock.FACING);
-        Level level = source.getLevel();
-        double d = source.x() + (double)((float)direction.getStepX() * 1.125F);
-        double e = source.y() + (double)((float)direction.getStepY() * 1.125F);
-        double f = source.z() + (double)((float)direction.getStepZ() * 1.125F);
-        BlockPos blockPos = source.getPos().relative(direction);
+        Direction direction = (Direction)source.state().getValue(DispenserBlock.FACING);
+        Level level = source.level();
+        Vec3 vec3 = source.center();
+        double d = vec3.x() + (double)((float)direction.getStepX() * 1.125F);
+        double e = vec3.y() + (double)((float)direction.getStepY() * 1.125F);
+        double f = vec3.z() + (double)((float)direction.getStepZ() * 1.125F);
+        BlockPos blockPos = source.pos().relative(direction);
         double g;
         if (level.getFluidState(blockPos).is(FluidTags.WATER)) {
             g = 1.0;
@@ -57,7 +59,7 @@ public abstract class MixinBoatDispenseItemBehavior {
 
         // CraftBukkit start
         ItemStack itemstack1 = stack.split(1);
-        org.bukkit.block.Block block = level.getWorld().getBlockAt(source.getPos().getX(), source.getPos().getY(), source.getPos().getZ());
+        org.bukkit.block.Block block = level.getWorld().getBlockAt(source.pos().getX(), source.pos().getY(), source.pos().getZ());
         CraftItemStack craftItem = CraftItemStack.asCraftMirror(itemstack1);
 
         BlockDispenseEvent event = new BlockDispenseEvent(block, craftItem.clone(), new org.bukkit.util.Vector(d, e + g, f));

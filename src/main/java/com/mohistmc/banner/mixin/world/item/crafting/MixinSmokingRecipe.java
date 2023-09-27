@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmokingRecipe;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftSmokingRecipe;
@@ -17,17 +18,17 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(SmokingRecipe.class)
 public abstract class MixinSmokingRecipe extends AbstractCookingRecipe {
 
-    public MixinSmokingRecipe(RecipeType<?> recipeType, ResourceLocation resourceLocation, String string, CookingBookCategory cookingBookCategory, Ingredient ingredient, ItemStack itemStack, float f, int i) {
-        super(recipeType, resourceLocation, string, cookingBookCategory, ingredient, itemStack, f, i);
+    public MixinSmokingRecipe(RecipeType<?> recipeType, String string, CookingBookCategory cookingBookCategory, Ingredient ingredient, ItemStack itemStack, float f, int i) {
+        super(recipeType, string, cookingBookCategory, ingredient, itemStack, f, i);
     }
 
     @Override
-    public org.bukkit.inventory.Recipe toBukkitRecipe() {
+    public org.bukkit.inventory.Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe((SmokingRecipe) (Object) this);
+            return new BannerModdedRecipe(id, (SmokingRecipe) (Object) this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
-        CraftSmokingRecipe recipe = new CraftSmokingRecipe(CraftNamespacedKey.fromMinecraft(this.id), result, CraftRecipe.toBukkit(this.ingredient), this.experience, this.cookingTime);
+        CraftSmokingRecipe recipe = new CraftSmokingRecipe(id, result, CraftRecipe.toBukkit(this.ingredient), this.experience, this.cookingTime);
         recipe.setGroup(this.group);
         recipe.setCategory(CraftRecipe.getCategory(this.category()));
 

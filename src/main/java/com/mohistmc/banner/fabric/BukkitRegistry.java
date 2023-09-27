@@ -98,16 +98,6 @@ public class BukkitRegistry {
         loadCookingBookCategory();
         loadFluids();
         loadGameEvents();
-
-        try {
-            for (var field : org.bukkit.Registry.class.getFields()) {
-                if (Modifier.isStatic(field.getModifiers())
-                        && field.get(null) instanceof org.bukkit.Registry.SimpleRegistry<?> registry) {
-                    registry.reloader.run();
-                }
-            }
-        } catch (Throwable ignored) {
-        }
     }
 
     public static void loadItems() {
@@ -431,8 +421,7 @@ public class BukkitRegistry {
     private static void loadPotions() {
         int origin = PotionEffectType.values().length;
         int size = BuiltInRegistries.MOB_EFFECT.size();
-        int maxId = BuiltInRegistries.MOB_EFFECT.stream().mapToInt(MobEffect::getId).max().orElse(0);
-        PotionEffectType[] types = new PotionEffectType[maxId + 1];
+        PotionEffectType[] types = new PotionEffectType[Math.max(origin + 1, size + 1)];
         putStatic(PotionEffectType.class, "byId", types);
         putBool(PotionEffectType.class, "acceptingNew", true);
         for (MobEffect eff : BuiltInRegistries.MOB_EFFECT) {
@@ -460,7 +449,7 @@ public class BukkitRegistry {
                     MobEffectInstance effectInstance = potion.getEffects().isEmpty() ? null : potion.getEffects().get(0);
                     PotionType potionType = DynamicEnumHelper.makeEnum(PotionType.class, name, typeId++,
                             Arrays.asList(PotionEffectType.class, boolean.class, boolean.class),
-                            Arrays.asList(effectInstance == null ? null : PotionEffectType.getById(MobEffect.getId(effectInstance.getEffect())), false, false));
+                            Arrays.asList(effectInstance == null ? null : PotionEffectType.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.MOB_EFFECT.getKey(effectInstance.getEffect()))), false, false));
                     newTypes.add(potionType);
                     map.put(potionType, location.toString());
                     BannerServer.LOGGER.debug("Registered {} as potion type {}", location, potionType);

@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventory;
@@ -158,12 +159,12 @@ public class BukkitContainer {
         }
 
         @Override
-        public Recipe<?> getCurrentRecipe() {
+        public RecipeHolder<?> getCurrentRecipe() {
             return null;
         }
 
         @Override
-        public void setCurrentRecipe(Recipe<?> recipe) {
+        public void setCurrentRecipe(RecipeHolder<?> recipe) {
         }
     }
 }

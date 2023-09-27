@@ -9,14 +9,14 @@ import com.mojang.datafixers.util.Unit;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.PositionImpl;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.ServerboundClientInformationPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
-import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -150,6 +150,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     @Shadow public abstract void setCamera(@Nullable Entity entityToSpectate);
 
     @Shadow @Nullable protected abstract PortalInfo findDimensionEntryPoint(ServerLevel destination);
+    @Shadow public String language;
 
     // CraftBukkit start
     public String displayName;
@@ -169,7 +170,6 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     public long timeOffset = 0;
     public WeatherType weather = null;
     public boolean relativeTime = true;
-    public String locale = null; // CraftBukkit - add, lowercase // Paper - default to null
     private boolean banner$initialized = false;
     private float pluginRainPosition;
     private float pluginRainPositionPrevious;
@@ -550,18 +550,17 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Inject(method = "updateOptions", at = @At("HEAD"))
-    private void banner$settingChange(ServerboundClientInformationPacket packetIn, CallbackInfo ci) {
-        if (this.getMainArm() != packetIn.mainHand()) {
-            PlayerChangedMainHandEvent event = new PlayerChangedMainHandEvent(this.getBukkitEntity(), (this.getMainArm() == HumanoidArm.LEFT) ? MainHand.LEFT : MainHand.RIGHT);
+    private void banner$settingChange(ClientInformation packetIn, CallbackInfo ci) {
+        // CraftBukkit start
+        if (getMainArm() != packetIn.mainHand()) {
+            PlayerChangedMainHandEvent event = new PlayerChangedMainHandEvent(getBukkitEntity(), getMainArm() == HumanoidArm.LEFT ? MainHand.LEFT : MainHand.RIGHT);
             Bukkit.getPluginManager().callEvent(event);
         }
-        if (this.locale == null || !this.locale.equals(packetIn.language)) { // Paper - check for null
-            PlayerLocaleChangeEvent event2 = new PlayerLocaleChangeEvent(this.getBukkitEntity(), packetIn.language());
-            Bukkit.getPluginManager().callEvent(event2);
-            this.server.bridge$server().getPluginManager().callEvent(new com.destroystokyo.paper.event.player.PlayerLocaleChangeEvent(this.getBukkitEntity(), this.locale, packetIn.language)); // Paper
+        if (!this.language.equals(packetIn.language())) {
+            PlayerLocaleChangeEvent event = new PlayerLocaleChangeEvent(getBukkitEntity(), packetIn.language());
+            Bukkit.getPluginManager().callEvent(event);
         }
-        this.locale = packetIn.language();
-        this.clientViewDistance = packetIn.viewDistance();
+        // CraftBukkit end
     }
 
     // Banner TODO
@@ -869,7 +868,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Override
-    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, PositionImpl exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
+    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, Vec3 exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
         Location enter = this.getBukkitEntity().getLocation();
         Location exit = new Location(exitWorldServer.getWorld(), exitPosition.x(), exitPosition.y(), exitPosition.z(), this.getYRot(), this.getXRot());
         PlayerPortalEvent event = new PlayerPortalEvent(this.getBukkitEntity(), enter, exit, cause, 128, true, creationRadius);
@@ -1060,12 +1059,12 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
 
     @Override
     public String bridge$locale() {
-        return locale;
+        return language;
     }
 
     @Override
     public void banner$setLocale(String locale) {
-        this.locale = locale;
+        this.language = locale;
     }
 
     @Override

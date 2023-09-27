@@ -2,7 +2,6 @@ package com.mohistmc.banner.bukkit;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.PositionImpl;
 import net.minecraft.server.WorldLoader;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -33,20 +32,6 @@ public class BukkitCaptures {
 
     public static boolean banner$stopGlide() {
         return banner$stopGlide;
-    }
-
-    private static PositionImpl positionImpl;
-
-    public static void capturePositionImpl(PositionImpl position) {
-        positionImpl = position;
-    }
-
-    public static PositionImpl getPositionImpl() {
-        try {
-            return positionImpl;
-        } finally {
-            positionImpl = null;
-        }
     }
 
     private static Entity entityChangeBlock;

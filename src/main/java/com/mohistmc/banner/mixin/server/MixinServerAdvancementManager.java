@@ -1,10 +1,12 @@
 package com.mohistmc.banner.mixin.server;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementList;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementNode;
+import net.minecraft.advancements.AdvancementTree;
 import net.minecraft.advancements.TreeNodePosition;
 import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.resources.ResourceLocation;
@@ -27,9 +29,10 @@ public class MixinServerAdvancementManager {
 
     @Shadow @Final private static Logger LOGGER;
 
-    @Shadow public AdvancementList advancements;
+    @Shadow public AdvancementTree tree;
 
     @Shadow @Final private LootDataManager lootData;
+    @Shadow public Map<ResourceLocation, AdvancementHolder> advancements;
 
     /**
      * @author wdog5
@@ -37,7 +40,7 @@ public class MixinServerAdvancementManager {
      */
     @Overwrite
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        Map<ResourceLocation, Advancement.Builder> map = Maps.newHashMap();
+        ImmutableMap.Builder<ResourceLocation, AdvancementHolder> builder = ImmutableMap.builder();
         object.forEach((resourceLocation, jsonElement) -> {
             // Spigot start
             if (org.spigotmc.SpigotConfig.disabledAdvancements != null
@@ -48,24 +51,29 @@ public class MixinServerAdvancementManager {
             }
             // Spigot end
             try {
-                JsonObject jsonObject = GsonHelper.convertToJsonObject(jsonElement, "advancement");
-                Advancement.Builder builder = Advancement.Builder.fromJson(jsonObject, new DeserializationContext(resourceLocation, this.lootData));
-                map.put(resourceLocation, builder);
-            } catch (Exception var6) {
-                LOGGER.error("Parsing error loading custom advancement {}: {}", resourceLocation, var6.getMessage());
+                JsonObject jsonobject = GsonHelper.convertToJsonObject(jsonElement, "advancement");
+                Advancement advancement = Advancement.fromJson(jsonobject, new DeserializationContext(resourceLocation, this.lootData));
+                if (advancement == null) {
+                    LOGGER.debug("Skipping loading advancement {} as its conditions were not met", resourceLocation);
+                    return;
+                }
+                builder.put(resourceLocation, new AdvancementHolder(resourceLocation, advancement));
+            } catch (Exception exception) {
+                LOGGER.error("Parsing error loading custom advancement {}: {}", resourceLocation, exception.getMessage());
             }
 
         });
-        AdvancementList advancementList = new AdvancementList();
-        advancementList.add(map);
+        this.advancements = builder.buildOrThrow();
+        AdvancementTree advancementtree = new AdvancementTree();
+        advancementtree.addAll(this.advancements.values());
 
-        for (Advancement advancement : advancementList.getRoots()) {
-            if (advancement.getDisplay() != null) {
-                TreeNodePosition.run(advancement);
+        for(AdvancementNode advancementnode : advancementtree.roots()) {
+            if (advancementnode.holder().value().display().isPresent()) {
+                TreeNodePosition.run(advancementnode);
             }
         }
 
-        this.advancements = advancementList;
+        this.tree = advancementtree;
     }
 
 }

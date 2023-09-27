@@ -899,27 +899,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     public final java.util.concurrent.ExecutorService chatExecutor = java.util.concurrent.Executors.newCachedThreadPool(
             new com.google.common.util.concurrent.ThreadFactoryBuilder().setDaemon(true).setNameFormat("Async Chat Thread - #%d").build());
 
-    @ModifyReturnValue(method = "getChatDecorator", at = @At("RETURN"))
-    private ChatDecorator banner$fireChatEvent(ChatDecorator decorator) {
-        return (entityplayer, ichatbasecomponent) -> {
-            // SPIGOT-7127: Console /say and similar
-            if (entityplayer == null) {
-                return CompletableFuture.completedFuture(ichatbasecomponent);
-            }
-
-            return CompletableFuture.supplyAsync(() -> {
-                AsyncPlayerChatPreviewEvent event = new AsyncPlayerChatPreviewEvent(true, entityplayer.getBukkitEntity(), CraftChatMessage.fromComponent(ichatbasecomponent), new LazyPlayerSet(((MinecraftServer) (Object) this)));
-                String originalFormat = event.getFormat(), originalMessage = event.getMessage();
-                this.server.getPluginManager().callEvent(event);
-
-                if (originalFormat.equals(event.getFormat()) && originalMessage.equals(event.getMessage()) && event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getDisplayName())) {
-                    return ichatbasecomponent;
-                }
-                return CraftChatMessage.fromStringOrNull(String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage()));
-            }, chatExecutor);
-        };
-    }
-
     @Inject(method = "method_29440", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/packs/repository/PackRepository;setSelected(Ljava/util/Collection;)V"))
     private void banner$syncCommands(Collection collection, MinecraftServer.ReloadableResources reloadableResources,

@@ -27,8 +27,8 @@
 
 ## Tips
 - If you want to try a different Fabric + Bukkit hybrid server, you can try CardBoard
-- It is implements bukkit api by itself,and the author is a pioneer to try a new way to implements Fabric + Bukkit
-- Banner is different with Cardboard,you can also try Cardboard as an alternative choice if you want
+- It is implements bukkit api by itself, and the author is a pioneer to try a new way to implements Fabric + Bukkit
+- Banner is different with Cardboard, you can also try Cardboard as an alternative choice if you want
 
 ## Progress
 - [ ] Start patch
@@ -42,7 +42,7 @@ It could be compilable and running, but the compatibility with plugins is poor.
 
 ### NMS Support
 We do support using Spigot's net.minecraft.server classes. Classes and Fields will automatically remap to their intermediary counterparts in runtime, but it will not change plugins at all,
-so don't worried about the plugin files will be changed to unsafe
+so don't worry about the plugin files will be changed to unsafe
 
 ## Installation (for Linux)
 - You'll need `wget` and `curl`
@@ -75,4 +75,4 @@ chmod +x ./banner-launcher
 
 ![YourKit-Logo](https://www.yourkit.com/images/yklogo.png)
 
-[YourKit](http://www.yourkit.com/), makers of the outstanding java profiler, support open source projects of all kinds with their full-featured [Java](https://www.yourkit.com/java/profiler/index.jsp) and [.NET](https://www.yourkit.com/.net/profiler/index.jsp) application profilers. We thank them for granting Mohist an OSS license so that we can make our software the best it can be.
+[YourKit](http://www.yourkit.com/), makers of the outstanding java profiler, support open-source projects of all kinds with their full-featured [Java](https://www.yourkit.com/java/profiler/index.jsp) and [.NET](https://www.yourkit.com/.net/profiler/index.jsp) application profilers. We thank them for granting Mohist an OSS license so that we can make our software the best it can be.

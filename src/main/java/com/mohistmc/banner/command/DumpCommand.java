@@ -4,6 +4,7 @@ import com.mohistmc.banner.api.ServerAPI;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.fabric.BukkitRegistry;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -208,8 +209,8 @@ public class DumpCommand extends BukkitCommand {
 
     private void dumpAdvancements(CommandSender sender, String mode) {
         StringBuilder sb = new StringBuilder();
-        for (Advancement channel : ServerAPI.getNMSServer().getAdvancements().getAllAdvancements()) {
-            sb.append(channel.getId()).append("\n");
+        for (AdvancementHolder channel : ServerAPI.getNMSServer().getAdvancements().getAllAdvancements()) {
+            sb.append(channel.id()).append("\n");
         }
         dump(sender, "advancements", sb, mode);
     }

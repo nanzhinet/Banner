@@ -167,6 +167,7 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
+	options.warnings = false // Shutup deprecated for removal warnings
 }
 
 java {
