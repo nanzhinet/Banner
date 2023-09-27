@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 /**
  * Indicates that the annotated element (class, method, field, etc.) is part of a
- * <a href="https://minecraft.fandom.com/wiki/Experimental_Gameplay">minecraft experimental feature</a>
+ * <a href="https://minecraft.wiki/w/Experimental_Gameplay">minecraft experimental feature</a>
  * and is subject to changes by Mojang.
  * <p>
  * <b>Note:</b> Elements marked with this annotation require the use of a datapack or otherwise

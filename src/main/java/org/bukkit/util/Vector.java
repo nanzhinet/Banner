@@ -820,6 +820,48 @@ public class Vector implements Cloneable, ConfigurationSerializable {
     }
 
     /**
+     * Get this vector as a JOML {@link Vector3f}.
+     *
+     * @return the JOML vector
+     */
+    @NotNull
+    public Vector3f toVector3f() {
+        return new Vector3f((float) x, (float) y, (float) z);
+    }
+
+    /**
+     * Get this vector as a JOML {@link Vector3d}.
+     *
+     * @return the JOML vector
+     */
+    @NotNull
+    public Vector3d toVector3d() {
+        return new Vector3d(x, y, z);
+    }
+
+    /**
+     * Get this vector as a JOML {@link Vector3i}.
+     *
+     * @param roundingMode the {@link RoundingMode} to use for this vector's components
+     * @return the JOML vector
+     */
+    @NotNull
+    public Vector3i toVector3i(int roundingMode) {
+        return new Vector3i(x, y, z, roundingMode);
+    }
+
+    /**
+     * Get this vector as a JOML {@link Vector3i} with its components floored.
+     *
+     * @return the JOML vector
+     * @see #toVector3i(int)
+     */
+    @NotNull
+    public Vector3i toVector3i() {
+        return toVector3i(RoundingMode.FLOOR);
+    }
+
+    /**
      * Check if each component of this Vector is finite.
      *
      * @throws IllegalArgumentException if any component is not finite
@@ -936,47 +978,5 @@ public class Vector implements Cloneable, ConfigurationSerializable {
         }
 
         return new Vector(x, y, z);
-    }
-
-    /**
-     * Get this vector as a JOML {@link Vector3f}.
-     *
-     * @return the JOML vector
-     */
-    @NotNull
-    public Vector3f toVector3f() {
-        return new Vector3f((float) x, (float) y, (float) z);
-    }
-
-    /**
-     * Get this vector as a JOML {@link Vector3d}.
-     *
-     * @return the JOML vector
-     */
-    @NotNull
-    public Vector3d toVector3d() {
-        return new Vector3d(x, y, z);
-    }
-
-    /**
-     * Get this vector as a JOML {@link Vector3i}.
-     *
-     * @param roundingMode the {@link RoundingMode} to use for this vector's components
-     * @return the JOML vector
-     */
-    @NotNull
-    public Vector3i toVector3i(int roundingMode) {
-        return new Vector3i(x, y, z, roundingMode);
-    }
-
-    /**
-     * Get this vector as a JOML {@link Vector3i} with its components floored.
-     *
-     * @return the JOML vector
-     * @see #toVector3i(int)
-     */
-    @NotNull
-    public Vector3i toVector3i() {
-        return toVector3i(RoundingMode.FLOOR);
     }
 }

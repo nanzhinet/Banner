@@ -233,7 +233,7 @@ public abstract class PotionEffectType implements Keyed {
     @NotNull
     @Override
     public NamespacedKey getKey() {
-        return key;
+       return key;
     }
 
     /**
@@ -364,8 +364,6 @@ public abstract class PotionEffectType implements Keyed {
      */
     @NotNull
     public static PotionEffectType[] values() {
-        int from = byId[0] == null ? 1 : 0;
-        int to = byId[byId.length - 1] == null ? byId.length - 1 : byId.length;
-        return Arrays.copyOfRange(byId, from, to);
+        return Arrays.copyOfRange(byId, 1, byId.length);
     }
 }

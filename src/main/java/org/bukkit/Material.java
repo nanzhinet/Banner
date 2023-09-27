@@ -1191,7 +1191,10 @@ public enum Material implements Keyed, Translatable {
     GREEN_TERRACOTTA(4105),
     RED_TERRACOTTA(5086),
     BLACK_TERRACOTTA(26691),
-    BARRIER(26453),
+    /**
+     * BlockData: {@link Waterlogged}
+     */
+    BARRIER(26453, Waterlogged.class),
     /**
      * BlockData: {@link Light}
      */
@@ -7938,7 +7941,7 @@ public enum Material implements Keyed, Translatable {
      *   <li>Only occluding blocks can be "powered" ({@link Block#isBlockPowered()}).
      * </ul>
      * This list may be inconclusive. For a full list of the side effects of an occluding
-     * block, see the <a href="https://minecraft.fandom.com/wiki/Opacity">Minecraft Wiki</a>.
+     * block, see the <a href="https://minecraft.wiki/w/Opacity">Minecraft Wiki</a>.
      *
      * @return True if this material is a block and occludes light
      */

@@ -1075,7 +1075,7 @@ public interface Server extends PluginMessageRecipient {
      * @return a ban list of the specified type
      */
     @NotNull
-    public  <T extends BanList<?>> T getBanList(@NotNull BanList.Type type);
+    public <T extends BanList<?>> T getBanList(@NotNull BanList.Type type);
 
     /**
      * Gets a set containing all player operators.

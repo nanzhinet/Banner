@@ -161,7 +161,6 @@ public interface ItemFactory {
     @NotNull
     Material updateMaterial(@NotNull final ItemMeta meta, @NotNull final Material material) throws IllegalArgumentException;
 
-
     /**
      * Gets a {@link Material} representing the spawn egg for the provided
      * {@link EntityType}. <br>

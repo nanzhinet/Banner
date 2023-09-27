@@ -25,7 +25,7 @@ public interface BundleMeta extends ItemMeta {
 
     /**
      * Sets the items stored in this item.
-     *
+     * <br>
      * Removes all items when given null.
      *
      * @param items the items to set
