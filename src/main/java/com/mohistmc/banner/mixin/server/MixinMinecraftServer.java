@@ -67,11 +67,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.craftbukkit.Main;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R1.SpigotTimings;
-import org.bukkit.craftbukkit.v1_20_R1.scoreboard.CraftScoreboardManager;
-import org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_20_R1.util.LazyPlayerSet;
+import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R2.SpigotTimings;
+import org.bukkit.craftbukkit.v1_20_R2.scoreboard.CraftScoreboardManager;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R2.util.LazyPlayerSet;
 import org.bukkit.event.player.AsyncPlayerChatPreviewEvent;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.event.world.WorldInitEvent;
@@ -231,7 +231,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
 
     // CraftBukkit start
     public WorldLoader.DataLoadContext worldLoader;
-    public org.bukkit.craftbukkit.v1_20_R1.CraftServer server;
+    public org.bukkit.craftbukkit.v1_20_R2.CraftServer server;
     public OptionSet options;
     public org.bukkit.command.ConsoleCommandSender console;
     public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;

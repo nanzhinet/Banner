@@ -7,7 +7,6 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.projectiles.ProjectileSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,7 +50,7 @@ public abstract class MixinProjectile extends Entity implements InjectionProject
     @Override
     public void preOnHit(HitResult movingobjectposition) {
         org.bukkit.event.entity.ProjectileHitEvent event =
-                org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callProjectileHitEvent(((Projectile) (Object) this),
+                org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory.callProjectileHitEvent(((Projectile) (Object) this),
                         movingobjectposition);
         this.hitCancelled = event != null && event.isCancelled();
         if (movingobjectposition.getType() == HitResult.Type.BLOCK || !this.hitCancelled) {

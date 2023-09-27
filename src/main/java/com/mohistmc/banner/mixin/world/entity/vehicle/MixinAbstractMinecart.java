@@ -1,26 +1,18 @@
 package com.mohistmc.banner.mixin.world.entity.vehicle;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseRailBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.PoweredRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R1.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -33,9 +25,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Iterator;
-import java.util.List;
 
 // Banner TODO
 @Mixin(AbstractMinecart.class)

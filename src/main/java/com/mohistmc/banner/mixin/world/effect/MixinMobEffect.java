@@ -1,22 +1,7 @@
 package com.mohistmc.banner.mixin.world.effect;
 
-import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodData;
-import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // Banner TODO
 @Mixin(MobEffect.class)

@@ -8,7 +8,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
-import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_20_R2.persistence.CraftPersistentDataContainer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -8,10 +8,10 @@ import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftFurnaceRecipe;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftRecipe;
-import org.bukkit.craftbukkit.v1_20_R1.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftFurnaceRecipe;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 import org.spongepowered.asm.mixin.Mixin;
 

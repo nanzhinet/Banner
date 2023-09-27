@@ -50,7 +50,7 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered() {
 		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-1.20.1:2023.06.26@zip")
+		//parchment("org.parchmentmc.data:parchment-1.20.1:2023.06.26@zip")
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
@@ -69,7 +69,7 @@ dependencies {
 	}
 
 	// bukkit
-	implementation(include("org.yaml:snakeyaml:1.33"))
+	implementation(include("org.yaml:snakeyaml:2.2"))
 	// LibraryLoader start
 	implementation "org.apache.maven:maven-resolver-provider:3.8.5"
 	implementation "org.apache.maven.resolver:maven-resolver-connector-basic:1.7.3"
@@ -80,19 +80,19 @@ dependencies {
 	implementation "org.apache.maven:maven-model-builder:3.8.5"
 	implementation "org.apache.maven:maven-repository-metadata:3.8.5"
 	compileOnly "org.jetbrains:annotations:21.0.1"
-	implementation(include("com.mohistmc:i18n:0.2"))
+	implementation(include("com.mohistmc:i18n:0.4"))
 
 	// craftbukkit
 	implementation "org.fusesource.jansi:jansi:1.18"
 	implementation "jline:jline:2.14.6"
 	implementation "com.googlecode.json-simple:json-simple:1.1.1"
-	implementation "org.xerial:sqlite-jdbc:3.42.0.0"
-	implementation "com.mysql:mysql-connector-j:8.0.33"
+	implementation "org.xerial:sqlite-jdbc:3.43.0.0"
+	implementation "com.mysql:mysql-connector-j:8.1.0"
 
 	implementation "net.md-5:SpecialSource:1.11.2"
 
 	// spigot
-	implementation "net.md-5:bungeecord-chat:1.16-R0.4"
+	implementation "net.md-5:bungeecord-chat:1.20-R0.1"
 	implementation "io.izzel:tools:1.3.0"
 
 	implementation "com.google.guava:failureaccess:1.0.1"
@@ -118,14 +118,14 @@ dependencies {
 	implementation "com.mojang:brigadier:1.0.18"
 	implementation "com.github.oshi:oshi-core:6.4.0"
 
-	implementation "io.netty:netty-buffer:4.1.82.Final"
-	implementation "io.netty:netty-codec:4.1.82.Final"
-	implementation "io.netty:netty-common:4.1.82.Final"
-	implementation "io.netty:netty-handler:4.1.82.Final"
-	implementation "io.netty:netty-resolver:4.1.82.Final"
-	implementation "io.netty:netty-transport:4.1.82.Final"
-	implementation "io.netty:netty-transport-classes-epoll:4.1.82.Final"
-	implementation "io.netty:netty-transport-native-unix-common:4.1.82.Final"
+	implementation "io.netty:netty-buffer:4.1.97.Final"
+	implementation "io.netty:netty-codec:4.1.97.Final"
+	implementation "io.netty:netty-common:4.1.97.Final"
+	implementation "io.netty:netty-handler:4.1.97.Final"
+	implementation "io.netty:netty-resolver:4.1.97.Final"
+	implementation "io.netty:netty-transport:4.1.97.Final"
+	implementation "io.netty:netty-transport-classes-epoll:4.1.97.Final"
+	implementation "io.netty:netty-transport-native-unix-common:4.1.97.Final"
 
 	// jansi support
 	implementation(include("org.jline:jline-terminal:3.21.0"))
@@ -204,7 +204,7 @@ publishing {
 import groovy.json.JsonSlurper
 static String ci_version() {
 	try {
-		def conn = new URL("https://ci.codemc.io/job/MohistMC/job/Banner-1.20/api/json").openConnection()
+		def conn = new URL("https://ci.codemc.io/job/MohistMC/job/Banner-1.20.2/api/json").openConnection()
 		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36")
 		conn.connect()
 		def root = conn.content.text
@@ -214,6 +214,6 @@ static String ci_version() {
 		def number = data.substring(data.indexOf("number")).split(",")
 		return Integer.valueOf(number[0].replace("number=", "")).intValue()
 	} catch (Exception ignored) {
-		return '1.20'
+		return '1.20.2'
 	}
 }

@@ -2,8 +2,8 @@ package com.mohistmc.banner.entity;
 
 import com.mohistmc.banner.api.EntityAPI;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftAbstractHorse;
+import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftAbstractHorse;
 import org.bukkit.entity.EntityCategory;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;

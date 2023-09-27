@@ -1,47 +1,10 @@
 package com.mohistmc.banner.mixin.server.network;
 
 import com.mohistmc.banner.injection.server.network.InjectionServerLoginPacketListenerImpl;
-import com.mojang.authlib.GameProfile;
-import net.minecraft.DefaultUncaughtExceptionHandler;
-import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.protocol.login.ClientboundGameProfilePacket;
-import net.minecraft.network.protocol.login.ClientboundHelloPacket;
-import net.minecraft.network.protocol.login.ClientboundLoginCompressionPacket;
 import net.minecraft.network.protocol.login.ServerLoginPacketListener;
-import net.minecraft.network.protocol.login.ServerboundHelloPacket;
-import net.minecraft.network.protocol.login.ServerboundKeyPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import net.minecraft.util.Crypt;
-import net.minecraft.util.CryptException;
-import org.apache.commons.lang3.Validate;
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R1.util.Waitable;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.security.PrivateKey;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 // Banner - TODO, fix
 @Mixin(ServerLoginPacketListenerImpl.class)
