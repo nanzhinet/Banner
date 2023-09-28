@@ -10,14 +10,7 @@ import org.slf4j.Logger;
 
 import java.util.Set;
 
-public interface InjectionServerGamePacketListenerImpl {
-
-    default CraftPlayer getCraftPlayer() {
-        return null;
-    }
-
-    default void disconnect(String s) {
-    }
+public interface InjectionServerGamePacketListenerImpl extends InjectionServerCommonPacketListenerImpl {
 
     default void teleport(double d0, double d1, double d2, float f, float f1, PlayerTeleportEvent.TeleportCause cause) {
     }
@@ -43,13 +36,6 @@ public interface InjectionServerGamePacketListenerImpl {
 
     default boolean checkLimit(long timestamp) {
         return false;
-    }
-
-    default boolean bridge$processedDisconnect() {
-        return false;
-    }
-
-    default void setProcessedDisconnect(boolean processedDisconnect) {
     }
 
     default CraftServer bridge$craftServer() {

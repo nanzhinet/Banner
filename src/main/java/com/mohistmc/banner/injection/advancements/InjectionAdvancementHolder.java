@@ -1,6 +1,6 @@
 package com.mohistmc.banner.injection.advancements;
 
-public interface InjectionAdvancement {
+public interface InjectionAdvancementHolder {
 
     default org.bukkit.advancement.Advancement bridge$bukkit() {
         return null;

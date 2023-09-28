@@ -226,59 +226,6 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
         SpigotTimings.playerConnectionTimer.stopTiming(); // Spigot
     }
 
-
-    /**
-     * @author wdog5
-     * @reason
-     */
-    /*
-    @Overwrite
-    public void disconnect(Component textComponent) {
-        this.disconnect(CraftChatMessage.fromComponent(textComponent));
-    }*/
-    // Banner - TODO
-
-    @Override
-    public void disconnect(String s) {
-        if (this.processedDisconnect) {
-            return;
-        }
-        if (!this.cserver.isPrimaryThread()) {
-            Waitable<?> waitable = new Waitable<>() {
-                @Override
-                protected Object evaluate() {
-                    disconnect(s);
-                    return null;
-                }
-            };
-
-            // this.server.bridge$queuedProcess(waitable); // Banner TODO
-
-            try {
-                waitable.get();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-            return;
-        }
-        String leaveMessage = ChatFormatting.YELLOW + this.player.getScoreboardName() + " left the game.";
-        PlayerKickEvent event = new PlayerKickEvent(getCraftPlayer(), s, leaveMessage);
-        if (this.cserver.getServer().isRunning()) {
-            this.cserver.getPluginManager().callEvent(event);
-        }
-        if (event.isCancelled()) {
-            return;
-        }
-        player.banner$setKickLeaveMessage(event.getLeaveMessage());
-        Component textComponent = CraftChatMessage.fromString(event.getReason(), true)[0];
-        //this.connection.send(new ClientboundDisconnectPacket(textComponent), PacketSendListener.thenRun(() -> this.connection.disconnect(textComponent)));// Banner TODO
-        this.onDisconnect(textComponent);
-       // this.connection.setReadOnly();// Banner TODO
-        //this.server.executeBlocking(this.connection::handleDisconnection);// Banner TODO
-    }
-
     /**
      * @author wdog5
      * @reason
@@ -1842,7 +1789,7 @@ public abstract class MixinServerGamePacketListenerImpl implements InjectionServ
     }
 
     @Override
-    public void setProcessedDisconnect(boolean processedDisconnect) {
+    public void banner$setProcessedDisconnect(boolean processedDisconnect) {
         this.processedDisconnect = processedDisconnect;
     }
 

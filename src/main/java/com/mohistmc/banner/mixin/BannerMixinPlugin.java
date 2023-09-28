@@ -30,9 +30,9 @@ public class BannerMixinPlugin implements IMixinConfigPlugin {
     private final Map<String, Map.Entry<List<FieldNode>, List<MethodNode>>> accessTransformer =
             ImmutableMap.<String, Map.Entry<List<FieldNode>, List<MethodNode>>>builder()
                     .put("net.minecraft.world.item.BoneMealItem",
-                            Maps.immutableEntry(
-                                    ImmutableList.of(),
-                                    ImmutableList.of(
+                            Map.entry(
+                                    List.of(),
+                                    List.of(
                                             new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "applyBonemeal", "(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", null, null)
                                     )
                             )

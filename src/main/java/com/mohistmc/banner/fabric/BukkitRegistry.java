@@ -77,8 +77,6 @@ public class BukkitRegistry {
     public static final Map<Integer, Art> ART_BY_ID = Unsafe.getStatic(Art.class, "BY_ID");
     public static final BiMap<ResourceLocation, Statistic> STATS =
             HashBiMap.create(Unsafe.getStatic(CraftStatistic.class, "statistics"));
-    public static final BiMap<Fluid, org.bukkit.Fluid> FLUIDTYPE_FLUID =
-            Unsafe.getStatic(CraftMagicNumbers.class, "FLUIDTYPE_FLUID");
     public static Map<StatType<?>, Statistic> STATISTIC_MAP = new HashMap<>();
     public static Map<Villager.Profession, ResourceLocation> PROFESSION = new HashMap<>();
     public static Map<net.minecraft.world.level.biome.Biome, Biome> BIOME_MAP = new HashMap<>();
@@ -169,13 +167,14 @@ public class BukkitRegistry {
         Field keyField = Arrays.stream(org.bukkit.Fluid.class.getDeclaredFields()).filter(it -> it.getName().equals("key")).findAny().orElse(null);
         long keyOffset = Unsafe.objectFieldOffset(keyField);
         for (var fluidType : BuiltInRegistries.FLUID) {
-            if (!FLUIDTYPE_FLUID.containsKey(fluidType)) {
-                var key = BuiltInRegistries.FLUID.getKey(fluidType);
-                var name = normalizeName(key.toString());
+            var key = BuiltInRegistries.FLUID.getKey(fluidType);
+            var name = normalizeName(key.toString());
+            try {
+                org.bukkit.Fluid.valueOf(name);
+            } catch (Exception e) {
                 var bukkit = DynamicEnumHelper.makeEnum(org.bukkit.Fluid.class, name, id++, List.of(), List.of());
                 Unsafe.putObject(bukkit, keyOffset, CraftNamespacedKey.fromMinecraft(key));
                 newTypes.add(bukkit);
-                FLUIDTYPE_FLUID.put(fluidType, bukkit);
                 BannerServer.LOGGER.debug("Registered {} as fluid {}", key, bukkit);
             }
         }
