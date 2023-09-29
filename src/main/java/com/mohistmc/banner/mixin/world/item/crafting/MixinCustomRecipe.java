@@ -2,6 +2,7 @@ package com.mohistmc.banner.mixin.world.item.crafting;
 
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.CustomRecipe;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Recipe;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -9,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public abstract class MixinCustomRecipe implements CraftingRecipe {
 
     @Override
-    public Recipe toBukkitRecipe() {
-        return new org.bukkit.craftbukkit.v1_20_R2.inventory.CraftComplexRecipe(((CustomRecipe) (Object) this));
+    public Recipe toBukkitRecipe(NamespacedKey id) {
+        return new org.bukkit.craftbukkit.v1_20_R2.inventory.CraftComplexRecipe(id, ((CustomRecipe) (Object) this));
     }
 }
