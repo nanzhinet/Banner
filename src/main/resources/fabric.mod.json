@@ -143,6 +143,7 @@
       "net/minecraft/class_3916": ["com/mohistmc/banner/injection/world/inventory/InjectionLecternMenu"],
       "net/minecraft/class_1860": ["com/mohistmc/banner/injection/world/item/crafting/InjectionRecipe"],
       "net/minecraft/class_1863": ["com/mohistmc/banner/injection/world/item/crafting/InjectionRecipeManager"],
+      "net/minecraft/class_8786": ["com/mohistmc/banner/injection/world/item/crafting/InjectionRecipeHolder"],
       "net/minecraft/class_1856": ["com/mohistmc/banner/injection/world/item/crafting/InjectionIngredient"],
       "net/minecraft/class_1867": ["com/mohistmc/banner/injection/world/item/crafting/InjectionShapelessRecipe"],
       "net/minecraft/class_1869": ["com/mohistmc/banner/injection/world/item/crafting/InjectionShapedRecipe"],

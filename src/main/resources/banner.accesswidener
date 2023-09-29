@@ -9,6 +9,7 @@ accessible method net/minecraft/world/entity/Display getTransformationInterpolat
 accessible method net/minecraft/world/entity/Display getTransformationInterpolationDelay ()I
 accessible method net/minecraft/world/entity/Display setTransformationInterpolationDuration (I)V
 accessible method net/minecraft/world/entity/Display setTransformationInterpolationDelay (I)V
+accessible method net/minecraft/world/item/crafting/SmithingTrimRecipe <init> (Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/crafting/Ingredient;)V
 
 # 1.20.1
 accessible method net/minecraft/world/level/dimension/end/EndDragonFight respawnDragon (Ljava/util/List;)V
