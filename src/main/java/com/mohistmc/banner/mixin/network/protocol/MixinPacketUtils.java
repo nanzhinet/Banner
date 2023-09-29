@@ -1,11 +1,12 @@
 package com.mohistmc.banner.mixin.network.protocol;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.ReportedException;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
+import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.server.RunningOnDifferentThreadException;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.thread.BlockableEventLoop;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -23,11 +24,16 @@ public class MixinPacketUtils {
     public static <T extends PacketListener> void ensureRunningOnSameThread(Packet<T> packet, T processor, BlockableEventLoop<?> executor) throws RunningOnDifferentThreadException {
         if (!executor.isSameThread()) {
             executor.executeIfPossible(() -> {
-                if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerGamePacketListenerImpl && ((ServerGamePacketListenerImpl) processor).bridge$processedDisconnect())) return; // CraftBukkit, MC-142590
+                if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerCommonPacketListener && ((ServerCommonPacketListener) processor).bridge$processedDisconnect())) return; // CraftBukkit, MC-142590
                 if (processor.isAcceptingMessages()) {
                     try {
                         packet.handle(processor);
                     } catch (Exception var3) {
+                        if (var3 instanceof ReportedException reportedexception) {
+                            if (reportedexception.getCause() instanceof OutOfMemoryError) {
+                                throw var3;
+                            }
+                        }
                         if (processor.shouldPropagateHandlingExceptions()) {
                             throw var3;
                         }
@@ -41,7 +47,7 @@ public class MixinPacketUtils {
             });
             throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
             // CraftBukkit start - SPIGOT-5477, MC-142590
-        } else if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerGamePacketListenerImpl && ((ServerGamePacketListenerImpl) processor).bridge$processedDisconnect())) {
+        } else if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerCommonPacketListener && ((ServerCommonPacketListener) processor).bridge$processedDisconnect())) {
             throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
             // CraftBukkit end
         }

@@ -31,7 +31,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
 import net.minecraft.world.RandomSequences;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -186,8 +185,7 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         this.uuid = WorldUUID.getUUID(levelStorageAccess.getDimensionPath(this.dimension()).toFile());
         this.getWorldBorder().banner$setWorld((ServerLevel) (Object) this);
         this.K.setWorld((ServerLevel) (Object) this);
-        var data = this.getDataStorage().computeIfAbsent(LevelPersistentData::new,
-                () -> new LevelPersistentData(null), "bukkit_pdc");
+        var data = this.getDataStorage().computeIfAbsent(LevelPersistentData.factory(), "bukkit_pdc");
         this.getWorld().readBukkitValues(data.getTag());
     }
 
@@ -205,7 +203,7 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
 
     @Inject(method = "saveLevelData", at = @At("RETURN"))
     private void banner$savePdc(CallbackInfo ci) {
-        var data = this.getDataStorage().computeIfAbsent(LevelPersistentData::new, () -> new LevelPersistentData(null), "bukkit_pdc");
+        var data = this.getDataStorage().computeIfAbsent(LevelPersistentData.factory(), "bukkit_pdc");
         data.save(this.getWorld());
     }
 
@@ -293,8 +291,9 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         return this.addFreshEntity(entity);
     }
 
-    @Inject(method = "tickChunk", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    public void banner$snowForm0(LevelChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, ProfilerFiller profilerFiller, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+    @Inject(method = "tickIceAndSnow", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm0(boolean bl, BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2,
+                                 BlockPos blockPos3, Biome biome) {
 
         CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos2, 3);
         craftBlockState.setData(Blocks.ICE.defaultBlockState());
@@ -307,8 +306,12 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         }
     }
 
-    @Inject(method = "tickChunk", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    public void banner$snowForm1(LevelChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, ProfilerFiller profilerFiller, BlockPos blockPos, BlockPos blockPos2, Biome biome, int k, BlockState blockState, int l, BlockState blockState2) {
+    @Inject(method = "tickIceAndSnow", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm1(boolean bl, BlockPos blockPos, CallbackInfo ci,
+                                 BlockPos blockPos2,
+                                 BlockPos blockPos3,
+                                 Biome biome, int i, BlockState blockState,
+                                 int j, BlockState blockState2) {
 
         CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos, 3);
         craftBlockState.setData(blockState2);
@@ -321,8 +324,11 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         }
     }
 
-    @Inject(method = "tickChunk", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 2, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    public void banner$snowForm2(LevelChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, ProfilerFiller profilerFiller, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+    @Inject(method = "tickIceAndSnow", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 2, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm2(boolean bl, BlockPos blockPos,
+                                 CallbackInfo ci,
+                                 BlockPos blockPos2,
+                                 BlockPos blockPos3, Biome biome) {
 
         CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos, 3);
         craftBlockState.setData(Blocks.SNOW.defaultBlockState());
@@ -422,22 +428,6 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
     @Override
     public boolean addEntity(Entity entity, CreatureSpawnEvent.SpawnReason reason) {
         return addFreshEntity(entity, reason);
-    }
-
-    /**
-     * @author wdog5
-     * @reason functionallyy replaced
-     */
-    @Overwrite
-    @Nullable
-    public MapItemSavedData getMapData(String mapName) {
-        return BukkitExtraConstants.getServer().overworld().getDataStorage().get((nbt) -> {
-            MapItemSavedData newMap = MapItemSavedData.load(nbt);
-            newMap.banner$setId(mapName);
-            MapInitializeEvent event = new MapInitializeEvent(newMap.bridge$mapView());
-            Bukkit.getServer().getPluginManager().callEvent(event);
-            return newMap;
-        }, mapName);
     }
 
     @Inject(method = "setMapData", at = @At("HEAD"))

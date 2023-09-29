@@ -2,8 +2,11 @@ package com.mohistmc.banner.bukkit.inventory.recipe;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftComplexRecipe;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,8 +14,8 @@ public class BannerModdedRecipe extends CraftComplexRecipe {
 
     private final Recipe<?> recipe;
 
-    public BannerModdedRecipe(Recipe<?> recipe) {
-        super(null);
+    public BannerModdedRecipe(NamespacedKey id, Recipe<?> recipe) {
+        super(id, null);
         this.recipe = recipe;
     }
 
@@ -23,6 +26,6 @@ public class BannerModdedRecipe extends CraftComplexRecipe {
 
     @Override
     public void addToCraftingManager() {
-        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(this.recipe);
+        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(new RecipeHolder<>(CraftNamespacedKey.toMinecraft(this.getKey()), this.recipe));
     }
 }

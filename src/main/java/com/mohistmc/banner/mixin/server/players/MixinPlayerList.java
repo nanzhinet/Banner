@@ -42,6 +42,7 @@ import net.minecraft.server.bossevents.CustomBossEvents;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import net.minecraft.server.players.GameProfileCache;
@@ -176,10 +177,8 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
     @Inject(method = "placeNewPlayer", at = @At (value = "INVOKE",
             target = "Lnet/minecraft/server/level/ServerPlayer;setServerLevel(Lnet/minecraft/server/level/ServerLevel;)V"),
             locals = LocalCapture.CAPTURE_FAILHARD)
-    public void print(Connection netManager, ServerPlayer player, CallbackInfo ci,
-                      GameProfile gameProfile, GameProfileCache gameProfileCache,
-                      String string, CompoundTag compoundTag, ResourceKey resourceKey,
-                      ServerLevel serverLevel, ServerLevel serverLevel2) {
+    public void print(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie,
+                      CallbackInfo ci, GameProfile gameProfile, GameProfileCache gameProfileCache, String string, CompoundTag compoundTag, ResourceKey resourceKey, ServerLevel serverLevel, ServerLevel serverLevel2, GameProfile gameProfile, GameProfileCache gameProfileCache, String string, CompoundTag compoundTag, ResourceKey resourceKey, ServerLevel serverLevel, ServerLevel serverLevel2) {
         if (compoundTag != null && compoundTag.contains("bukkit")) {
             CompoundTag bukkit = compoundTag.getCompound("bukkit");
             PROFILE_NAMES.set(bukkit.contains("lastKnownName", 8) ? bukkit.getString("lastKnownName") : string);

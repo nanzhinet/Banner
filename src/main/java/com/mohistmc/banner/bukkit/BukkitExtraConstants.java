@@ -1,5 +1,7 @@
 package com.mohistmc.banner.bukkit;
 
+import com.mohistmc.banner.api.DynamicEnumHelper;
+import com.mojang.datafixers.DSL;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.util.Unit;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -53,6 +56,8 @@ public class BukkitExtraConstants {
             TicketType.create("plugin_ticket", Comparator.comparing(plugin -> plugin.getClass().getName())); // CraftBukkit
     public static final LootContextParam<Integer> LOOTING_MOD = new LootContextParam<>(new ResourceLocation("bukkit:looting_mod")); // CraftBukkit
     public static final TicketType<Unit> PLUGIN = TicketType.create("plugin", (a, b) -> 0); // CraftBukkit
+    private static final DSL.TypeReference PDC_TYPE = () -> "bukkit_pdc";
+    public static final DataFixTypes BUKKIT_PDC = DynamicEnumHelper.makeEnum(DataFixTypes.class, "BUKKIT_PDC", 0, List.of(DSL.TypeReference.class), List.of(PDC_TYPE));
 
     public static List getHumansInRange(Level world, BlockPos blockposition, int i) {
         {
