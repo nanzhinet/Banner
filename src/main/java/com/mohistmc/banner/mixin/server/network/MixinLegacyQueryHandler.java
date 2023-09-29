@@ -3,10 +3,8 @@ package com.mohistmc.banner.mixin.server.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInfo;
 import net.minecraft.server.network.LegacyQueryHandler;
-import net.minecraft.server.network.ServerConnectionListener;
 import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -14,9 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 @Mixin(LegacyQueryHandler.class)

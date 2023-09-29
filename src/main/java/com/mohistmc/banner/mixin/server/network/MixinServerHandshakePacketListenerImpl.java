@@ -2,7 +2,6 @@ package com.mohistmc.banner.mixin.server.network;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.handshake.ClientIntent;

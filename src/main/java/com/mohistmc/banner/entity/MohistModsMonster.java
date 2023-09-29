@@ -29,11 +29,6 @@ public class MohistModsMonster extends CraftMonster {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
-
-    @Override
     public String toString() {
         return "MohistModsMonster{" + entityName + '}';
     }

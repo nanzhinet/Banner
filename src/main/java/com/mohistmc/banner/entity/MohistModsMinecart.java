@@ -22,13 +22,6 @@ public class MohistModsMinecart extends CraftMinecart {
         return (AbstractMinecart) this.entity;
     }
 
-
-    @NotNull
-    @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
-
     @Override
     public String toString() {
         return "MohistModsMinecart{" + entityName + '}';

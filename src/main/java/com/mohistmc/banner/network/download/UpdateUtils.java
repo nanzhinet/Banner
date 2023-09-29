@@ -2,6 +2,7 @@ package com.mohistmc.banner.network.download;
 
 import com.mohistmc.banner.BannerMCStart;
 import com.mohistmc.banner.util.MD5Util;
+import mjson.Json;
 
 import java.io.File;
 import java.net.URI;
@@ -17,7 +18,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static com.mohistmc.banner.network.download.NetworkUtil.getConn;
-import mjson.Json;
 
 public class UpdateUtils {
 

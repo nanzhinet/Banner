@@ -20,12 +20,6 @@ public class MohistModsSkeleton extends CraftAbstractSkeleton {
         return Skeleton.SkeletonType.MOD;
     }
 
-    @NotNull
-    @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
-
     @Override
     public String toString() {
         return "MohistModsSkeleton{" + entityName + '}';

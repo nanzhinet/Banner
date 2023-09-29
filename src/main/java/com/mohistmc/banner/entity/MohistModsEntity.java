@@ -24,8 +24,4 @@ public class MohistModsEntity extends CraftEntity {
         return "MohistModsEntity{" + entityName + '}';
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
 }

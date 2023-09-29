@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 @Mixin(EnderMan.class)
 public abstract class MixinEnderMan extends Monster {
@@ -35,6 +36,8 @@ public abstract class MixinEnderMan extends Monster {
 
     @Shadow abstract boolean isLookingAtMe(Player player);
 
+    @Shadow @Final private static UUID SPEED_MODIFIER_ATTACKING_UUID;
+
     protected MixinEnderMan(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
     }
@@ -46,7 +49,7 @@ public abstract class MixinEnderMan extends Monster {
             this.targetChangeTime = 0;
             this.entityData.set(DATA_CREEPY, false);
             this.entityData.set(DATA_STARED_AT, false);
-            modifiableattributeinstance.removeModifier(SPEED_MODIFIER_ATTACKING);
+            modifiableattributeinstance.removeModifier(SPEED_MODIFIER_ATTACKING_UUID);
         } else {
             this.targetChangeTime = this.tickCount;
             this.entityData.set(DATA_CREEPY, true);

@@ -29,11 +29,6 @@ public class MohistModsTameableEntity extends CraftTameableAnimal {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
-
-    @Override
     public String toString() {
         return "CraftCustomTameableAnimal{" + entityName + '}';
     }

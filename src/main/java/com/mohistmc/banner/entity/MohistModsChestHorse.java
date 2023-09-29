@@ -28,11 +28,6 @@ public class MohistModsChestHorse extends CraftChestedHorse {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
-
-    @Override
     public Horse.Variant getVariant() {
         return Horse.Variant.HORSE;
     }

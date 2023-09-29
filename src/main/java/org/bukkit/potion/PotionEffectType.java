@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a type of potion and its effect on an entity.
@@ -284,7 +285,7 @@ public abstract class PotionEffectType implements Keyed {
         return "PotionEffectType[" + id + ", " + getName() + "]";
     }
 
-    private static final PotionEffectType[] byId = new PotionEffectType[BuiltInRegistries.MOB_EFFECT.stream().mapToInt(MobEffect::getId).max().orElse(0) + 1];
+    private static final PotionEffectType[] byId = new PotionEffectType[34];// Banner - TODO fix
     private static final Map<String, PotionEffectType> byName = new HashMap<String, PotionEffectType>();
     private static final Map<NamespacedKey, PotionEffectType> byKey = new HashMap<NamespacedKey, PotionEffectType>();
     // will break on updates.

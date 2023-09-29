@@ -20,7 +20,6 @@ import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R2.command.CraftRemoteConsoleCommandSender;
 import org.bukkit.craftbukkit.v1_20_R2.util.ForwardLogHandler;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;

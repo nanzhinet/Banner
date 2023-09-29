@@ -2,7 +2,6 @@ package org.bukkit.craftbukkit.v1_20_R2.block;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.world.LockCode;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.World;

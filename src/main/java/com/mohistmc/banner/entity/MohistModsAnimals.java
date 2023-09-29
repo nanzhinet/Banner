@@ -28,11 +28,6 @@ public class MohistModsAnimals extends CraftAnimals {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityAPI.entityType(entityName);
-    }
-
-    @Override
     public String toString() {
         return "MohistModsAnimals{" + entityName + '}';
     }

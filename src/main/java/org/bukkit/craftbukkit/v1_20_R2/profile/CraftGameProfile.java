@@ -1,10 +1,10 @@
 package org.bukkit.craftbukkit.v1_20_R2.profile;
 
 import com.mojang.authlib.GameProfile;
-import java.util.UUID;
-
 import net.minecraft.Util;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.UUID;
 
 public final class CraftGameProfile extends GameProfile {
 

@@ -1,6 +1,5 @@
 package com.mohistmc.banner.mixin.world.level.block.entity;
 
-import com.mohistmc.banner.injection.world.item.crafting.InjectionRecipeHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -22,7 +21,6 @@ import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.event.block.BlockCookEvent;
 import org.bukkit.event.block.CampfireStartEvent;
 import org.bukkit.inventory.CampfireRecipe;
-import org.bukkit.inventory.CookingRecipe;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -33,7 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 @Mixin(CampfireBlockEntity.class)
 public abstract class MixinCampfireBlockEntity extends BlockEntity {

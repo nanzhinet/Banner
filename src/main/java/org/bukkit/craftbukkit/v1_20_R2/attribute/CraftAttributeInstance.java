@@ -62,7 +62,7 @@ public class CraftAttributeInstance implements AttributeInstance {
     @Override
     public void removeModifier(AttributeModifier modifier) {
         Preconditions.checkArgument(modifier != null, "modifier");
-        handle.removeModifier(convert(modifier));
+        handle.removeModifier(convert(modifier).getId());// Banner - modify for fabric
     }
 
     @Override

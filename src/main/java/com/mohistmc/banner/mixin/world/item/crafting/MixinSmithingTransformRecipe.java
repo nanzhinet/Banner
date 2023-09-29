@@ -1,7 +1,6 @@
 package com.mohistmc.banner.mixin.world.item.crafting;
 
 import com.mohistmc.banner.bukkit.inventory.recipe.BannerModdedRecipe;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.SmithingRecipe;
@@ -10,7 +9,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftSmithingTransformRecipe;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.inventory.Recipe;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
