@@ -16,7 +16,6 @@ import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -55,14 +54,20 @@ import java.util.concurrent.atomic.AtomicReference;
 @Mixin(AbstractFurnaceBlockEntity.class)
 public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, InjectionAbstractFurnaceBlockEntity {
 
-
-    // @formatter:off
     @Shadow protected NonNullList<ItemStack> items;
-    @Shadow protected abstract int getBurnDuration(ItemStack stack);
-    @Shadow protected abstract boolean isLit();
-    @Shadow @Final private Object2IntOpenHashMap<ResourceLocation> recipesUsed;
-    @Shadow public abstract List<Recipe<?>> getRecipesToAwardAndPopExperience(ServerLevel p_154996_, Vec3 p_154997_);
-    // @formatter:on
+    @Shadow
+    public abstract int getBurnDuration(ItemStack stack);
+    @Shadow
+    public abstract boolean isLit();
+    @Shadow @Final
+    public Object2IntOpenHashMap<ResourceLocation> recipesUsed;
+
+    @Shadow
+    private static boolean canBurn(RegistryAccess registryAccess, @Nullable RecipeHolder<?> recipeHolder, NonNullList<ItemStack> nonNullList, int i) {
+        return false;
+    }
+
+    @Shadow public abstract List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel level, Vec3 popVec);
 
     public List<HumanEntity> transaction = new ArrayList<>();
     private int maxStack = MAX_STACK;
@@ -96,7 +101,7 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
                                             boolean flag, boolean flag1, ItemStack stack, boolean flag2, boolean flag3, RecipeHolder<?> recipe) {
         if (recipe != null && furnace.cookingProgress == 0) {
             CraftItemStack source = CraftItemStack.asCraftMirror(furnace.getItem(0));
-            if ((recipe.bridge$toBukkitRecipe() instanceof CookingRecipe<?> cookingRecipe)) {
+            if ((recipe.toBukkitRecipe() instanceof CookingRecipe<?> cookingRecipe)) {
                 FurnaceStartSmeltEvent event = new FurnaceStartSmeltEvent(CraftBlock.at(level, pos), source, cookingRecipe);
                 Bukkit.getPluginManager().callEvent(event);
                 furnace.cookingTotalTime = event.getTotalCookTime();
@@ -130,10 +135,10 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;burn(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/item/crafting/RecipeHolder;Lnet/minecraft/core/NonNullList;I)Z"))
     private static boolean banner$burnEvent(RegistryAccess registryAccess, RecipeHolder<?> recipeHolder, NonNullList<ItemStack> nonNullList, int i) {
-        return burn(banner$world.get(), banner$blockPos.get(), registryAccess, recipeHolder.value(), nonNullList, i);
+        return burn(banner$world.get(), banner$blockPos.get(), registryAccess, recipeHolder, nonNullList, i);
     }
 
-    private static boolean burn(Level world, BlockPos blockposition, RegistryAccess iregistrycustom, @Nullable Recipe<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
+    private static boolean burn(Level world, BlockPos blockposition, RegistryAccess iregistrycustom, @Nullable RecipeHolder<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
         banner$level.set(world);
         banner$pos.set(blockposition);
         return burn(iregistrycustom, irecipe, nonnulllist, i);
@@ -144,10 +149,10 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
      * @reason bukkit
      */
     @Overwrite
-    private static boolean burn(RegistryAccess iregistrycustom, @Nullable Recipe<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
+    private static boolean burn(RegistryAccess iregistrycustom, @Nullable RecipeHolder<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
         if (irecipe != null && canBurn(iregistrycustom, irecipe, nonnulllist, i)) {
             ItemStack itemstack = (ItemStack) nonnulllist.get(0);
-            ItemStack itemstack1 = irecipe.getResultItem(iregistrycustom);
+            ItemStack itemstack1 = irecipe.value().getResultItem(iregistrycustom);
             ItemStack itemstack2 = (ItemStack) nonnulllist.get(2);
 
             // CraftBukkit start - fire FurnaceSmeltEvent
@@ -201,7 +206,7 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
             banner$captureAmount = amount;
             banner$captureFurnace = (AbstractFurnaceBlockEntity) (Object) this;
             banner$capturePlayer = entity;
-            List<Recipe<?>> list = this.getRecipesToAwardAndPopExperience(world, vec);
+            List<RecipeHolder<?>> list = this.getRecipesToAwardAndPopExperience(world, vec);
             entity.awardRecipes(list);
             this.recipesUsed.clear();
             return list;

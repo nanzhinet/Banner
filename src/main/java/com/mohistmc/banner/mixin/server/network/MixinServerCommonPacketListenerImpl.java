@@ -1,9 +1,7 @@
 package com.mohistmc.banner.mixin.server.network;
 
 import com.mohistmc.banner.bukkit.BukkitCaptures;
-import com.mohistmc.banner.bukkit.UnknownPayload;
 import com.mohistmc.banner.injection.server.network.InjectionServerCommonPacketListenerImpl;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
@@ -18,7 +16,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
-import net.minecraft.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R2.CraftServer;

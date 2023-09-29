@@ -148,11 +148,4 @@ public abstract class MixinItemEntity extends Entity {
     private void banner$markDirty(ItemStack stack, CallbackInfo ci) {
         this.getEntityData().markDirty(DATA_ITEM);
     }
-
-    @Redirect(method = "merge(Lnet/minecraft/world/entity/item/ItemEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setItem(Lnet/minecraft/world/item/ItemStack;)V"))
-    private static void banner$setNonEmpty(ItemEntity itemEntity, ItemStack stack) {
-        if (!stack.isEmpty()) {
-            itemEntity.setItem(stack);
-        }
-    }
 }

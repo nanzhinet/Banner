@@ -52,7 +52,8 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
 
     // @formatter:off
     @Shadow @Final private Container enchantSlots;
-    @Shadow @Final private ContainerLevelAccess access;
+    @Shadow @Final
+    public ContainerLevelAccess access;
     @Shadow @Final private RandomSource random;
     @Shadow @Final private DataSlot enchantmentSeed;
     @Shadow @Final public int[] costs;
@@ -98,7 +99,6 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
                     List<EnchantmentInstance> list = this.getEnchantmentList(itemStack, id, this.costs[id]);
                     if (true || !list.isEmpty()) {
                         //player.onEnchantmentPerformed(itemStack, i);
-                        boolean bl = itemStack.is(Items.BOOK);
                         Map<org.bukkit.enchantments.Enchantment, Integer> enchants = new java.util.HashMap<>();
                         for (Object obj : list) {
                             EnchantmentInstance instance = (EnchantmentInstance) obj;
@@ -115,6 +115,7 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
                         if (event.isCancelled() || (banner$level > player.experienceLevel && !player.getAbilities().instabuild) || event.getEnchantsToAdd().isEmpty()) {
                             return;
                         }
+                        boolean bl = itemStack.is(Items.BOOK);
                         if (bl) {
                             itemStack3 = new ItemStack(Items.ENCHANTED_BOOK);
                             CompoundTag compoundTag = itemStack.getTag();

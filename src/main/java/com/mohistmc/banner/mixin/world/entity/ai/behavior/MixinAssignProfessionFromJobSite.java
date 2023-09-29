@@ -24,12 +24,12 @@ public class MixinAssignProfessionFromJobSite {
             target = "Lnet/minecraft/world/entity/npc/Villager;setVillagerData(Lnet/minecraft/world/entity/npc/VillagerData;)V"), cancellable = true)
     private static void banner$jobChange(Villager villager, ServerLevel serverLevel, VillagerProfession villagerProfession, CallbackInfo ci) {
         // CraftBukkit start - Fire VillagerCareerChangeEvent where Villager gets employed
-        VillagerCareerChangeEvent event = CraftEventFactory.callVillagerCareerChangeEvent(villager, CraftVillager.nmsToBukkitProfession(villagerProfession), VillagerCareerChangeEvent.ChangeReason.EMPLOYED);
+        VillagerCareerChangeEvent event = CraftEventFactory.callVillagerCareerChangeEvent(villager, CraftVillager.CraftProfession.minecraftToBukkit(villagerProfession), VillagerCareerChangeEvent.ChangeReason.EMPLOYED);
         if (event.isCancelled()) {
             ci.cancel();
         }
 
-        villager.setVillagerData(villager.getVillagerData().setProfession(CraftVillager.bukkitToNmsProfession(event.getProfession())));
+        villager.setVillagerData(villager.getVillagerData().setProfession(CraftVillager.CraftProfession.bukkitToMinecraft(event.getProfession())));
         // CraftBukkit end
     }
 }

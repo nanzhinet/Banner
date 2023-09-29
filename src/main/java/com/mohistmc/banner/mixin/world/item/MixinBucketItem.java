@@ -52,14 +52,14 @@ public abstract class MixinBucketItem extends Item {
 
     @Inject(method = "use",
             at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/BucketPickup;pickupBlock(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/item/ItemStack;"),
+            target = "Lnet/minecraft/world/level/block/BucketPickup;pickupBlock(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/item/ItemStack;"),
             locals = LocalCapture.CAPTURE_FAILHARD)
     private void banner$use(Level level, Player player, InteractionHand usedHand,
                             CallbackInfoReturnable<InteractionResultHolder<ItemStack>> cir,
                             ItemStack itemStack, BlockHitResult blockHitResult, BlockPos blockPos,
                             Direction direction, BlockPos blockPos2, BlockState blockState, BucketPickup bucketPickup) {
         // CraftBukkit start
-        ItemStack dummyFluid = bucketPickup.pickupBlock(DummyGeneratorAccess.INSTANCE, blockPos, blockState);
+        ItemStack dummyFluid = bucketPickup.pickupBlock(player, DummyGeneratorAccess.INSTANCE, blockPos, blockState);
         if (dummyFluid.isEmpty()) cir.setReturnValue(InteractionResultHolder.fail(itemStack)); // Don't fire event if the bucket won't be filled.);
         banner$bucketFillEvent.set(CraftEventFactory.callPlayerBucketFillEvent((ServerLevel) level, player, blockPos, blockPos,
                 blockHitResult.getDirection(), itemStack, dummyFluid.getItem(), usedHand));
@@ -87,7 +87,7 @@ public abstract class MixinBucketItem extends Item {
             BlockState iblockdata = world.getBlockState(blockposition);
             Block block = iblockdata.getBlock();
             boolean flag = iblockdata.canBeReplaced(this.content);
-            boolean flag1 = iblockdata.isAir() || flag || block instanceof LiquidBlockContainer && ((LiquidBlockContainer) block).canPlaceLiquid(world, blockposition, iblockdata, this.content);
+            boolean flag1 = iblockdata.isAir() || flag || block instanceof LiquidBlockContainer && ((LiquidBlockContainer) block).canPlaceLiquid(entityhuman, world, blockposition, iblockdata, this.content);
 
             // CraftBukkit start
             if (flag1 && entityhuman != null) {

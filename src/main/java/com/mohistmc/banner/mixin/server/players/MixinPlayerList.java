@@ -40,6 +40,7 @@ import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.bossevents.CustomBossEvents;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -154,12 +155,11 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
 
     @Shadow @Final public PlayerDataStorage playerIo;
     @Shadow @Final private static Logger LOGGER;
-
-    @Shadow public abstract ServerPlayer getPlayerForLogin(GameProfile profile);
-
     @Shadow protected abstract void save(ServerPlayer player);
 
     @Shadow @Final private Map<UUID, ServerStatsCounter> stats;
+
+    @Shadow public abstract ServerPlayer getPlayerForLogin(GameProfile gameProfile, ClientInformation clientInformation);
     private CraftServer cserver;
 
     private static final AtomicReference<String> PROFILE_NAMES = new AtomicReference<>();
@@ -178,7 +178,10 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             target = "Lnet/minecraft/server/level/ServerPlayer;setServerLevel(Lnet/minecraft/server/level/ServerLevel;)V"),
             locals = LocalCapture.CAPTURE_FAILHARD)
     public void print(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie,
-                      CallbackInfo ci, GameProfile gameProfile, GameProfileCache gameProfileCache, String string, CompoundTag compoundTag, ResourceKey resourceKey, ServerLevel serverLevel, ServerLevel serverLevel2, GameProfile gameProfile, GameProfileCache gameProfileCache, String string, CompoundTag compoundTag, ResourceKey resourceKey, ServerLevel serverLevel, ServerLevel serverLevel2) {
+                      CallbackInfo ci, GameProfile gameProfile,
+                      GameProfileCache gameProfileCache, String string,
+                      CompoundTag compoundTag, ResourceKey resourceKey, ServerLevel serverLevel,
+                      ServerLevel serverLevel2) {
         if (compoundTag != null && compoundTag.contains("bukkit")) {
             CompoundTag bukkit = compoundTag.getCompound("bukkit");
             PROFILE_NAMES.set(bukkit.contains("lastKnownName", 8) ? bukkit.getString("lastKnownName") : string);
@@ -201,7 +204,8 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             locals = LocalCapture.CAPTURE_FAILHARD,
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerLevel;getLevelData()Lnet/minecraft/world/level/storage/LevelData;", shift = At.Shift.BEFORE))
-    private void banner$callSpawnEvent(Connection netManager, ServerPlayer player, CallbackInfo ci,
+    private void banner$callSpawnEvent(Connection connection, ServerPlayer player,
+                                       CommonListenerCookie commonListenerCookie, CallbackInfo ci,
                                        GameProfile gameProfile, GameProfileCache gameProfileCache,
                                        String string, CompoundTag compoundTag, ResourceKey resourceKey,
                                        ServerLevel serverLevel, ServerLevel serverLevel2, String string2) {
@@ -241,12 +245,15 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/players/PlayerList;broadcastSystemMessage(Lnet/minecraft/network/chat/Component;Z)V"),
             locals = LocalCapture.CAPTURE_FAILHARD)
-    private void banner$playerJoin(Connection netManager, ServerPlayer player, CallbackInfo ci,
+    private void banner$playerJoin(Connection connection, ServerPlayer serverPlayer,
+                                   CommonListenerCookie commonListenerCookie, CallbackInfo ci,
                                    GameProfile gameProfile, GameProfileCache gameProfileCache,
                                    String string, CompoundTag compoundTag, ResourceKey resourceKey,
-                                   ServerLevel serverLevel, ServerLevel serverLevel2, String string2,
-                                   LevelData levelData, ServerGamePacketListenerImpl serverGamePacketListenerImpl,
-                                   GameRules gameRules, boolean bl, boolean bl2, MutableComponent mutableComponent) {
+                                   ServerLevel serverLevel, ServerLevel serverLevel2,
+                                   String string2, LevelData levelData,
+                                   ServerGamePacketListenerImpl serverGamePacketListenerImpl,
+                                   GameRules gameRules, boolean bl, boolean bl2, boolean bl3,
+                                   MutableComponent mutableComponent) {
         // CraftBukkit start
         mutableComponent.withStyle(ChatFormatting.YELLOW);
         String joinMessage = CraftChatMessage.fromComponent(mutableComponent);
@@ -260,7 +267,8 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
     @Inject(method = "placeNewPlayer", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/players/PlayerList;sendLevelInfo(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/level/ServerLevel;)V"),
             locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    private void banner$joinEvent(Connection netManager, ServerPlayer player, CallbackInfo ci,
+    private void banner$joinEvent(Connection connection, ServerPlayer player,
+                                  CommonListenerCookie commonListenerCookie, CallbackInfo ci,
                                   GameProfile gameProfile, GameProfileCache gameProfileCache,
                                   String string, CompoundTag compoundTag, ResourceKey resourceKey,
                                   ServerLevel serverLevel, ServerLevel serverLevel2, String string2,
@@ -433,14 +441,14 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
 
     @Override
     public ServerPlayer getPlayerForLogin(GameProfile gameprofile, ServerPlayer player) {
-        return this.getPlayerForLogin(gameprofile);
+        return this.getPlayerForLogin(gameprofile, player.clientInformation());
     }
 
     @Override
     public ServerPlayer canPlayerLogin(ServerLoginPacketListenerImpl handler, GameProfile gameProfile) {
         MutableComponent mutablecomponent1 = Component.empty();
         // Moved from processLogin
-        UUID uuid = UUIDUtil.getOrCreatePlayerUUID(gameProfile);
+        UUID uuid = gameProfile.getId();
         List<ServerPlayer> list = Lists.newArrayList();
 
         ServerPlayer entityplayer;
@@ -463,7 +471,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         // depending on the outcome.
 
         SocketAddress socketaddress = handler.connection.getRemoteAddress();
-        ServerPlayer entity = getPlayerForLogin(gameProfile);
+        ServerPlayer entity = getPlayerForLogin(gameProfile, ClientInformation.createDefault());
         org.bukkit.entity.Player player = entity.getBukkitEntity();
         PlayerLoginEvent event = new PlayerLoginEvent(player, handler.connection.bridge$hostname(), ((java.net.InetSocketAddress) socketaddress).getAddress());
 
@@ -555,7 +563,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         }
 
         ServerLevel worldserver_vanilla_1 = worldserver_vanilla != null && optional_vanilla.isPresent() ? worldserver_vanilla : this.server.overworld();
-        entityplayer_vanilla = new ServerPlayer(this.server, worldserver_vanilla_1, playerIn.getGameProfile());
+        entityplayer_vanilla = new ServerPlayer(this.server, worldserver_vanilla_1, playerIn.getGameProfile(), playerIn.clientInformation());
         // Banner end
 
         ServerPlayer entityplayer1 = playerIn;
@@ -622,7 +630,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             respawnEvent = new PlayerRespawnEvent(respawnPlayer, banner$loc, isBedSpawn && !flag2, flag2, banner$respawnReason);
             cserver.getPluginManager().callEvent(respawnEvent);
             // Spigot Start
-            if (playerIn.connection.isDisconnected()) {
+            if (playerIn.connection.bridge$isDisconnected()) {
                 return playerIn;
             }
             // Spigot End
@@ -636,6 +644,9 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             banner$loc.setWorld(banner$worldserver.getWorld());
         }
         worldserver1 = ((CraftWorld) banner$loc.getWorld()).getHandle();
+        playerIn.setServerLevel(worldserver1);
+        playerIn.unsetRemoved();
+        playerIn.setShiftKeyDown(false);
         entityplayer1.moveTo(banner$loc.getX(), banner$loc.getY(), banner$loc.getZ(), banner$loc.getYaw(), banner$loc.getPitch());
         entityplayer1.connection.resetPosition();
         // CraftBukkit end
@@ -646,7 +657,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
 
         // CraftBukkit start
         worlddata = worldserver1.getLevelData();
-        entityplayer1.connection.send(new ClientboundRespawnPacket(worldserver1.dimensionTypeId(), worldserver1.dimension(), BiomeManager.obfuscateSeed(worldserver1.getSeed()), entityplayer1.gameMode.getGameModeForPlayer(), entityplayer1.gameMode.getPreviousGameModeForPlayer(), worldserver1.isDebug(), worldserver1.isFlat(), (byte) (conqueredEnd ? 1 : 0), entityplayer1.getLastDeathLocation(), entityplayer1.getPortalCooldown()));
+        entityplayer1.connection.send(new ClientboundRespawnPacket(playerIn.createCommonSpawnInfo(worldserver1), (byte) (conqueredEnd ? 1 : 0)));
         entityplayer1.connection.send(new ClientboundSetChunkCacheRadiusPacket((worldserver1.bridge$spigotConfig().viewDistance)));
         entityplayer1.connection.send(new ClientboundSetSimulationDistancePacket(worldserver1.bridge$spigotConfig().simulationDistance));
         entityplayer1.spawnIn(worldserver1);
@@ -660,7 +671,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         entityplayer1.connection.send(new ClientboundSetExperiencePacket(entityplayer1.experienceProgress, entityplayer1.totalExperience, entityplayer1.experienceLevel));
         this.sendLevelInfo(entityplayer1, worldserver1);
         this.sendPlayerPermissionLevel(entityplayer1);
-        if (!playerIn.connection.isDisconnected()) {
+        if (!playerIn.connection.bridge$isDisconnected()) {
             worldserver1.addRespawnedPlayer(entityplayer1);
             this.players.add(entityplayer1);
             this.playersByUUID.put(entityplayer1.getUUID(), entityplayer1);
@@ -691,7 +702,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         }
 
         // Save player file again if they were disconnected
-        if (playerIn.connection.isDisconnected()) {
+        if (playerIn.connection.bridge$isDisconnected()) {
             this.save(playerIn);
         }
         // CraftBukkit end
@@ -704,12 +715,14 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
     @Inject(method = "placeNewPlayer", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V",
             ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void banner$sendSupported(Connection netManager, ServerPlayer player, CallbackInfo ci,
+    private void banner$sendSupported(Connection connection, ServerPlayer serverPlayer,
+                                      CommonListenerCookie commonListenerCookie, CallbackInfo ci,
                                       GameProfile gameProfile, GameProfileCache gameProfileCache,
                                       String string, CompoundTag compoundTag, ResourceKey resourceKey,
                                       ServerLevel serverLevel, ServerLevel serverLevel2, String string2,
-                                      LevelData levelData, ServerGamePacketListenerImpl serverGamePacketListenerImpl) {
-        player.getBukkitEntity().sendSupportedChannels();
+                                      LevelData levelData, ServerGamePacketListenerImpl serverGamePacketListenerImpl,
+                                      GameRules gameRules, boolean bl, boolean bl2, boolean bl3) {
+        serverPlayer.getBukkitEntity().sendSupportedChannels();
     }
 
     @Inject(method = "sendPlayerPermissionLevel(Lnet/minecraft/server/level/ServerPlayer;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/MinecraftServer;getCommands()Lnet/minecraft/commands/Commands;"))

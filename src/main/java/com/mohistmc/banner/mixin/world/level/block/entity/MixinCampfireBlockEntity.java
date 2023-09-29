@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.world.level.block.entity;
 
+import com.mohistmc.banner.injection.world.item.crafting.InjectionRecipeHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -7,6 +8,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -20,6 +22,7 @@ import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.event.block.BlockCookEvent;
 import org.bukkit.event.block.CampfireStartEvent;
 import org.bukkit.inventory.CampfireRecipe;
+import org.bukkit.inventory.CookingRecipe;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -30,15 +33,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 @Mixin(CampfireBlockEntity.class)
 public abstract class MixinCampfireBlockEntity extends BlockEntity {
 
     @Shadow @Final private RecipeManager.CachedCheck<Container, CampfireCookingRecipe> quickCheck;
-    @Shadow
-    public abstract Optional<CampfireCookingRecipe> getCookableRecipe(ItemStack p_59052_);
-
     @Shadow @Final public int[] cookingTime;
+
+    @Shadow public abstract Optional<RecipeHolder<CampfireCookingRecipe>> getCookableRecipe(ItemStack stack);
 
     public MixinCampfireBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
@@ -46,7 +49,7 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
 
 
     // Banner - fix mixin(locals = LocalCapture.CAPTURE_FAILSOFT)
-    private static Optional<CampfireCookingRecipe> recipe;
+    private static Optional<RecipeHolder<CampfireCookingRecipe>> recipe;
     private static CraftItemStack source;
     private static  org.bukkit.inventory.ItemStack result;
     private static BlockCookEvent blockCookEvent;
@@ -67,10 +70,10 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
 
                 if (tileentitycampfire.cookingProgress[i] >= tileentitycampfire.cookingTime[i]) {
                     Container inventorysubcontainer = new SimpleContainer(itemstack);
-                    recipe = ((MixinCampfireBlockEntity) (Object) tileentitycampfire).quickCheck.getRecipeFor( inventorysubcontainer, world);
+                    recipe = ((MixinCampfireBlockEntity) (Object) tileentitycampfire).quickCheck.getRecipeFor(inventorysubcontainer, world);
                     ItemStack itemStack2 = recipe.map((recipecampfire) -> {
                         // Paper end
-                        return recipecampfire.assemble(inventorysubcontainer, world.registryAccess());
+                        return recipecampfire.value().assemble(inventorysubcontainer, world.registryAccess());
                     }).orElse(itemstack);
 
                     if (itemStack2.isItemEnabled(world.enabledFeatures())) {
@@ -78,7 +81,9 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
                         source = CraftItemStack.asCraftMirror(itemstack);
                         result = CraftItemStack.asBukkitCopy(itemStack2);
 
-                        blockCookEvent = new BlockCookEvent(CraftBlock.at(world, blockposition), source, result, (org.bukkit.inventory.CookingRecipe<?>) recipe.map(CampfireCookingRecipe::toBukkitRecipe).orElse(null)); // Paper
+                        blockCookEvent = new BlockCookEvent(CraftBlock.at(world, blockposition), source, result, (org.bukkit.inventory.CookingRecipe<?>) recipe.map(cookingRecipeHolder -> {
+                            return cookingRecipeHolder.toBukkitRecipe();
+                        }).orElse(null)); // Paper
                         world.getCraftServer().getPluginManager().callEvent(blockCookEvent);
 
                         if (blockCookEvent.isCancelled()) {

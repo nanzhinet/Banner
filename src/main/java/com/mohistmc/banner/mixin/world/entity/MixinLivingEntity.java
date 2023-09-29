@@ -286,7 +286,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     /**
      * @author wdog5
-     * @reason
+     * @reason bukkit
      */
     @Overwrite
     protected void tickEffects() {
@@ -381,6 +381,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         } else {
             MobEffectInstance effectinstance = this.activeEffects.get(effectInstanceIn.getEffect());
 
+            boolean flag = false;
             boolean override = false;
             if (effectinstance != null) {
                 override = new MobEffectInstance(effectinstance).update(effectInstanceIn);
@@ -393,14 +394,14 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
             if (effectinstance == null) {
                 this.activeEffects.put(effectInstanceIn.getEffect(), effectInstanceIn);
                 this.onEffectAdded(effectInstanceIn, entity);
-                return true;
+                flag = true;
             } else if (event.isOverride()) {
                 effectinstance.update(effectInstanceIn);
                 this.onEffectUpdated(effectinstance, true, entity);
-                return true;
-            } else {
-                return false;
+                flag = true;
             }
+            effectInstanceIn.onEffectStarted((LivingEntity) (Object) this);
+            return flag;
         }
     }
 
@@ -713,6 +714,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
                 if (itemstack != null && (Object) this instanceof ServerPlayer serverplayerentity) {
                     serverplayerentity.awardStat(Stats.ITEM_USED.get(Items.TOTEM_OF_UNDYING));
                     CriteriaTriggers.USED_TOTEM.trigger(serverplayerentity, itemstack);
+                    this.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
                 }
 
                 this.setHealth(1.0F);
@@ -846,13 +848,13 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         boolean flag = newItem.isEmpty() && oldItem.isEmpty();
         if (!flag && !ItemStack.isSameItemSameTags(oldItem, newItem) && !this.firstTick) {
             Equipable equipable = Equipable.get(newItem);
-            if (equipable != null && !this.isSpectator() && equipable.getEquipmentSlot() == slot) {
-                if (!this.level().isClientSide() && !this.isSilent() && !silent) {
+            if (!this.level().isClientSide() && !this.isSpectator()) {
+                if (!this.isSilent() && equipable != null && equipable.getEquipmentSlot() == slot && !silent) {
                     this.level().playSound(null, this.getX(), this.getY(), this.getZ(), equipable.getEquipSound(), this.getSoundSource(), 1.0F, 1.0F);
                 }
 
                 if (this.doesEmitEquipEvent(slot)) {
-                    this.gameEvent(GameEvent.EQUIP);
+                    this.gameEvent(equipable != null ? GameEvent.EQUIP : GameEvent.UNEQUIP);
                 }
             }
 
