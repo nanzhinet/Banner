@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.server.RunningOnDifferentThreadException;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.util.thread.BlockableEventLoop;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -24,7 +25,7 @@ public class MixinPacketUtils {
     public static <T extends PacketListener> void ensureRunningOnSameThread(Packet<T> packet, T processor, BlockableEventLoop<?> executor) throws RunningOnDifferentThreadException {
         if (!executor.isSameThread()) {
             executor.executeIfPossible(() -> {
-                if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerCommonPacketListener && ((ServerCommonPacketListener) processor).bridge$processedDisconnect())) return; // CraftBukkit, MC-142590
+                if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerCommonPacketListener && ((ServerCommonPacketListenerImpl) processor).bridge$processedDisconnect())) return; // CraftBukkit, MC-142590
                 if (processor.isAcceptingMessages()) {
                     try {
                         packet.handle(processor);
@@ -47,7 +48,7 @@ public class MixinPacketUtils {
             });
             throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
             // CraftBukkit start - SPIGOT-5477, MC-142590
-        } else if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerCommonPacketListener && ((ServerCommonPacketListener) processor).bridge$processedDisconnect())) {
+        } else if (BukkitExtraConstants.getServer().hasStopped() || (processor instanceof ServerCommonPacketListener && ((ServerCommonPacketListenerImpl) processor).bridge$processedDisconnect())) {
             throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
             // CraftBukkit end
         }

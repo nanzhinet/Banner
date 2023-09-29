@@ -234,7 +234,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     public org.bukkit.craftbukkit.v1_20_R2.CraftServer server;
     public OptionSet options;
     public org.bukkit.command.ConsoleCommandSender console;
-    public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
     public ConsoleReader reader;
     private static int currentTick = BukkitExtraConstants.currentTick;
     public java.util.Queue<Runnable> processQueue = BukkitExtraConstants.bridge$processQueue;
@@ -657,7 +656,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                 }
 
                 serverLevel2 = (ServerLevel)var5.next();
-                forcedChunksSavedData = (ForcedChunksSavedData)serverLevel2.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+                forcedChunksSavedData = (ForcedChunksSavedData)serverLevel2.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
             } while(forcedChunksSavedData == null);
 
             LongIterator longIterator = forcedChunksSavedData.getChunks().iterator();
@@ -704,7 +703,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         if (true) {
             ServerLevel worldserver1 = worldserver;
             // CraftBukkit end
-            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
 
             if (forcedchunk != null) {
                 LongIterator longiterator = forcedchunk.getChunks().iterator();
@@ -813,6 +812,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
 
     @ModifyReturnValue(method = "getChatDecorator", at = @At("RETURN"))
     private ChatDecorator banner$fireChatEvent(ChatDecorator decorator) {
+        /*
         return (entityplayer, ichatbasecomponent) -> {
             // SPIGOT-7127: Console /say and similar
             if (entityplayer == null) {
@@ -829,7 +829,8 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                 }
                 return CraftChatMessage.fromStringOrNull(String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage()));
             }, chatExecutor);
-        };
+        };*/
+        return decorator;
     }
 
     @Inject(method = "method_29440", at = @At(value = "INVOKE",
@@ -866,11 +867,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     }
 
     @Override
-    public RemoteConsoleCommandSender bridge$remoteConsole() {
-        return remoteConsole;
-    }
-
-    @Override
     public ConsoleReader bridge$reader() {
         return reader;
     }
@@ -883,11 +879,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     @Override
     public boolean isDebugging() {
         return false;
-    }
-
-    @Override
-    public void banner$setRemoteConsole(RemoteConsoleCommandSender remoteConsole) {
-        this.remoteConsole = remoteConsole;
     }
 
     @Override

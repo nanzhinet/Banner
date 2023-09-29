@@ -27,6 +27,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,10 +44,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @Mixin(DedicatedServer.class)
 public abstract class MixinDedicatedServer extends MinecraftServer {
 
-    @Shadow
-    @Final
-    public RconConsoleSource rconConsoleSource;
-
+    @Mutable
+    @Shadow @Final public RconConsoleSource rconConsoleSource;
     private AtomicReference<String> banner$command = new AtomicReference<>();
 
     public MixinDedicatedServer(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory) {
@@ -82,11 +81,6 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         System.setOut(IoBuilder.forLogger(logger).setLevel(org.apache.logging.log4j.Level.INFO).buildPrintStream());
         System.setErr(IoBuilder.forLogger(logger).setLevel(org.apache.logging.log4j.Level.WARN).buildPrintStream());
         // CraftBukkit end
-    }
-
-    @Inject(method = "initServer", at = @At(value = "FIELD", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/dedicated/DedicatedServerProperties;enableRcon:Z"))
-    public void banner$setRcon(CallbackInfoReturnable<Boolean> cir) {
-        this.banner$setRemoteConsole(new CraftRemoteConsoleCommandSender(this.rconConsoleSource));
     }
 
     @Inject(method = "getPluginNames", at = @At("RETURN"), cancellable = true)
@@ -128,20 +122,34 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         return 0;
     }
 
+    public AtomicReference<RconConsoleSource> banner$rconConsoleSource = new AtomicReference<>(null);
+
+    @Override
+    public void banner$setRconConsoleSource(RconConsoleSource source)  {
+        banner$rconConsoleSource.set(source);
+    }
+
+    @Redirect(method = "runCommand", at = @At("HEAD"))
+    private void banner$resetRconConsole() {
+        this.rconConsoleSource = this.banner$rconConsoleSource.get();
+    }
+
     @Inject(method = "runCommand", at = @At("HEAD"))
     private void banner$getCommandString(String command, CallbackInfoReturnable<String> cir) {
         banner$command.set(command);
     }
 
-    @Redirect(method = "runCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/dedicated/DedicatedServer;executeBlocking(Ljava/lang/Runnable;)V"))
+    @Redirect(method = "runCommand", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/dedicated/DedicatedServer;executeBlocking(Ljava/lang/Runnable;)V"))
     private void banner$callCommandEvent(DedicatedServer instance, Runnable runnable) {
         this.executeBlocking(() -> {
-            RemoteServerCommandEvent event = new RemoteServerCommandEvent(bridge$remoteConsole(), banner$command.get());
+            CommandSourceStack wrapper = banner$rconConsoleSource.get().createCommandSourceStack();
+            RemoteServerCommandEvent event = new RemoteServerCommandEvent(banner$rconConsoleSource.get().getBukkitSender(wrapper), banner$command.get());
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }
-            this.bridge$server().dispatchServerCommand(bridge$remoteConsole(), new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack()));
+            this.bridge$server().dispatchServerCommand(event.getSender(), new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack()));
         });
     }
 

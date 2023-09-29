@@ -21,7 +21,16 @@ public abstract class MixinRconConsoleSource implements InjectionRconConsoleSour
 
     // CraftBukkit start
     public SocketAddress socketAddress;
-    private final CraftRemoteConsoleCommandSender remoteConsole = new CraftRemoteConsoleCommandSender((RconConsoleSource) (Object) this);
+    private CraftRemoteConsoleCommandSender remoteConsole = null;
+
+    public void banner$constructor(MinecraftServer pServer) {
+        throw new RuntimeException();
+    }
+
+    public void banner$constructor(MinecraftServer pServer, SocketAddress socketAddress) {
+        banner$constructor(pServer);
+        this.socketAddress = socketAddress;
+    }
 
     @Override
     public SocketAddress bridge$socketAddress() {
@@ -40,6 +49,9 @@ public abstract class MixinRconConsoleSource implements InjectionRconConsoleSour
 
     @Override
     public CommandSender getBukkitSender(CommandSourceStack wrapper) {
-        return server.bridge$remoteConsole();
+        if (remoteConsole == null) {
+            remoteConsole = new CraftRemoteConsoleCommandSender((RconConsoleSource) (Object) this);
+        }
+        return this.remoteConsole;
     }
 }
