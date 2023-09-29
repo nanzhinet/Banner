@@ -18,10 +18,8 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class MixinLootingEnchantFunction {
 
     @Shadow @Final private NumberProvider value;
-
-    @Shadow abstract boolean hasLimit();
-
     @Shadow @Final private int limit;
+    @Shadow protected abstract boolean hasLimit();
 
     /**
      * @author wdog5

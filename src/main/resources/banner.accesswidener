@@ -238,8 +238,6 @@ accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket y D
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket yRot F
 accessible field net/minecraft/network/protocol/game/ServerboundMovePlayerPacket z D
-accessible field net/minecraft/network/protocol/game/ServerboundClientInformationPacket language Ljava/lang/String;
-accessible field net/minecraft/network/protocol/game/ServerboundClientInformationPacket viewDistance I
 accessible field net/minecraft/network/protocol/game/ClientboundBlockUpdatePacket blockState Lnet/minecraft/world/level/block/state/BlockState;
 accessible field net/minecraft/network/protocol/game/ClientboundTabListPacket header Lnet/minecraft/network/chat/Component;
 accessible field net/minecraft/network/protocol/game/ClientboundTabListPacket footer Lnet/minecraft/network/chat/Component;

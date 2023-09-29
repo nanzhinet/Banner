@@ -57,7 +57,7 @@
       "net/minecraft/class_1531": ["com/mohistmc/banner/injection/world/entity/decoration/InjectionArmorStand"],
       "net/minecraft/class_1657": ["com/mohistmc/banner/injection/world/entity/player/InjectionPlayer"],
       "net/minecraft/class_1661": ["com/mohistmc/banner/injection/world/entity/player/InjectionInventory"],
-      "net/minecraft/class_161": ["com/mohistmc/banner/injection/advancements/InjectionAdvancement"],
+      "net/minecraft/class_8779": ["com/mohistmc/banner/injection/advancements/InjectionAdvancementHolder"],
       "net/minecraft/class_2170": ["com/mohistmc/banner/injection/commands/InjectionCommands"],
       "net/minecraft/class_2168": ["com/mohistmc/banner/injection/commands/InjectionCommandSourceStack"],
       "net/minecraft/class_2165": ["com/mohistmc/banner/injection/commands/InjectionCommandSource"],

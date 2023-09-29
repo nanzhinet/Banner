@@ -1,6 +1,7 @@
 package com.mohistmc.banner.mixin.server.network;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerInfo;
@@ -14,6 +15,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -25,79 +27,91 @@ public abstract class MixinLegacyQueryHandler {
 
     @Shadow @Final private ServerInfo server;
 
+    @Shadow
+    private static String createVersion0Response(ServerInfo serverInfo) {
+        return null;
+    }
+
+    @Shadow
+    private static ByteBuf createLegacyDisconnectPacket(ByteBufAllocator byteBufAllocator, String string) {
+        return null;
+    }
+
+    @Shadow
+    private static void sendFlushAndClose(ChannelHandlerContext channelHandlerContext, ByteBuf ctx) {
+    }
+
+    @Shadow
+    private static boolean readCustomPayloadPacket(ByteBuf byteBuf) {
+        return false;
+    }
+
+    @Shadow
+    private static String createVersion1Response(ServerInfo serverInfo) {
+        return null;
+    }
+
     /**
      * @author wdog5
      * @reason bukkit
      */
     @Overwrite
-    public void channelRead(ChannelHandlerContext channelhandlercontext, Object object) {
-        ByteBuf bytebuf = (ByteBuf) object;
-
-        bytebuf.markReaderIndex();
-        boolean flag = true;
+    public void channelRead(ChannelHandlerContext channelHandlerContext, Object object) {
+        ByteBuf byteBuf = (ByteBuf)object;
+        byteBuf.markReaderIndex();
+        boolean bl = true;
 
         try {
-            if (bytebuf.readUnsignedByte() != 254) {
+            if (byteBuf.readUnsignedByte() != 254) {
                 return;
             }
 
-            InetSocketAddress inetsocketaddress = (InetSocketAddress) channelhandlercontext.channel().remoteAddress();
-            MinecraftServer minecraftserver = this.server.getServer();
-            int i = bytebuf.readableBytes();
-            String s;
-            org.bukkit.event.server.ServerListPingEvent event = CraftEventFactory.callServerListPingEvent(minecraftserver.bridge$server(), inetsocketaddress.getAddress(), minecraftserver.getMotd(), minecraftserver.getPlayerCount(), minecraftserver.getMaxPlayers()); // CraftBukkit
+            SocketAddress socketAddress = channelHandlerContext.channel().remoteAddress();
+            int i = byteBuf.readableBytes();
+            String string;
+            org.bukkit.event.server.ServerListPingEvent event = CraftEventFactory.callServerListPingEvent(socketAddress, server.getMotd(), server.getPlayerCount(), server.getMaxPlayers()); // CraftBukkit
+            if (i == 0) {
+                LOGGER.debug("Ping: (<1.3.x) from {}", socketAddress);
+                string = createVersion0Response(this.server, event); // CraftBukkit
+                sendFlushAndClose(channelHandlerContext, createLegacyDisconnectPacket(channelHandlerContext.alloc(), string));
+            } else {
+                if (byteBuf.readUnsignedByte() != 1) {
+                    return;
+                }
 
-            switch (i) {
-                case 0:
-                    LOGGER.debug("Ping: (<1.3.x) from {}:{}", inetsocketaddress.getAddress(), inetsocketaddress.getPort());
-                    s = String.format(Locale.ROOT, "%s\u00a7%d\u00a7%d", event.getMotd(), event.getNumPlayers(), event.getMaxPlayers()); // CraftBukkit
-                    this.sendFlushAndClose(channelhandlercontext, this.createReply(s));
-                    break;
-                case 1:
-                    if (bytebuf.readUnsignedByte() != 1) {
+                if (byteBuf.isReadable()) {
+                    if (!readCustomPayloadPacket(byteBuf)) {
                         return;
                     }
 
-                    LOGGER.debug("Ping: (1.4-1.5.x) from {}:{}", inetsocketaddress.getAddress(), inetsocketaddress.getPort());
-                    s = String.format(Locale.ROOT, "\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, minecraftserver.getServerVersion(), event.getMotd(), event.getNumPlayers(), event.getMaxPlayers()); // CraftBukkit
-                    this.sendFlushAndClose(channelhandlercontext, this.createReply(s));
-                    break;
-                default:
-                    boolean flag1 = bytebuf.readUnsignedByte() == 1;
+                    LOGGER.debug("Ping: (1.6) from {}", socketAddress);
+                } else {
+                    LOGGER.debug("Ping: (1.4-1.5.x) from {}", socketAddress);
+                }
 
-                    flag1 &= bytebuf.readUnsignedByte() == 250;
-                    flag1 &= "MC|PingHost".equals(new String(bytebuf.readBytes(bytebuf.readShort() * 2).array(), StandardCharsets.UTF_16BE));
-                    int j = bytebuf.readUnsignedShort();
-
-                    flag1 &= bytebuf.readUnsignedByte() >= 73;
-                    flag1 &= 3 + bytebuf.readBytes(bytebuf.readShort() * 2).array().length + 4 == j;
-                    flag1 &= bytebuf.readInt() <= 65535;
-                    flag1 &= bytebuf.readableBytes() == 0;
-                    if (!flag1) {
-                        return;
-                    }
-
-                    LOGGER.debug("Ping: (1.6) from {}:{}", inetsocketaddress.getAddress(), inetsocketaddress.getPort());
-                    String s1 = String.format(Locale.ROOT, "\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, minecraftserver.getServerVersion(), event.getMotd(), event.getNumPlayers(), event.getMaxPlayers()); // CraftBukkit
-                    ByteBuf bytebuf1 = this.createReply(s1);
-
-                    try {
-                        this.sendFlushAndClose(channelhandlercontext, bytebuf1);
-                    } finally {
-                        bytebuf1.release();
-                    }
+                string = createVersion1Response(this.server, event); // CraftBukkit
+                sendFlushAndClose(channelHandlerContext, createLegacyDisconnectPacket(channelHandlerContext.alloc(), string));
             }
 
-            bytebuf.release();
-            flag = false;
-        } catch (RuntimeException runtimeexception) {
+            byteBuf.release();
+            bl = false;
+        } catch (RuntimeException var11) {
         } finally {
-            if (flag) {
-                bytebuf.resetReaderIndex();
-                channelhandlercontext.channel().pipeline().remove("legacy_query");
-                channelhandlercontext.fireChannelRead(object);
+            if (bl) {
+                byteBuf.resetReaderIndex();
+                channelHandlerContext.channel().pipeline().remove((LegacyQueryHandler) (Object) this);
+                channelHandlerContext.fireChannelRead(object);
             }
 
         }
+
+    }
+
+    private static String createVersion0Response(ServerInfo serverinfo, org.bukkit.event.server.ServerListPingEvent event) {
+        return String.format(Locale.ROOT, "%s\u00a7%d\u00a7%d", event.getMotd(), event.getNumPlayers(), event.getMaxPlayers());
+    }
+
+    private static String createVersion1Response(ServerInfo serverinfo, org.bukkit.event.server.ServerListPingEvent event) {
+        return String.format(Locale.ROOT, "\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, serverinfo.getServerVersion(), event.getMotd(), event.getNumPlayers(), event.getMaxPlayers());
     }
 }

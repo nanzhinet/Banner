@@ -5,6 +5,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.network.protocol.status.ServerStatus;
@@ -38,9 +39,9 @@ public class MixinServerHandshakePacketListenerImpl {
     @Overwrite
     public void handleIntention(ClientIntentionPacket packet) {
         this.connection.banner$setHostName(packet.hostName + ":" + packet.port); // CraftBukkit  - set hostname
-        switch (packet.getIntention()) {
+        switch (packet.intention()) {
             case LOGIN -> {
-                this.connection.setProtocol(ConnectionProtocol.LOGIN);
+                this.connection.setClientboundProtocolAfterHandshake(ClientIntent.LOGIN);
                 // CraftBukkit start - Connection throttle
                 try {
                     long currentTime = System.currentTimeMillis();
@@ -75,9 +76,9 @@ public class MixinServerHandshakePacketListenerImpl {
                     org.apache.logging.log4j.LogManager.getLogger().debug("Failed to check connection throttle", t);
                 }
                 // CraftBukkit end
-                if (packet.getProtocolVersion() != SharedConstants.getCurrentVersion().getProtocolVersion()) {
+                if (packet.protocolVersion() != SharedConstants.getCurrentVersion().getProtocolVersion()) {
                     MutableComponent component;
-                    if (packet.getProtocolVersion() < 754) {
+                    if (packet.protocolVersion() < 754) {
                         component = Component.translatable("multiplayer.disconnect.outdated_client", new Object[]{SharedConstants.getCurrentVersion().getName()});
                     } else {
                         component = Component.translatable("multiplayer.disconnect.incompatible", new Object[]{SharedConstants.getCurrentVersion().getName()});
@@ -92,13 +93,13 @@ public class MixinServerHandshakePacketListenerImpl {
             case STATUS -> {
                 ServerStatus serverStatus = this.server.getStatus();
                 if (this.server.repliesToStatus() && serverStatus != null) {
-                    this.connection.setProtocol(ConnectionProtocol.STATUS);
+                    this.connection.setClientboundProtocolAfterHandshake(ClientIntent.STATUS);
                     this.connection.setListener(new ServerStatusPacketListenerImpl(serverStatus, this.connection));
                 } else {
                     this.connection.disconnect(IGNORE_STATUS_REASON);
                 }
             }
-            default -> throw new UnsupportedOperationException("Invalid intention " + packet.getIntention());
+            default -> throw new UnsupportedOperationException("Invalid intention " + packet.intention());
         }
 
     }
