@@ -16,7 +16,6 @@
     "MixinCrashReport",
     "MixinCrashReportCategory",
     "advancement.MixinAdvancementHolder",
-    "advancement.MixinAdvancementList",
     "commands.MixinCommandDispatcher",
     "commands.MixinCommandNode",
     "commands.MixinCommands",
