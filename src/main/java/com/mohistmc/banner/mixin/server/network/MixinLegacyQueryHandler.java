@@ -3,6 +3,7 @@ package com.mohistmc.banner.mixin.server.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerInfo;
 import net.minecraft.server.network.LegacyQueryHandler;
 import net.minecraft.server.network.ServerConnectionListener;
 import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
@@ -19,13 +20,10 @@ import java.util.Locale;
 @Mixin(LegacyQueryHandler.class)
 public abstract class MixinLegacyQueryHandler {
 
-    @Shadow @Final private ServerConnectionListener serverConnectionListener;
 
     @Shadow @Final private static Logger LOGGER;
 
-    @Shadow protected abstract void sendFlushAndClose(ChannelHandlerContext ctx, ByteBuf data);
-
-    @Shadow protected abstract ByteBuf createReply(String string);
+    @Shadow @Final private ServerInfo server;
 
     /**
      * @author wdog5
@@ -44,7 +42,7 @@ public abstract class MixinLegacyQueryHandler {
             }
 
             InetSocketAddress inetsocketaddress = (InetSocketAddress) channelhandlercontext.channel().remoteAddress();
-            MinecraftServer minecraftserver = this.serverConnectionListener.getServer();
+            MinecraftServer minecraftserver = this.server.getServer();
             int i = bytebuf.readableBytes();
             String s;
             org.bukkit.event.server.ServerListPingEvent event = CraftEventFactory.callServerListPingEvent(minecraftserver.bridge$server(), inetsocketaddress.getAddress(), minecraftserver.getMotd(), minecraftserver.getPlayerCount(), minecraftserver.getMaxPlayers()); // CraftBukkit

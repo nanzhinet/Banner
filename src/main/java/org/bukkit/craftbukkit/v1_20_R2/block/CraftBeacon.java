@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.entity.BeaconBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.World;
 import org.bukkit.block.Beacon;
+import org.bukkit.craftbukkit.v1_20_R2.potion.CraftPotionEffectType;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
@@ -56,7 +57,7 @@ public class CraftBeacon extends CraftBlockEntityState<BeaconBlockEntity> implem
 
     @Override
     public void setPrimaryEffect(PotionEffectType effect) {
-        this.getSnapshot().primaryPower = (effect != null) ? MobEffect.byId(effect.getId()) : null;
+        this.getSnapshot().primaryPower = (effect != null) ? CraftPotionEffectType.bukkitToMinecraft(effect) : null;
     }
 
     @Override
@@ -66,7 +67,7 @@ public class CraftBeacon extends CraftBlockEntityState<BeaconBlockEntity> implem
 
     @Override
     public void setSecondaryEffect(PotionEffectType effect) {
-        this.getSnapshot().secondaryPower = (effect != null) ? MobEffect.byId(effect.getId()) : null;
+        this.getSnapshot().secondaryPower = (effect != null) ? CraftPotionEffectType.bukkitToMinecraft(effect) : null;
     }
 
     @Override

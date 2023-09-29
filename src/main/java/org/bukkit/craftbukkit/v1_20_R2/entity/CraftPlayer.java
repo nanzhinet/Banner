@@ -19,11 +19,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
@@ -1672,10 +1674,24 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (getHandle().connection == null) return;
 
         if (channels.contains(channel)) {
-            channel = StandardMessenger.validateAndCorrectChannel(channel);
-            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation(channel), new FriendlyByteBuf(Unpooled.wrappedBuffer(message)));
-            getHandle().connection.send(packet);
+            ResourceLocation id = new ResourceLocation(StandardMessenger.validateAndCorrectChannel(channel));
+            sendCustomPayload(id, message);
         }
+    }
+
+    private void sendCustomPayload(ResourceLocation id, byte[] message) {
+        ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new CustomPacketPayload() {
+            @Override
+            public void write(FriendlyByteBuf pds) {
+                pds.writeBytes(message);
+            }
+
+            @Override
+            public ResourceLocation id() {
+                return id;
+            }
+        });
+        getHandle().connection.send(packet);
     }
 
     @Override
@@ -1704,9 +1720,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (hash != null) {
             Preconditions.checkArgument(hash.length == 20, "Resource pack hash should be 20 bytes long but was %s", hash.length);
 
-            getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true));
+            getHandle().connection.send(new ClientboundResourcePackPacket(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true)));
         } else {
-            getHandle().sendTexturePack(url, "", force, CraftChatMessage.fromStringOrNull(prompt, true));
+            getHandle().connection.send(new ClientboundResourcePackPacket(url, "", force, CraftChatMessage.fromStringOrNull(prompt, true)));
         }
     }
 
@@ -1716,7 +1732,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         Validate.notNull(hash, "Resource pack hash cannot be null");
         Validate.isTrue(hash.length == 20, "Resource pack hash should be 20 bytes long but was " + hash.length);
 
-        getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), false, null);
+        getHandle().connection.send(new ClientboundResourcePackPacket(url, BaseEncoding.base16().lowerCase().encode(hash), false, null));
     }
 
     public void addChannel(String channel) {
@@ -1755,7 +1771,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                 }
             }
 
-            getHandle().connection.send(new ClientboundCustomPayloadPacket(new ResourceLocation("register"), new FriendlyByteBuf(Unpooled.wrappedBuffer(stream.toByteArray()))));
+            sendCustomPayload(new ResourceLocation("register"), stream.toByteArray());
         }
     }
 
@@ -2111,12 +2127,12 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public int getClientViewDistance() {
-        return (getHandle().bridge$clientViewDistance() == null) ? Bukkit.getViewDistance() : getHandle().bridge$clientViewDistance();
+        return (getHandle().requestedViewDistance() == 0) ? Bukkit.getViewDistance() : getHandle().requestedViewDistance();
     }
 
     @Override
     public int getPing() {
-        return getHandle().latency;
+        return getHandle().connection.latency();
     }
 
     @Override
