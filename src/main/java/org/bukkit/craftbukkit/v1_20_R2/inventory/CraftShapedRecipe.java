@@ -19,8 +19,8 @@ public class CraftShapedRecipe extends ShapedRecipe implements CraftRecipe {
         super(key, result);
     }
 
-    public CraftShapedRecipe(NamespacedKey key, ItemStack result, net.minecraft.world.item.crafting.ShapedRecipe recipe) {
-        this(key, result);
+    public CraftShapedRecipe(ItemStack result, net.minecraft.world.item.crafting.ShapedRecipe recipe) {
+        this(CraftNamespacedKey.fromMinecraft(recipe.getId()), result);
         this.recipe = recipe;
     }
 

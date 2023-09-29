@@ -1,14 +1,13 @@
 package com.mohistmc.banner.mixin.world.item.crafting;
 
+import com.mohistmc.banner.bukkit.inventory.recipe.BannerShapedRecipe;
 import com.mohistmc.banner.injection.world.item.crafting.InjectionShapedRecipe;
-import com.mohistmc.banner.recipe.BannerShapedRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftShapedRecipe;
@@ -44,12 +43,12 @@ public abstract class MixinShapedRecipe implements CraftingRecipe, InjectionShap
 
     @Override
     // CraftBukkit start
-    public org.bukkit.inventory.ShapedRecipe toBukkitRecipe(NamespacedKey id) {
+    public org.bukkit.inventory.ShapedRecipe toBukkitRecipe() {
         if (this.getWidth() < 1 || this.getWidth() > 3 || this.getHeight() < 1 || this.getHeight() > 3 || this.result.isEmpty()) {
-            return new BannerShapedRecipe(id, ((ShapedRecipe) (Object) this));
+            return new BannerShapedRecipe(((ShapedRecipe) (Object) this));
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
-        CraftShapedRecipe recipe = new CraftShapedRecipe(id, result, ((ShapedRecipe) (Object) this));
+        CraftShapedRecipe recipe = new CraftShapedRecipe(result, ((ShapedRecipe) (Object) this));
         recipe.setGroup(this.group);
         recipe.setCategory(CraftRecipe.getCategory(this.category()));
 

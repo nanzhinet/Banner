@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.v1_20_R2.entity;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.BaseEncoding;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
 import io.netty.buffer.Unpooled;
@@ -18,11 +19,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCustomChatCompletionsPacket;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
@@ -186,6 +187,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     private double healthScale = 20;
     private CraftWorldBorder clientWorldBorder = null;
     private BorderChangeListener clientWorldBorderListener = createWorldBorderListener();
+
+    private static final boolean DISABLE_CHANNEL_LIMIT = System.getProperty("paper.disableChannelLimit") != null; // Paper - add a flag to disable the channel limit
 
     public CraftPlayer(CraftServer server, ServerPlayer entity) {
         super(server, entity);
@@ -1670,8 +1673,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         if (channels.contains(channel)) {
             channel = StandardMessenger.validateAndCorrectChannel(channel);
-            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(/*new ResourceLocation(channel),*/
-            new FriendlyByteBuf(Unpooled.wrappedBuffer(message)));
+            ClientboundCustomPayloadPacket packet = new ClientboundCustomPayloadPacket(new ResourceLocation(channel), new FriendlyByteBuf(Unpooled.wrappedBuffer(message)));
             getHandle().connection.send(packet);
         }
     }
@@ -1702,9 +1704,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (hash != null) {
             Preconditions.checkArgument(hash.length == 20, "Resource pack hash should be 20 bytes long but was %s", hash.length);
 
-            // getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true)); // Banner - TODO
+            getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true));
         } else {
-            // getHandle().sendTexturePack(url, "", force, CraftChatMessage.fromStringOrNull(prompt, true)); // Banner - TODO
+            getHandle().sendTexturePack(url, "", force, CraftChatMessage.fromStringOrNull(prompt, true));
         }
     }
 
@@ -1714,11 +1716,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         Validate.notNull(hash, "Resource pack hash cannot be null");
         Validate.isTrue(hash.length == 20, "Resource pack hash should be 20 bytes long but was " + hash.length);
 
-        // getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), false, null); // Banner - TODO
+        getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), false, null);
     }
 
     public void addChannel(String channel) {
-        Preconditions.checkState(channels.size() < 1024, "Cannot register channel '%s'. Too many channels registered!", channel);// Banner - Increase bukkit channels cap, original 128
+        Preconditions.checkState(DISABLE_CHANNEL_LIMIT || channels.size() < 1024, "Cannot register channel '%s'. Too many channels registered!", channel);// Banner - Increase bukkit channels cap, original 128
         channel = StandardMessenger.validateAndCorrectChannel(channel);
         if (channels.add(channel)) {
             server.getPluginManager().callEvent(new PlayerRegisterChannelEvent(this, channel));
@@ -1753,13 +1755,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
                 }
             }
 
-            getHandle().connection.send(new ClientboundCustomPayloadPacket(/*new ResourceLocation("register"), */new FriendlyByteBuf(Unpooled.wrappedBuffer(stream.toByteArray())))); // Banner - TODO
+            getHandle().connection.send(new ClientboundCustomPayloadPacket(new ResourceLocation("register"), new FriendlyByteBuf(Unpooled.wrappedBuffer(stream.toByteArray()))));
         }
-    }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.PLAYER;
     }
 
     @Override
@@ -2119,8 +2116,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public int getPing() {
-       // return getHandle().latency; // Banner - TODO
-        return 0;
+        return getHandle().latency;
     }
 
     @Override

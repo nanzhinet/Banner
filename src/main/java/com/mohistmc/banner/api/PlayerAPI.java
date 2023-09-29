@@ -19,11 +19,9 @@ public class PlayerAPI {
      *
      * @param player org.bukkit.entity.player
      */
-    /*
     public static String getPing(Player player) {
-        return String.valueOf(getNMSPlayer(player).latency);
-    }*/
-    // Banner TODO
+        return String.valueOf(getNMSPlayer(player).connection.latency());
+    }
 
     public static ServerPlayer getNMSPlayer(Player player) {
         return ((CraftPlayer) player).getHandle();

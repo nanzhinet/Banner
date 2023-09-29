@@ -3,14 +3,12 @@ package com.mohistmc.banner.mixin.world.entity;
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.mohistmc.banner.bukkit.BukkitCaptures;
+import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.bukkit.ProcessableEffect;
 import com.mohistmc.banner.injection.world.entity.InjectionLivingEntity;
 import io.izzel.arclight.mixin.Eject;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
@@ -22,7 +20,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
@@ -50,7 +47,6 @@ import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R2.CraftEquipmentSlot;
-import org.bukkit.craftbukkit.v1_20_R2.SpigotTimings;
 import org.bukkit.craftbukkit.v1_20_R2.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
@@ -215,70 +211,6 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         // do nothing
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void banner$timings(CallbackInfo ci) {
-        SpigotTimings.timerEntityBaseTick.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tick", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;aiStep()V"))
-    private void banner$timings0(CallbackInfo ci) {
-        SpigotTimings.timerEntityBaseTick.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tick", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;aiStep()V",
-            shift = At.Shift.AFTER))
-    private void banner$timings1(CallbackInfo ci) {
-        SpigotTimings.timerEntityTickRest.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void banner$timings2(CallbackInfo ci) {
-        SpigotTimings.timerEntityTickRest.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isImmobile()Z"))
-    private void banner$timings3(CallbackInfo ci) {
-        SpigotTimings.timerEntityAI.startTiming(); // Spigot
-    }
-
-    @Inject(method = "aiStep",
-            at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 1))
-    private void banner$timings4(CallbackInfo ci) {
-        SpigotTimings.timerEntityAI.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "aiStep",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/LivingEntity;isAlive()Z"))
-    private void banner$timings5(CallbackInfo ci) {
-        SpigotTimings.timerEntityAIMove.startTiming(); // Spigot
-    }
-
-    @Inject(method = "aiStep",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 3))
-    private void banner$timings6(CallbackInfo ci) {
-        SpigotTimings.timerEntityAIMove.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "aiStep",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/LivingEntity;pushEntities()V"))
-    private void banner$timings7(CallbackInfo ci) {
-        SpigotTimings.timerEntityAICollision.startTiming(); // Spigot
-    }
-
-    @Inject(method = "aiStep",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/LivingEntity;pushEntities()V",
-                    shift = At.Shift.AFTER))
-    private void banner$timings8(CallbackInfo ci) {
-        SpigotTimings.timerEntityAICollision.stopTiming(); // Spigot
-    }
-
     @Inject(method = "<init>", at = @At("RETURN"))
     private void banner$init(EntityType<? extends LivingEntity> type, Level worldIn, CallbackInfo ci) {
         this.collides = true;
@@ -291,6 +223,8 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         this.banner$FallState.set(state);
     }
 
+    // TODO
+    /*
     @Redirect(method = "checkFallDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
     private <T extends ParticleOptions>  int banner$addCheckFall(ServerLevel instance,  T type, double posX, double posY, double posZ, int particleCount, double xOffset, double yOffset, double zOffset, double speed) {
         // CraftBukkit start - visiblity api
@@ -303,6 +237,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
             return ((ServerLevel) this.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, banner$FallState.get()), this.getX(), this.getY(), this.getZ(), banner$i, 0.0D, 0.0D, 0.0D, 0.15000000596046448D);
         }
     }
+     */
 
     @Redirect(method = "onEquipItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;isClientSide()Z"))
     private boolean banner$addSilentCheck(Level instance) {
@@ -425,13 +360,17 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         }
     }
 
+    // @Shadow public abstract boolean addEffect(MobEffectInstance effectInstanceIn, Entity entity);
+
+    // Banner - fix mixin(locals = LocalCapture.CAPTURE_FAILHARD)
+    public EntityPotionEffectEvent.Cause cause;
     /**
-     * @author IzzelAliz
+     * @author wdog5
      * @reason
      */
     @Overwrite
     public boolean addEffect(MobEffectInstance effectInstanceIn, Entity entity) {
-        EntityPotionEffectEvent.Cause cause = getEffectCause().orElse(EntityPotionEffectEvent.Cause.UNKNOWN);
+        cause = getEffectCause().orElse(EntityPotionEffectEvent.Cause.UNKNOWN);
         if (isTickingEffects) {
             effectsToProcess.add(new ProcessableEffect(effectInstanceIn, cause));
             return true;
@@ -805,7 +744,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;setSharedFlag(IZ)V"))
     public void banner$stopGlide(Vec3 travelVector, CallbackInfo ci) {
-        BukkitCaptures.capturebanner$stopGlide(true);
+        BukkitSnapshotCaptures.capturebanner$stopGlide(true);
     }
 
     @Redirect(method = "updateFallFlying", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;setSharedFlag(IZ)V"))
@@ -831,11 +770,6 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     @Overwrite
     public boolean isPushable() {
         return this.isAlive() && !this.onClimbable() && this.collides;
-    }
-
-    @Override
-    public boolean canCollideWith(Entity entity) {
-        return this.isPushable() && this.collides != this.collidableExemptions.contains(entity.getUUID());
     }
 
     @Eject(method = "completeUsingItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;finishUsingItem(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/world/item/ItemStack;"))

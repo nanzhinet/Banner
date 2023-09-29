@@ -2,9 +2,10 @@ package com.mohistmc.banner.mixin.server.level;
 
 import com.google.common.collect.Lists;
 import com.mohistmc.banner.BannerServer;
-import com.mohistmc.banner.bukkit.BukkitCaptures;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.bukkit.DistValidate;
+import com.mohistmc.banner.bukkit.LevelPersistentData;
 import com.mohistmc.banner.config.BannerConfig;
 import com.mohistmc.banner.fabric.BannerDerivedWorldInfo;
 import com.mohistmc.banner.fabric.WorldSymlink;
@@ -30,13 +31,16 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
 import net.minecraft.world.RandomSequences;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.CustomSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -54,6 +58,8 @@ import net.minecraft.world.ticks.LevelTicks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlockStates;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_20_R2.generator.CustomChunkGenerator;
@@ -62,13 +68,16 @@ import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.util.WorldUUID;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LightningStrike;
+import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.server.MapInitializeEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.world.GenericGameEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -82,12 +91,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 @Mixin(ServerLevel.class)
@@ -177,11 +186,9 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         this.uuid = WorldUUID.getUUID(levelStorageAccess.getDimensionPath(this.dimension()).toFile());
         this.getWorldBorder().banner$setWorld((ServerLevel) (Object) this);
         this.K.setWorld((ServerLevel) (Object) this);
-        /*
         var data = this.getDataStorage().computeIfAbsent(LevelPersistentData::new,
                 () -> new LevelPersistentData(null), "bukkit_pdc");
-        this.getWorld().readBukkitValues(data.getTag());*/
-        // Banner TODO
+        this.getWorld().readBukkitValues(data.getTag());
     }
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE",
@@ -198,10 +205,8 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
 
     @Inject(method = "saveLevelData", at = @At("RETURN"))
     private void banner$savePdc(CallbackInfo ci) {
-        // Banner TODO
-        /*
         var data = this.getDataStorage().computeIfAbsent(LevelPersistentData::new, () -> new LevelPersistentData(null), "bukkit_pdc");
-        data.save(this.getWorld());*/
+        data.save(this.getWorld());
     }
 
     @Inject(method = "gameEvent", cancellable = true, at = @At("HEAD"))
@@ -213,69 +218,6 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         if (event.isCancelled()) {
             ci.cancel();
         }
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;isDebug()Z"))
-    private void banner$timings(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().doTickPending.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
-                    ordinal = 3))
-    private void banner$timings0(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().doTickPending.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;runBlockEvents()V"))
-    private void banner$timings1(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().doSounds.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;runBlockEvents()V",
-                    shift = At.Shift.AFTER))
-    private void banner$timings2(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().doSounds.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "FIELD",
-                    target = "Lnet/minecraft/server/level/ServerLevel;dragonFight:Lnet/minecraft/world/level/dimension/end/EndDragonFight;",
-                    ordinal = 0))
-    private void banner$timings3(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().tickEntities.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/entity/EntityTickList;forEach(Ljava/util/function/Consumer;)V"))
-    private void banner$timings4(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().entityTick.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 3))
-    private void banner$timings5(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        bridge$timings().entityTick.stopTiming(); // Spigot
-        bridge$timings().tickEntities.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tickNonPassenger", at = @At("HEAD"))
-    private void banner$timings6(Entity entity, CallbackInfo ci) {
-        entity.bridge$tickTimer().startTiming(); // Spigot
-    }
-
-    @Inject(method = "tickNonPassenger", at = @At("TAIL"))
-    private void banner$timings7(Entity entity, CallbackInfo ci) {
-        entity.bridge$tickTimer().stopTiming(); // Spigot
     }
 
     @Override
@@ -351,12 +293,47 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         return this.addFreshEntity(entity);
     }
 
-    /*
-    @Redirect(method = "tickChunk", at = @At(value = "INVOKE", target = "setBlockAndUpdated"))
-    public boolean banner$snowForm(ServerLevel serverWorld, BlockPos pos, BlockState state) {
-        return CraftEventFactory.handleBlockFormEvent(serverWorld, pos, state, null);
-    }*/
-    // Banner TODO
+    @Inject(method = "tickChunk", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm0(LevelChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, ProfilerFiller profilerFiller, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+
+        CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos2, 3);
+        craftBlockState.setData(Blocks.ICE.defaultBlockState());
+
+        BlockFormEvent event = new BlockFormEvent(craftBlockState.getBlock(), craftBlockState);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "tickChunk", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm1(LevelChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, ProfilerFiller profilerFiller, BlockPos blockPos, BlockPos blockPos2, Biome biome, int k, BlockState blockState, int l, BlockState blockState2) {
+
+        CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos, 3);
+        craftBlockState.setData(blockState2);
+
+        BlockFormEvent event = new BlockFormEvent(craftBlockState.getBlock(), craftBlockState);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "tickChunk", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 2, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm2(LevelChunk chunk, int randomTickSpeed, CallbackInfo ci, ChunkPos chunkPos, boolean bl, int i, int j, ProfilerFiller profilerFiller, BlockPos blockPos, BlockPos blockPos2, Biome biome) {
+
+        CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos, 3);
+        craftBlockState.setData(Blocks.SNOW.defaultBlockState());
+
+        BlockFormEvent event = new BlockFormEvent(craftBlockState.getBlock(), craftBlockState);
+        Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+    }
 
     @Inject(method = "save", at = @At(value = "JUMP", ordinal = 0, opcode = Opcodes.IFNULL))
     private void banner$worldSaveEvent(ProgressListener progress, boolean flush, boolean skipSave, CallbackInfo ci) {
@@ -451,8 +428,6 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
      * @author wdog5
      * @reason functionallyy replaced
      */
-    // Banner TODO
-    /*
     @Overwrite
     @Nullable
     public MapItemSavedData getMapData(String mapName) {
@@ -463,7 +438,7 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
             Bukkit.getServer().getPluginManager().callEvent(event);
             return newMap;
         }, mapName);
-    }*/
+    }
 
     @Inject(method = "setMapData", at = @At("HEAD"))
     private void banner$mapSetId(String id, MapItemSavedData data, CallbackInfo ci) {
@@ -497,13 +472,13 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
 
     @ModifyVariable(method = "tickBlock", ordinal = 0, argsOnly = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
     private BlockPos banner$captureTickingBlock(BlockPos pos) {
-        BukkitCaptures.captureTickingBlock((ServerLevel) (Object) this, pos);
+        BukkitSnapshotCaptures.captureTickingBlock((ServerLevel) (Object) this, pos);
         return pos;
     }
 
     @ModifyVariable(method = "tickBlock", ordinal = 0, argsOnly = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/level/block/state/BlockState;tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
     private BlockPos banner$resetTickingBlock(BlockPos pos) {
-        BukkitCaptures.resetTickingBlock();
+        BukkitSnapshotCaptures.resetTickingBlock();
         return pos;
     }
 
@@ -527,12 +502,12 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         });
         if (!DistValidate.isValid(world)) {
             blockList.updateList();
-            BukkitCaptures.getEndPortalEntity();
+            BukkitSnapshotCaptures.getEndPortalEntity();
             return;
         }
         CraftWorld bworld = world.getWorld();
-        boolean spawnPortal = BukkitCaptures.getEndPortalSpawn();
-        Entity entity = BukkitCaptures.getEndPortalEntity();
+        boolean spawnPortal = BukkitSnapshotCaptures.getEndPortalSpawn();
+        Entity entity = BukkitSnapshotCaptures.getEndPortalEntity();
         PortalCreateEvent portalEvent = new PortalCreateEvent((List) blockList.getList(), bworld, entity == null ? null : entity.getBukkitEntity(), PortalCreateEvent.CreateReason.END_PLATFORM);
         portalEvent.setCancelled(!spawnPortal);
         Bukkit.getPluginManager().callEvent(portalEvent);
@@ -543,38 +518,14 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
 
     @ModifyVariable(method = "tickChunk", ordinal = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
     private BlockPos banner$captureRandomTick(BlockPos pos) {
-        BukkitCaptures.captureTickingBlock((ServerLevel) (Object) this, pos);
+        BukkitSnapshotCaptures.captureTickingBlock((ServerLevel) (Object) this, pos);
         return pos;
     }
 
     @ModifyVariable(method = "tickChunk", ordinal = 0, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/level/block/state/BlockState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
     private BlockPos banner$resetRandomTick(BlockPos pos) {
-        BukkitCaptures.resetTickingBlock();
+        BukkitSnapshotCaptures.resetTickingBlock();
         return pos;
-    }
-
-    @ModifyVariable(method = "tickNonPassenger", argsOnly = true, ordinal = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;tick()V"))
-    private Entity banner$captureTickingEntity(Entity entity) {
-        BukkitCaptures.captureTickingEntity(entity);
-        return entity;
-    }
-
-    @ModifyVariable(method = "tickNonPassenger", argsOnly = true, ordinal = 0, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;tick()V"))
-    private Entity banner$resetTickingEntity(Entity entity) {
-        BukkitCaptures.resetTickingEntity();
-        return entity;
-    }
-
-    @ModifyVariable(method = "tickPassenger", argsOnly = true, ordinal = 1, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;rideTick()V"))
-    private Entity banner$captureTickingPassenger(Entity entity) {
-        BukkitCaptures.captureTickingEntity(entity);
-        return entity;
-    }
-
-    @ModifyVariable(method = "tickPassenger", argsOnly = true, ordinal = 1, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/entity/Entity;rideTick()V"))
-    private Entity banner$resetTickingPassenger(Entity entity) {
-        BukkitCaptures.resetTickingEntity();
-        return entity;
     }
 
     @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)

@@ -20,8 +20,6 @@ import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R2.SpigotTimings;
 import org.bukkit.craftbukkit.v1_20_R2.command.CraftRemoteConsoleCommandSender;
 import org.bukkit.craftbukkit.v1_20_R2.util.ForwardLogHandler;
 import org.bukkit.event.server.RemoteServerCommandEvent;
@@ -117,16 +115,6 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         cir.setReturnValue(result.toString());
     }
 
-    @Inject(method = "handleConsoleInput", at = @At("HEAD"))
-    private void banner$timingsStart(String msg, CommandSourceStack source, CallbackInfo ci) {
-        SpigotTimings.serverCommandTimer.startTiming(); // Spigot
-    }
-
-    @Inject(method = "handleConsoleInput", at = @At("TAIL"))
-    private void banner$timingsStop(String msg, CommandSourceStack source, CallbackInfo ci) {
-        SpigotTimings.serverCommandTimer.stopTiming(); // Spigot
-    }
-
     @Redirect(method = "handleConsoleInputs", at = @At(value = "INVOKE", target = "Lnet/minecraft/commands/Commands;performPrefixedCommand(Lnet/minecraft/commands/CommandSourceStack;Ljava/lang/String;)I"))
     private int banner$serverCommandEvent(Commands commands, CommandSourceStack source, String command) {
         if (command.isEmpty()) {
@@ -186,12 +174,6 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
             BannerServer.LOGGER.info("{} threads not shutting down correctly, force exiting", threads.size());
         }
         System.exit(0);
-    }
-
-
-    @Override
-    public CommandSender getBukkitSender(CommandSourceStack wrapper) {
-        return bridge$console();
     }
 
     @Inject(method = "showGui", at = @At("HEAD"), cancellable = true)

@@ -17,7 +17,9 @@ import javax.annotation.Nullable;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 final class CraftProfileProperty {
 
@@ -87,7 +89,6 @@ final class CraftProfileProperty {
     @Nonnull
     public static String toString(@Nonnull Property property) {
         StringBuilder builder = new StringBuilder();
-        /*
         builder.append("{");
         builder.append("name=");
         builder.append(property.getName());
@@ -95,42 +96,34 @@ final class CraftProfileProperty {
         builder.append(property.getValue());
         builder.append(", signature=");
         builder.append(property.getSignature());
-        builder.append("}");*/
-        // Banner TODO
+        builder.append("}");
         return builder.toString();
     }
 
     public static int hashCode(@Nonnull Property property) {
         int result = 1;
-        /*
         result = 31 * result + Objects.hashCode(property.getName());
         result = 31 * result + Objects.hashCode(property.getValue());
-        result = 31 * result + Objects.hashCode(property.getSignature());*/
-        // Banner TODO
+        result = 31 * result + Objects.hashCode(property.getSignature());
         return result;
     }
 
     public static boolean equals(@Nullable Property property, @Nullable Property other) {
-        /*
         if (property == null || other == null) return (property == other);
         if (!Objects.equals(property.getValue(), other.getValue())) return false;
         if (!Objects.equals(property.getName(), other.getName())) return false;
-        if (!Objects.equals(property.getSignature(), other.getSignature())) return false;*/
-        // Banner TODO
+        if (!Objects.equals(property.getSignature(), other.getSignature())) return false;
         return true;
     }
 
     public static Map<String, Object> serialize(@Nonnull Property property) {
-        /*
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("name", property.getName());
         map.put("value", property.getValue());
         if (property.hasSignature()) {
             map.put("signature", property.getSignature());
         }
-        return map;*/
-        // Banner TODO
-        return null;
+        return map;
     }
 
     public static Property deserialize(@Nonnull Map<?, ?> map) {

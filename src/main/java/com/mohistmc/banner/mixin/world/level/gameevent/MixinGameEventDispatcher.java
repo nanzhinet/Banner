@@ -1,14 +1,13 @@
 package com.mohistmc.banner.mixin.world.level.gameevent;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventDispatcher;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_20_R2.CraftGameEvent;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.event.world.GenericGameEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +28,7 @@ public class MixinGameEventDispatcher {
     private void banner$gameEvent(GameEvent gameevent, Vec3 pos, GameEvent.Context context,
                                   CallbackInfo ci, int i, BlockPos blockPos) {
         // CraftBukkit start
-        GenericGameEvent event = new GenericGameEvent(org.bukkit.GameEvent.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.GAME_EVENT.getKey(gameevent))), CraftLocation.toBukkit(blockPos, level.getWorld()), (context.sourceEntity() == null) ? null : context.sourceEntity().getBukkitEntity(), i, !Bukkit.isPrimaryThread());
+        GenericGameEvent event = new GenericGameEvent(CraftGameEvent.minecraftToBukkit(gameevent), CraftLocation.toBukkit(pos, level.getWorld()), (context.sourceEntity() == null) ? null : context.sourceEntity().getBukkitEntity(), i, !Bukkit.isPrimaryThread());
         level.getCraftServer().getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             ci.cancel();

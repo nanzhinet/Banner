@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import org.bukkit.Color;
 import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
 import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
 import org.bukkit.util.Transformation;
 
 public class CraftDisplay extends CraftEntity implements Display {
@@ -21,11 +20,6 @@ public class CraftDisplay extends CraftEntity implements Display {
     @Override
     public String toString() {
         return "CraftDisplay";
-    }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.UNKNOWN;
     }
 
     @Override
@@ -51,13 +45,12 @@ public class CraftDisplay extends CraftEntity implements Display {
 
     @Override
     public int getInterpolationDuration() {
-        //return getHandle().getInterpolationDuration();        // Banner TODO
-        return 0;
+        return getHandle().getInterpolationDuration();
     }
 
     @Override
     public void setInterpolationDuration(int duration) {
-        //getHandle().setInterpolationDuration(duration);        // Banner TODO
+        getHandle().setInterpolationDuration(duration);
     }
 
     @Override
@@ -112,13 +105,12 @@ public class CraftDisplay extends CraftEntity implements Display {
 
     @Override
     public int getInterpolationDelay() {
-        //return getHandle().getInterpolationDelay();         // Banner TODO
-        return 0;
+        return getHandle().getInterpolationDelay();
     }
 
     @Override
     public void setInterpolationDelay(int ticks) {
-        //getHandle().setInterpolationDelay(ticks);         // Banner TODO
+        getHandle().setInterpolationDelay(ticks);
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.mohistmc.banner.mixin.interaction.dispenser;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior;
-import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
@@ -33,14 +33,14 @@ public abstract class MixinAbstractProjectileDispenseBehavior {
      */
     @Overwrite
     public ItemStack execute(BlockSource isourceblock, ItemStack stack) {
-        Level level = isourceblock.level();
+        Level level = isourceblock.getLevel();
         Position position = DispenserBlock.getDispensePosition(isourceblock);
-        Direction direction = (Direction)isourceblock.state().getValue(DispenserBlock.FACING);
+        Direction direction = (Direction)isourceblock.getBlockState().getValue(DispenserBlock.FACING);
         Projectile projectile = this.getProjectile(level, position, stack);
         // CraftBukkit start
         //projectile.shoot((double)direction.getStepX(), (double)((float)direction.getStepY() + 0.1F), (double)direction.getStepZ(), this.getPower(), this.getUncertainty());
         ItemStack itemstack1 = stack.split(1);
-        org.bukkit.block.Block block = level.getWorld().getBlockAt(isourceblock.pos().getX(), isourceblock.pos().getY(), isourceblock.pos().getZ());
+        org.bukkit.block.Block block = level.getWorld().getBlockAt(isourceblock.getPos().getX(), isourceblock.getPos().getY(), isourceblock.getPos().getZ());
         CraftItemStack craftItem = CraftItemStack.asCraftMirror(itemstack1);
 
         BlockDispenseEvent event = new BlockDispenseEvent(block, craftItem.clone(), new org.bukkit.util.Vector((double) direction.getStepX(), (double) ((float) direction.getStepY() + 0.1F), (double) direction.getStepZ()));
@@ -64,7 +64,7 @@ public abstract class MixinAbstractProjectileDispenseBehavior {
             }
         }
         projectile.shoot(event.getVelocity().getX(), event.getVelocity().getY(), event.getVelocity().getZ(), this.getPower(), this.getUncertainty());
-        projectile.banner$setProjectileSource(new CraftBlockProjectileSource(isourceblock.blockEntity()));
+        projectile.banner$setProjectileSource(new CraftBlockProjectileSource((DispenserBlockEntity) isourceblock.getEntity()));
 
         level.addFreshEntity(projectile);
         //stack.shrink(1);// CraftBukkit - Handled during event processing

@@ -67,7 +67,6 @@ import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.RepairItemRecipe;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -321,6 +320,8 @@ public final class CraftServer implements Server {
         this.dataPackManager = new CraftDataPackManager(this.getServer().getPackRepository());
         Bukkit.setServer(this);
 
+        CraftRegistry.setMinecraftRegistry(console.registryAccess());
+
         // Register all the Enchantments and PotionTypes now so we can stop new registration immediately after
         Enchantments.SHARPNESS.getClass();
 
@@ -553,6 +554,14 @@ public final class CraftServer implements Server {
 
     @Override
     public List<CraftPlayer> getOnlinePlayers() {
+        // Banner start - refresh online players
+        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, new Function<ServerPlayer, CraftPlayer>() {
+            @Override
+            public CraftPlayer apply(ServerPlayer player) {
+                return player.getBukkitEntity();
+            }
+        }));
+        // Banner end
         return this.playerView;
     }
 
@@ -1108,7 +1117,7 @@ public final class CraftServer implements Server {
             net.minecraft.server.Main.forceUpgrade(worldSession, DataFixers.getDataFixer(), console.bridge$options().has("eraseCache"), () -> true, iregistry);
         }
 
-        long j = BiomeManager.obfuscateSeed(creator.seed());
+        long j = BiomeManager.obfuscateSeed(worlddata.worldGenOptions().seed()); // Paper - use world seed
         List<CustomSpawner> list = ImmutableList.of(new PatrolSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(), new WanderingTraderSpawner(worlddata));
         LevelStem worlddimension = iregistry.get(actualDimension);
 
@@ -1318,9 +1327,9 @@ public final class CraftServer implements Server {
 
     @Override
     public Recipe getRecipe(NamespacedKey recipeKey) {
-        Preconditions.checkArgument(recipeKey != null, "recipeKey == null");
+        Preconditions.checkArgument(recipeKey != null, "NamespacedKey recipeKey cannot be null");
 
-        return getServer().getRecipeManager().byKey(CraftNamespacedKey.toMinecraft(recipeKey)).map(net.minecraft.world.item.crafting.RecipeHolder::toBukkitRecipe).orElse(null);
+        return getServer().getRecipeManager().byKey(CraftNamespacedKey.toMinecraft(recipeKey)).map(net.minecraft.world.item.crafting.Recipe::toBukkitRecipe).orElse(null);
     }
 
     @Override
@@ -1344,7 +1353,7 @@ public final class CraftServer implements Server {
         };
         CraftingContainer inventoryCrafting = new TransientCraftingContainer(container, 3, 3);
 
-        return getNMSRecipe(craftingMatrix, inventoryCrafting, (CraftWorld) world).map(net.minecraft.world.item.crafting.RecipeHolder::toBukkitRecipe).orElse(null);
+        return getNMSRecipe(craftingMatrix, inventoryCrafting, (CraftWorld) world).map(net.minecraft.world.item.crafting.Recipe::toBukkitRecipe).orElse(null);
     }
 
     @Override
@@ -1384,7 +1393,7 @@ public final class CraftServer implements Server {
         return CraftItemStack.asBukkitCopy(result);
     }
 
-    private Optional<RecipeHolder<CraftingRecipe>> getNMSRecipe(ItemStack[] craftingMatrix, CraftingContainer inventoryCrafting, CraftWorld world) {
+    private Optional<CraftingRecipe> getNMSRecipe(ItemStack[] craftingMatrix, CraftingContainer inventoryCrafting, CraftWorld world) {
         Preconditions.checkArgument(craftingMatrix != null, "craftingMatrix must not be null");
         Preconditions.checkArgument(craftingMatrix.length == 9, "craftingMatrix must be an array of length 9");
         Preconditions.checkArgument(world != null, "world must not be null");

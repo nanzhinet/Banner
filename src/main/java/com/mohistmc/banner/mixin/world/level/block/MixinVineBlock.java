@@ -86,14 +86,14 @@ public abstract class MixinVineBlock extends Block {
                                 }
                             }
                         } else if (isAcceptableNeighbour(level, blockPos2, direction)) {
-                            level.setBlock(pos, (BlockState)state.setValue(getPropertyForFace(direction), true), 2);
+                            CraftEventFactory.handleBlockGrowEvent(level, pos, (BlockState) state.setValue(getPropertyForFace(direction), true), 2); // CraftBukkit
                         }
 
                     }
                 } else {
                     if (direction == Direction.UP && pos.getY() < level.getMaxBuildHeight() - 1) {
                         if (this.canSupportAtFace(level, pos, direction)) {
-                            level.setBlock(pos, (BlockState)state.setValue(UP, true), 2);
+                            CraftEventFactory.handleBlockGrowEvent(level, pos, (BlockState) state.setValue(VineBlock.UP, true), 2); // CraftBukkit
                             return;
                         }
 

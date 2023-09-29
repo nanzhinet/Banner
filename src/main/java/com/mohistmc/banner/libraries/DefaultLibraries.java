@@ -8,7 +8,6 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,15 +20,8 @@ public class DefaultLibraries {
 
     public static final HashMap<String, String> fail = new HashMap<>();
     public static final AtomicLong allSize = new AtomicLong(); // global
-    public static final String MAVENURL;
+    public static final String MAVENURL = DownloadSource.get().getUrl();
 
-    static {
-        try {
-            MAVENURL = DownloadSource.get().getUrl();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static String libUrl(File lib) {
         return MAVENURL + "libraries/" + lib.getAbsolutePath().replaceAll("\\\\", "/").split("/libraries/")[1];
@@ -37,6 +29,7 @@ public class DefaultLibraries {
 
     public static void run() throws Exception {
         System.out.println(BannerMCStart.I18N.get("libraries.checking.start"));
+        System.out.println(BannerMCStart.I18N.get("libraries.downloadsource", DownloadSource.get().name()));
         LinkedHashMap<File, String> libs = getDefaultLibs();
         AtomicLong currentSize = new AtomicLong();
         Set<File> defaultLibs = new LinkedHashSet<>();

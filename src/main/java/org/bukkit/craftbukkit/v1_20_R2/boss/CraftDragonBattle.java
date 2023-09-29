@@ -1,10 +1,6 @@
 package org.bukkit.craftbukkit.v1_20_R2.boss;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.dimension.end.DragonRespawnAnimation;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
@@ -17,7 +13,11 @@ import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEnderCrystal;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.EnderDragon;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class CraftDragonBattle implements DragonBattle {
 
@@ -68,7 +68,7 @@ public class CraftDragonBattle implements DragonBattle {
     }
 
     @Override
-    public boolean initiateRespawn(@Nullable Collection<EnderCrystal> list) {
+    public boolean initiateRespawn(Collection<EnderCrystal> list) {
         if (hasBeenPreviouslyKilled() && getRespawnPhase() == RespawnPhase.NONE) {
             // Copy from EnderDragonBattle#tryRespawn for generate exit portal if not exists
             if (this.handle.portalLocation == null) {
@@ -88,7 +88,7 @@ public class CraftDragonBattle implements DragonBattle {
                 return !((CraftWorld) world).getHandle().equals(handle.level);
             });
             this.handle.respawnDragon(list.stream().map(enderCrystal -> ((CraftEnderCrystal) enderCrystal).getHandle()).collect(Collectors.toList()));
-            return this.handle.respawnDragon;
+            return this.handle.bridge$isRespawnDragon();
         }
         return false;
     }

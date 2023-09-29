@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.v1_20_R2.entity;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.mohistmc.banner.api.ServerAPI;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import org.bukkit.boss.BossBar;
 import org.bukkit.boss.DragonBattle;
@@ -9,7 +10,6 @@ import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R2.boss.CraftDragonBattle;
 import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.EntityType;
 
 import java.util.Set;
 
@@ -41,11 +41,6 @@ public class CraftEnderDragon extends CraftMob implements EnderDragon {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ENDER_DRAGON;
-    }
-
-    @Override
     public Phase getPhase() {
         return Phase.values()[getHandle().getEntityData().get(net.minecraft.world.entity.boss.enderdragon.EnderDragon.DATA_PHASE)];
     }
@@ -56,6 +51,11 @@ public class CraftEnderDragon extends CraftMob implements EnderDragon {
     }
 
     public static Phase getBukkitPhase(EnderDragonPhase phase) {
+        // Mohist start
+        if (phase.getId() > 10) {
+            return ServerAPI.phasetypeMap.get(phase.getId());
+        }
+        // Mohist end
         return Phase.values()[phase.getId()];
     }
 

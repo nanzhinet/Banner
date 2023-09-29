@@ -233,7 +233,7 @@ public abstract class PotionEffectType implements Keyed {
     @NotNull
     @Override
     public NamespacedKey getKey() {
-       return key;
+        return key;
     }
 
     /**
@@ -284,7 +284,7 @@ public abstract class PotionEffectType implements Keyed {
         return "PotionEffectType[" + id + ", " + getName() + "]";
     }
 
-    private static final PotionEffectType[] byId = new PotionEffectType[BuiltInRegistries.MOB_EFFECT.registryKeySet().size() + 1];
+    private static final PotionEffectType[] byId = new PotionEffectType[BuiltInRegistries.MOB_EFFECT.stream().mapToInt(MobEffect::getId).max().orElse(0) + 1];
     private static final Map<String, PotionEffectType> byName = new HashMap<String, PotionEffectType>();
     private static final Map<NamespacedKey, PotionEffectType> byKey = new HashMap<NamespacedKey, PotionEffectType>();
     // will break on updates.
@@ -364,6 +364,8 @@ public abstract class PotionEffectType implements Keyed {
      */
     @NotNull
     public static PotionEffectType[] values() {
-        return Arrays.copyOfRange(byId, 1, byId.length);
+        int from = byId[0] == null ? 1 : 0;
+        int to = byId[byId.length - 1] == null ? byId.length - 1 : byId.length;
+        return Arrays.copyOfRange(byId, from, to);
     }
 }

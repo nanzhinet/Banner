@@ -1,18 +1,27 @@
 package com.mohistmc.banner.mixin.world.entity.vehicle;
 
+import com.mohistmc.banner.injection.world.entity.vehicle.InjectionAbstractMinecart;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseRailBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.PoweredRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -26,9 +35,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// Banner TODO
+import java.util.List;
+
 @Mixin(AbstractMinecart.class)
-public abstract class MixinAbstractMinecart extends Entity {
+public abstract class MixinAbstractMinecart extends Entity implements InjectionAbstractMinecart {
 
     // @formatter:off
     @Shadow public abstract void setHurtDir(int rollingDirection);
@@ -38,6 +48,12 @@ public abstract class MixinAbstractMinecart extends Entity {
     @Shadow public abstract float getDamage();
     @Shadow public abstract void destroy(DamageSource source);
     @Shadow public abstract int getHurtTime();
+    @Shadow private int lSteps;
+    @Shadow private double lx;
+    @Shadow private double ly;
+    @Shadow private double lz;
+    @Shadow private double lyr;
+    @Shadow private double lxr;
     @Shadow protected abstract void moveAlongTrack(BlockPos pos, BlockState state);
     @Shadow public abstract void activateMinecart(int x, int y, int z, boolean receivingPower);
     @Shadow private boolean flipped;
@@ -130,7 +146,6 @@ public abstract class MixinAbstractMinecart extends Entity {
      * @author wdog5
      * @reason
      */
-    /*
     @Overwrite
     public void tick() {
         // CraftBukkit start
@@ -286,7 +301,7 @@ public abstract class MixinAbstractMinecart extends Entity {
 
             this.firstTick = false;
         }
-    }*/
+    }
 
     /**
      * @author wdog5
@@ -337,23 +352,47 @@ public abstract class MixinAbstractMinecart extends Entity {
         }
     }
 
+    @Override
     public Vector getFlyingVelocityMod() {
         return new Vector(flyingX, flyingY, flyingZ);
     }
 
+    @Override
     public void setFlyingVelocityMod(Vector flying) {
         flyingX = flying.getX();
         flyingY = flying.getY();
         flyingZ = flying.getZ();
     }
 
+    @Override
     public Vector getDerailedVelocityMod() {
         return new Vector(derailedX, derailedY, derailedZ);
     }
 
+    @Override
     public void setDerailedVelocityMod(Vector derailed) {
         derailedX = derailed.getX();
         derailedY = derailed.getY();
         derailedZ = derailed.getZ();
+    }
+
+    @Override
+    public double bridge$maxSpeed() {
+        return maxSpeed;
+    }
+
+    @Override
+    public void banner$setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    @Override
+    public boolean bridge$slowWhenEmpty() {
+        return slowWhenEmpty;
+    }
+
+    @Override
+    public void banner$setSlowWhenEmpty(boolean slowWhenEmpty) {
+        this.slowWhenEmpty = slowWhenEmpty;
     }
 }

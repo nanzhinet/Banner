@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R2.scoreboard;
 
 import com.google.common.collect.ImmutableBiMap;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.RenderType;
@@ -31,13 +32,11 @@ final class CraftScoreboardTranslations {
     private CraftScoreboardTranslations() {}
 
     static DisplaySlot toBukkitSlot(int i) {
-       // return SLOTS.inverse().get(Scoreboard.getDisplaySlotByName(i));  // Banner TODO
-        return null;
+        return SLOTS.inverse().get(Scoreboard.getDisplaySlotName(i));
     }
 
     static int fromBukkitSlot(DisplaySlot slot) {
-        //return Scoreboard.getDisplaySlotByName(SLOTS.get(slot));   // Banner TODO
-        return 0;
+        return Scoreboard.getDisplaySlotByName(SLOTS.get(slot));
     }
 
     static RenderType toBukkitRender(ObjectiveCriteria.RenderType display) {

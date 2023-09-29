@@ -26,8 +26,4 @@ public class LevelPersistentData extends SavedData {
     public @NotNull CompoundTag save(@NotNull CompoundTag it) {
         return tag;
     }
-
-    public static Factory<LevelPersistentData> factory() {
-        return new SavedData.Factory<>(() -> new LevelPersistentData(null), LevelPersistentData::new, BukkitExtraConstants.BUKKIT_PDC);
-    }
 }

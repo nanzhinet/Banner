@@ -1,22 +1,25 @@
 package com.mohistmc.banner.mixin.server.level;
 
-import com.mohistmc.banner.bukkit.BukkitCaptures;
+import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.bukkit.DoubleChestInventory;
 import com.mohistmc.banner.injection.server.level.InjectionServerPlayer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Unit;
 import net.minecraft.BlockUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.PositionImpl;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.common.ServerboundClientInformationPacket;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
+import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,6 +44,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -150,7 +154,10 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     @Shadow public abstract void setCamera(@Nullable Entity entityToSpectate);
 
     @Shadow @Nullable protected abstract PortalInfo findDimensionEntryPoint(ServerLevel destination);
-    @Shadow public String language;
+
+    @Shadow public abstract void resetFallDistance();
+
+    @Shadow public abstract boolean canHarmPlayer(Player other);
 
     // CraftBukkit start
     public String displayName;
@@ -170,6 +177,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     public long timeOffset = 0;
     public WeatherType weather = null;
     public boolean relativeTime = true;
+    public String locale = null; // CraftBukkit - add, lowercase // Paper - default to null
     private boolean banner$initialized = false;
     private float pluginRainPosition;
     private float pluginRainPositionPrevious;
@@ -291,6 +299,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         this.setPlayerWeather(this.level().getLevelData().isRaining() ? WeatherType.DOWNFALL : WeatherType.CLEAR, false);
     }
 
+    @Override
     public void updateWeather(float oldRain, float newRain, float oldThunder, float newThunder) {
         if (this.weather == null) {
             if (oldRain != newRain) {
@@ -308,6 +317,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         }
     }
 
+    @Override
     public void tickWeather() {
         if (this.weather == null) {
             return;
@@ -505,10 +515,10 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     @Inject(method = "doCloseContainer", at = @At("HEAD"))
     private void banner$invClose(CallbackInfo ci) {
         if (this.containerMenu != this.inventoryMenu) {
-            var old = BukkitCaptures.getContainerOwner();
-            BukkitCaptures.captureContainerOwner((ServerPlayer) (Object) this);
+            var old = BukkitSnapshotCaptures.getContainerOwner();
+            BukkitSnapshotCaptures.captureContainerOwner((ServerPlayer) (Object) this);
             CraftEventFactory.handleInventoryCloseEvent((ServerPlayer) (Object) this);
-            BukkitCaptures.captureContainerOwner(old);
+            BukkitSnapshotCaptures.captureContainerOwner(old);
         }
     }
 
@@ -550,21 +560,20 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Inject(method = "updateOptions", at = @At("HEAD"))
-    private void banner$settingChange(ClientInformation packetIn, CallbackInfo ci) {
-        // CraftBukkit start
-        if (getMainArm() != packetIn.mainHand()) {
-            PlayerChangedMainHandEvent event = new PlayerChangedMainHandEvent(getBukkitEntity(), getMainArm() == HumanoidArm.LEFT ? MainHand.LEFT : MainHand.RIGHT);
+    private void banner$settingChange(ServerboundClientInformationPacket packetIn, CallbackInfo ci) {
+        if (this.getMainArm() != packetIn.mainHand()) {
+            PlayerChangedMainHandEvent event = new PlayerChangedMainHandEvent(this.getBukkitEntity(), (this.getMainArm() == HumanoidArm.LEFT) ? MainHand.LEFT : MainHand.RIGHT);
             Bukkit.getPluginManager().callEvent(event);
         }
-        if (!this.language.equals(packetIn.language())) {
-            PlayerLocaleChangeEvent event = new PlayerLocaleChangeEvent(getBukkitEntity(), packetIn.language());
-            Bukkit.getPluginManager().callEvent(event);
+        if (this.locale == null || !this.locale.equals(packetIn.language)) { // Paper - check for null
+            PlayerLocaleChangeEvent event2 = new PlayerLocaleChangeEvent(this.getBukkitEntity(), packetIn.language());
+            Bukkit.getPluginManager().callEvent(event2);
+            this.server.bridge$server().getPluginManager().callEvent(new com.destroystokyo.paper.event.player.PlayerLocaleChangeEvent(this.getBukkitEntity(), this.locale, packetIn.language)); // Paper
         }
-        // CraftBukkit end
+        this.locale = packetIn.language();
+        this.clientViewDistance = packetIn.viewDistance();
     }
 
-    // Banner TODO
-    /*
     @Inject(method = "trackChunk",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V",
@@ -587,7 +596,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
             new io.papermc.paper.event.packet.PlayerChunkUnloadEvent(this.getBukkitEntity().getWorld().getChunkAt(chunkPos.x, chunkPos.z), this.getBukkitEntity()).callEvent();
         }
         // Paper end
-    }*/
+    }
 
     @Inject(method = "setCamera",
             at = @At(value = "INVOKE",
@@ -633,47 +642,47 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         return containerCounter; // CraftBukkit
     }
 
-    @Override
-    public int nextContainerCounter() {
-        this.containerCounter = this.containerCounter % 100 + 1;
-        return containerCounter; // CraftBukkit
-    }
-
-    private AtomicReference<AbstractContainerMenu> banner$containerMenu = new AtomicReference<>();
-
-    @Inject(method = "openMenu", cancellable = true,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/MenuProvider;createMenu(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/inventory/AbstractContainerMenu;"),
-            locals = LocalCapture.CAPTURE_FAILHARD)
-    private void banner$invOpen(MenuProvider menuProvider, CallbackInfoReturnable<OptionalInt> cir) {
-        AbstractContainerMenu banner$container = menuProvider.createMenu(this.containerCounter, this.getInventory(), this);
-        banner$containerMenu.set(banner$container);
-        if (banner$container != null) {
-            banner$container.setTitle(menuProvider.getDisplayName());
-            boolean cancelled = false;
-            BukkitCaptures.captureContainerOwner((ServerPlayer) (Object) this);
-            banner$container = CraftEventFactory.callInventoryOpenEvent((ServerPlayer) (Object) this, banner$container, cancelled);
-            BukkitCaptures.resetContainerOwner();
-            if (banner$container == null && !cancelled) {
-                if (menuProvider instanceof Container) {
-                    ((Container) menuProvider).stopOpen((ServerPlayer) (Object) this);
-                } else if (menuProvider instanceof DoubleChestInventory) {
-                    ((DoubleChestInventory) menuProvider).inventorylargechest.stopOpen(this);
+    /**
+     * @author
+     * @reason
+     */
+    @Overwrite
+    public OptionalInt openMenu(@Nullable MenuProvider menu) {
+        if (menu == null) {
+            return OptionalInt.empty();
+        } else {
+            if (this.containerMenu != this.inventoryMenu) {
+                this.closeContainer();
+            }
+            this.nextContainerCounterInt();
+            AbstractContainerMenu abstractContainerMenu = menu.createMenu(this.containerCounter, this.getInventory(), this);
+            if (abstractContainerMenu != null) {
+                abstractContainerMenu.setTitle(menu.getDisplayName());
+                boolean cancelled = false;
+                BukkitSnapshotCaptures.captureContainerOwner((ServerPlayer) (Object) this);
+                abstractContainerMenu = CraftEventFactory.callInventoryOpenEvent((ServerPlayer) (Object) this, abstractContainerMenu, cancelled);
+                if (abstractContainerMenu == null && !cancelled) {
+                    if (menu instanceof Container) {
+                        ((Container) menu).stopOpen((ServerPlayer) (Object) this);
+                    } else if (menu instanceof DoubleChestInventory) {
+                        ((DoubleChestInventory) menu).inventorylargechest.stopOpen(this);
+                    }
+                    return OptionalInt.empty();
                 }
-                cir.setReturnValue(OptionalInt.empty());
+            }
+            if (abstractContainerMenu == null) {
+                if (this.isSpectator()) {
+                    this.displayClientMessage(Component.translatable("container.spectatorCantOpen").withStyle(ChatFormatting.RED), true);
+                }
+
+                return OptionalInt.empty();
+            } else {
+                this.connection.send(new ClientboundOpenScreenPacket(abstractContainerMenu.containerId, abstractContainerMenu.getType(), menu.getDisplayName()));
+                this.initMenu(abstractContainerMenu);
+                this.containerMenu = abstractContainerMenu;
+                return OptionalInt.of(this.containerCounter);
             }
         }
-    }
-
-    @Redirect(method = "openMenu", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/MenuProvider;createMenu(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/inventory/AbstractContainerMenu;"))
-    private AbstractContainerMenu banner$resetMenu(MenuProvider instance, int i, Inventory inventory, Player player) {
-        return banner$containerMenu.get();
-    }
-
-    @Redirect(method = "openMenu", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/MenuProvider;getDisplayName()Lnet/minecraft/network/chat/Component;"))
-    private Component banner$sendData(MenuProvider instance) {
-        return banner$containerMenu.get().getTitle();
     }
 
     private AtomicReference<HorseInventoryMenu> banner$horseMenu = new AtomicReference<>();
@@ -702,7 +711,12 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
 
     @Inject(method = "closeContainer", at = @At("HEAD"))
     private void banner$closeMenu(CallbackInfo ci) {
-        CraftEventFactory.handleInventoryCloseEvent(this); // CraftBukkit
+        if (this.containerMenu != this.inventoryMenu) {
+            var old = BukkitSnapshotCaptures.getContainerOwner();
+            BukkitSnapshotCaptures.captureContainerOwner(this);
+            CraftEventFactory.handleInventoryCloseEvent(this);
+            BukkitSnapshotCaptures.captureContainerOwner(old);
+        }
     }
 
     private AtomicReference<String> banner$deathString = new AtomicReference<>("null");
@@ -800,8 +814,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         this.level().getCraftServer().getScoreboardManager().getScoreboardScores(ObjectiveCriteria.DEATH_COUNT, this.getScoreboardName(), Score::increment);
     }
 
-    private AtomicReference<PlayerTeleportEvent.TeleportCause> banner$changeDimensionCause =
-            new AtomicReference<>(PlayerTeleportEvent.TeleportCause.UNKNOWN);
+    private AtomicReference<PlayerTeleportEvent.TeleportCause> banner$changeDimensionCause = new AtomicReference<>(PlayerTeleportEvent.TeleportCause.UNKNOWN);
 
     @Override
     public Entity changeDimension(ServerLevel worldserver, PlayerTeleportEvent.TeleportCause cause) {
@@ -811,23 +824,36 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
 
     @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;teleport(DDDFFLjava/util/Set;)V"))
     private void banner$forwardReason(ServerLevel level, double x, double y, double z, Set<RelativeMovement> relativeMovements, float yRot, float xRot, CallbackInfoReturnable<Boolean> cir) {
-        var teleportCause = banner$changeDimensionCause.get();
-        banner$changeDimensionCause.set(null);
+        var teleportCause = banner$changeDimensionCause.getAndSet(PlayerTeleportEvent.TeleportCause.UNKNOWN);
         this.connection.pushTeleportCause(teleportCause);
     }
 
     @Inject(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDFF)V", cancellable = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/level/ServerPlayer;stopRiding()V"))
     private void banner$handleBy(ServerLevel world, double x, double y, double z, float yaw, float pitch, CallbackInfo ci) {
-        PlayerTeleportEvent.TeleportCause cause = banner$changeDimensionCause.get() == null ? PlayerTeleportEvent.TeleportCause.UNKNOWN : banner$changeDimensionCause.get();
-        banner$changeDimensionCause.set(null);
-        this.getBukkitEntity().teleport(new Location(world.getWorld(), x, y, z, yaw, pitch), cause);
-        ci.cancel();
+        PlayerTeleportEvent.TeleportCause cause = banner$changeDimensionCause.getAndSet(PlayerTeleportEvent.TeleportCause.UNKNOWN);
+        if (cause != PlayerTeleportEvent.TeleportCause.UNKNOWN) {
+            this.getBukkitEntity().teleport(new Location(world.getWorld(), x, y, z, yaw, pitch), cause);
+            ci.cancel();
+        }
     }
 
     @Override
     public void teleportTo(ServerLevel worldserver, double d0, double d1, double d2, float f, float f1, PlayerTeleportEvent.TeleportCause cause) {
         pushChangeDimensionCause(cause);
         teleportTo(worldserver, d0, d1, d2, f, f1);
+    }
+
+    @Override
+    public boolean teleportTo(ServerLevel worldserver, double d0, double d1, double d2, Set<RelativeMovement> pRelativeMovements, float f, float f1, PlayerTeleportEvent.TeleportCause cause) {
+        pushChangeDimensionCause(cause);
+        return teleportTo(worldserver, d0, d1, d2, pRelativeMovements, f, f1);
+    }
+
+    @Inject(method = "stopSleepInBed",
+            at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;teleport(DDDFF)V"))
+    private void banner$tpCauseExitBed(boolean wakeImmediately, boolean updateLevelForSleepingPlayers, CallbackInfo ci) {
+        this.connection.pushTeleportCause(PlayerTeleportEvent.TeleportCause.EXIT_BED);
     }
 
     @Override
@@ -868,7 +894,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Override
-    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, Vec3 exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
+    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, PositionImpl exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
         Location enter = this.getBukkitEntity().getLocation();
         Location exit = new Location(exitWorldServer.getWorld(), exitPosition.x(), exitPosition.y(), exitPosition.z(), this.getYRot(), this.getXRot());
         PlayerPortalEvent event = new PlayerPortalEvent(this.getBukkitEntity(), enter, exit, cause, 128, true, creationRadius);
@@ -1059,12 +1085,12 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
 
     @Override
     public String bridge$locale() {
-        return language;
+        return locale;
     }
 
     @Override
     public void banner$setLocale(String locale) {
-        this.language = locale;
+        this.locale = locale;
     }
 
     @Override

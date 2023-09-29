@@ -3,7 +3,6 @@ package org.bukkit.craftbukkit.v1_20_R2.inventory;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.inventory.ComplexRecipe;
@@ -11,11 +10,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class CraftComplexRecipe implements CraftRecipe, ComplexRecipe {
 
-    private final NamespacedKey key;
     private final CustomRecipe recipe;
 
-    public CraftComplexRecipe(NamespacedKey key, CustomRecipe recipe) {
-        this.key = key;
+    public CraftComplexRecipe(CustomRecipe recipe) {
         this.recipe = recipe;
     }
 
@@ -26,11 +23,11 @@ public class CraftComplexRecipe implements CraftRecipe, ComplexRecipe {
 
     @Override
     public NamespacedKey getKey() {
-        return key;
+        return CraftNamespacedKey.fromMinecraft(recipe.getId());
     }
 
     @Override
     public void addToCraftingManager() {
-        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(new RecipeHolder<>(CraftNamespacedKey.toMinecraft(key), recipe));
+        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(recipe);
     }
 }

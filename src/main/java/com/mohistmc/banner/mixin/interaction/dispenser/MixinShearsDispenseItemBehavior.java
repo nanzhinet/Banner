@@ -2,8 +2,8 @@ package com.mohistmc.banner.mixin.interaction.dispenser;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
-import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.core.dispenser.ShearsDispenseItemBehavior;
@@ -44,9 +44,9 @@ public abstract class MixinShearsDispenseItemBehavior extends OptionalDispenseIt
      */
     @Overwrite
     protected ItemStack execute(BlockSource source, ItemStack stack) {
-        Level level = source.level();
+        Level level = source.getLevel();
         // CraftBukkit start
-        org.bukkit.block.Block bukkitBlock = level.getWorld().getBlockAt(source.pos().getX(), source.pos().getY(), source.pos().getZ());
+        org.bukkit.block.Block bukkitBlock = level.getWorld().getBlockAt(source.getPos().getX(), source.getPos().getY(), source.getPos().getZ());
         CraftItemStack craftItem = CraftItemStack.asCraftMirror(stack);
 
         BlockDispenseEvent event = new BlockDispenseEvent(bukkitBlock, craftItem.clone(), new org.bukkit.util.Vector(0, 0, 0));
@@ -69,7 +69,7 @@ public abstract class MixinShearsDispenseItemBehavior extends OptionalDispenseIt
         }
         // CraftBukkit end
         if (!level.isClientSide()) {
-            BlockPos blockPos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+            BlockPos blockPos = source.getPos().relative((Direction)source.getBlockState().getValue(DispenserBlock.FACING));
             this.setSuccess(tryShearBeehive((ServerLevel)level, blockPos) || tryShearLivingEntity((ServerLevel)level, blockPos, bukkitBlock, craftItem)); // CraftBukkit
             if (this.isSuccess() && stack.hurt(1, level.getRandom(), (ServerPlayer)null)) {
                 stack.setCount(0);

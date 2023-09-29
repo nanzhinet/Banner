@@ -30,9 +30,9 @@ public class BannerMixinPlugin implements IMixinConfigPlugin {
     private final Map<String, Map.Entry<List<FieldNode>, List<MethodNode>>> accessTransformer =
             ImmutableMap.<String, Map.Entry<List<FieldNode>, List<MethodNode>>>builder()
                     .put("net.minecraft.world.item.BoneMealItem",
-                            Map.entry(
-                                    List.of(),
-                                    List.of(
+                            Maps.immutableEntry(
+                                    ImmutableList.of(),
+                                    ImmutableList.of(
                                             new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "applyBonemeal", "(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", null, null)
                                     )
                             )
@@ -155,6 +155,9 @@ public class BannerMixinPlugin implements IMixinConfigPlugin {
         }
         if (mixinClassName.equals("com.mohistmc.banner.mixin.world.item.MixinChorusFruitItem")) {
             return !FabricLoader.getInstance().isModLoaded("openpartiesandclaims");
+        }
+        if (mixinClassName.equals("com.mohistmc.banner.mixin.world.level.MixinClipContext")) {
+            return !FabricLoader.getInstance().isModLoaded("create") && !FabricLoader.getInstance().isModLoaded("porting_lib");
         }
         if (mixinClassName.endsWith("ThreadingDetectorMixin")) {
             // added in 1.18-pre7

@@ -2,9 +2,9 @@ package com.mohistmc.banner.mixin.server.network;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.network.protocol.status.ServerStatus;
@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.net.InetAddress;
 import java.util.HashMap;
 
+//TODO fixed
 @Mixin(ServerHandshakePacketListenerImpl.class)
 public class MixinServerHandshakePacketListenerImpl {
 
@@ -29,19 +30,17 @@ public class MixinServerHandshakePacketListenerImpl {
     @Shadow @Final private Connection connection;
     @Shadow @Final private MinecraftServer server;
     @Shadow @Final private static Component IGNORE_STATUS_REASON;
-    private static final java.util.regex.Pattern HOST_PATTERN = java.util.regex.Pattern.compile("[0-9a-f\\.:]{0,45}");
-
 
     /**
      * @author wdog5
-     * @reason bukkit
+     * @reason
      */
     @Overwrite
     public void handleIntention(ClientIntentionPacket packet) {
         this.connection.banner$setHostName(packet.hostName + ":" + packet.port); // CraftBukkit  - set hostname
-        switch (packet.intention()) {
+        switch (packet.getIntention()) {
             case LOGIN -> {
-                this.connection.setClientboundProtocolAfterHandshake(ClientIntent.LOGIN);
+                this.connection.setProtocol(ConnectionProtocol.LOGIN);
                 // CraftBukkit start - Connection throttle
                 try {
                     long currentTime = System.currentTimeMillis();
@@ -76,9 +75,9 @@ public class MixinServerHandshakePacketListenerImpl {
                     org.apache.logging.log4j.LogManager.getLogger().debug("Failed to check connection throttle", t);
                 }
                 // CraftBukkit end
-                if (packet.protocolVersion() != SharedConstants.getCurrentVersion().getProtocolVersion()) {
+                if (packet.getProtocolVersion() != SharedConstants.getCurrentVersion().getProtocolVersion()) {
                     MutableComponent component;
-                    if (packet.protocolVersion() < 754) {
+                    if (packet.getProtocolVersion() < 754) {
                         component = Component.translatable("multiplayer.disconnect.outdated_client", new Object[]{SharedConstants.getCurrentVersion().getName()});
                     } else {
                         component = Component.translatable("multiplayer.disconnect.incompatible", new Object[]{SharedConstants.getCurrentVersion().getName()});
@@ -93,13 +92,13 @@ public class MixinServerHandshakePacketListenerImpl {
             case STATUS -> {
                 ServerStatus serverStatus = this.server.getStatus();
                 if (this.server.repliesToStatus() && serverStatus != null) {
-                    this.connection.setClientboundProtocolAfterHandshake(ClientIntent.STATUS);
+                    this.connection.setProtocol(ConnectionProtocol.STATUS);
                     this.connection.setListener(new ServerStatusPacketListenerImpl(serverStatus, this.connection));
                 } else {
                     this.connection.disconnect(IGNORE_STATUS_REASON);
                 }
             }
-            default -> throw new UnsupportedOperationException("Invalid intention " + packet.intention());
+            default -> throw new UnsupportedOperationException("Invalid intention " + packet.getIntention());
         }
 
     }

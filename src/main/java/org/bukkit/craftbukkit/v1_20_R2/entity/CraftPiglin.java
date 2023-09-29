@@ -6,7 +6,6 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventory;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftMagicNumbers;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Piglin;
 import org.bukkit.inventory.Inventory;
 
@@ -81,11 +80,6 @@ public class CraftPiglin extends CraftPiglinAbstract implements Piglin {
     @Override
     public net.minecraft.world.entity.monster.piglin.Piglin getHandle() {
         return (net.minecraft.world.entity.monster.piglin.Piglin) super.getHandle();
-    }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.PIGLIN;
     }
 
     @Override

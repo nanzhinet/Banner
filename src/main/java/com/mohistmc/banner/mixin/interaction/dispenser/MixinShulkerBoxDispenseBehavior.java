@@ -2,8 +2,8 @@ package com.mohistmc.banner.mixin.interaction.dispenser;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
-import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.core.dispenser.ShulkerBoxDispenseBehavior;
 import net.minecraft.world.item.Item;
@@ -26,12 +26,12 @@ public class MixinShulkerBoxDispenseBehavior {
             cancellable = true,
             locals = LocalCapture.CAPTURE_FAILHARD)
     private void banner$dispenseEvent(BlockSource source, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, Item item, Direction direction, BlockPos blockPos, Direction direction2) {
-        org.bukkit.block.Block bukkitBlock = source.level().getWorld().getBlockAt(source.pos().getX(), source.pos().getY(), source.pos().getZ());
+        org.bukkit.block.Block bukkitBlock = source.getLevel().getWorld().getBlockAt(source.getPos().getX(), source.getPos().getY(), source.getPos().getZ());
         CraftItemStack craftItem = CraftItemStack.asCraftMirror(stack);
 
         BlockDispenseEvent event = new BlockDispenseEvent(bukkitBlock, craftItem.clone(), new org.bukkit.util.Vector(blockPos.getX(), blockPos.getY(), blockPos.getZ()));
         if (!BukkitExtraConstants.dispenser_eventFired) {
-            source.level().getCraftServer().getPluginManager().callEvent(event);
+            source.getLevel().getCraftServer().getPluginManager().callEvent(event);
         }
 
         if (event.isCancelled()) {

@@ -57,7 +57,7 @@ public abstract class MixinCommands implements InjectionCommands {
             command = command.substring(1);
         }
 
-        ServerCommandEvent event = new ServerCommandEvent(sender.getBukkitSender(), command);
+        ServerCommandEvent event = new ServerCommandEvent(sender.banner$getBukkitSender(), command);
         org.bukkit.Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return 0;
@@ -114,7 +114,7 @@ public abstract class MixinCommands implements InjectionCommands {
         // Remove labels that were removed during the event
         for (String orig : bukkit) {
             if (!event.getCommands().contains(orig)) {
-                ((InjectionCommandNode) rootCommandNode).removeCommand(orig);
+                ((InjectionCommandNode) rootCommandNode).banner$removeCommand(orig);
             }
         }
         player.connection.send(new ClientboundCommandsPacket(rootCommandNode));

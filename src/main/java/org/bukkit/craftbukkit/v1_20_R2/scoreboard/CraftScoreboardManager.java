@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R2.scoreboard;
 
 import com.google.common.base.Preconditions;
+import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
@@ -71,15 +72,13 @@ public final class CraftScoreboardManager implements ScoreboardManager {
 
         // Old objective tracking
         HashSet<net.minecraft.world.scores.Objective> removed = new HashSet<>();
-        // Banner TODO
-        /*
         for (int i = 0; i < 3; ++i) {
             net.minecraft.world.scores.Objective scoreboardobjective = oldboard.getDisplayObjective(i);
             if (scoreboardobjective != null && !removed.contains(scoreboardobjective)) {
                 entityplayer.connection.send(new ClientboundSetObjectivePacket(scoreboardobjective, 1));
                 removed.add(scoreboardobjective);
             }
-        }*/
+        }
 
         // Old team tracking
         Iterator<?> iterator = oldboard.getPlayerTeams().iterator();

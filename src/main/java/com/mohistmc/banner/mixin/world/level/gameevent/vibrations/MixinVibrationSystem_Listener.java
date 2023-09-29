@@ -1,7 +1,6 @@
 package com.mohistmc.banner.mixin.world.level.gameevent.vibrations;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -9,8 +8,8 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_20_R2.CraftGameEvent;
 import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.event.block.BlockReceiveGameEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,7 +50,7 @@ public abstract class MixinVibrationSystem_Listener {
 
                 boolean defaultCancel = !user.canReceiveVibration(level, BlockPos.containing(pos), gameEvent, context);
                 Entity entity = context.sourceEntity();
-                BlockReceiveGameEvent event = new BlockReceiveGameEvent(org.bukkit.GameEvent.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.GAME_EVENT.getKey(gameEvent))), CraftBlock.at(level, BlockPos.containing(vec3)), (entity == null) ? null : entity.getBukkitEntity());
+                BlockReceiveGameEvent event = new BlockReceiveGameEvent(CraftGameEvent.minecraftToBukkit(gameEvent), CraftBlock.at(level, BlockPos.containing(pos)), (entity == null) ? null : entity.getBukkitEntity());
                 event.setCancelled(defaultCancel);
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) {

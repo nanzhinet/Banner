@@ -1,9 +1,8 @@
 package com.mohistmc.banner.mixin.interaction.dispenser;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
-import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -14,7 +13,6 @@ import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftVector;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 
 @Mixin(DefaultDispenseItemBehavior.class)
 public class MixinDefaultDispenseItemBehavior {
@@ -38,9 +36,10 @@ public class MixinDefaultDispenseItemBehavior {
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public static void spawnItem(Level level, ItemStack stack, int speed, Direction facing, Position position) {
-        position = DispenserBlock.getDispensePosition(banner$isourceblock);
+       position = DispenserBlock.getDispensePosition(banner$isourceblock);
         double d = position.x();
         double e = position.y();
         double f = position.z();
@@ -54,9 +53,9 @@ public class MixinDefaultDispenseItemBehavior {
         banner$itemEntity = itemEntity;
         double g = level.random.nextDouble() * 0.1 + 0.2;
         itemEntity.setDeltaMovement(level.random.triangle((double)facing.getStepX() * g, 0.0172275 * (double)speed), level.random.triangle(0.2, 0.0172275 * (double)speed), level.random.triangle((double)facing.getStepZ() * g, 0.0172275 * (double)speed));
-        spawnItem(level, stack, speed, facing, banner$isourceblock, banner$dropper);
+        //spawnItem(level, stack, speed, facing, banner$isourceblock, banner$dropper);
         level.addFreshEntity(itemEntity);
-    }
+    }*/
 
     private static boolean spawnItem(Level level, ItemStack stack, int speed, Direction facing, BlockSource isourceblock, boolean dropper) {
         banner$dropper = dropper;
@@ -64,7 +63,7 @@ public class MixinDefaultDispenseItemBehavior {
         if (stack.isEmpty()) return true;
 
         // CraftBukkit start
-        org.bukkit.block.Block block = level.getWorld().getBlockAt(isourceblock.pos().getX(), isourceblock.pos().getY(), isourceblock.pos().getZ());
+        org.bukkit.block.Block block = level.getWorld().getBlockAt(isourceblock.getPos().getX(), isourceblock.getPos().getY(), isourceblock.getPos().getZ());
         CraftItemStack craftItem = CraftItemStack.asCraftMirror(stack);
 
         BlockDispenseEvent event = new BlockDispenseEvent(block, craftItem.clone(), CraftVector.toBukkit(banner$itemEntity.getDeltaMovement()));

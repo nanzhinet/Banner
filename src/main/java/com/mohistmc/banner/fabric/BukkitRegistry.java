@@ -9,9 +9,9 @@ import com.mohistmc.banner.BannerServer;
 import com.mohistmc.banner.api.DynamicEnumHelper;
 import com.mohistmc.banner.api.ServerAPI;
 import com.mohistmc.banner.api.Unsafe;
-import com.mohistmc.banner.entity.MohistModsEntity;
-import com.mohistmc.banner.type.BannerEnchantment;
-import com.mohistmc.banner.type.BannerPotionEffect;
+import com.mohistmc.banner.bukkit.entity.MohistModsEntity;
+import com.mohistmc.banner.bukkit.type.BannerEnchantment;
+import com.mohistmc.banner.bukkit.type.BannerPotionEffect;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.material.Fluid;
 import org.bukkit.Art;
-import org.bukkit.GameEvent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
@@ -77,6 +76,8 @@ public class BukkitRegistry {
     public static final Map<Integer, Art> ART_BY_ID = Unsafe.getStatic(Art.class, "BY_ID");
     public static final BiMap<ResourceLocation, Statistic> STATS =
             HashBiMap.create(Unsafe.getStatic(CraftStatistic.class, "statistics"));
+    public static final BiMap<Fluid, org.bukkit.Fluid> FLUIDTYPE_FLUID =
+            Unsafe.getStatic(CraftMagicNumbers.class, "FLUIDTYPE_FLUID");
     public static Map<StatType<?>, Statistic> STATISTIC_MAP = new HashMap<>();
     public static Map<Villager.Profession, ResourceLocation> PROFESSION = new HashMap<>();
     public static Map<net.minecraft.world.level.biome.Biome, Biome> BIOME_MAP = new HashMap<>();
@@ -95,7 +96,16 @@ public class BukkitRegistry {
         loadEndDragonPhase();
         loadCookingBookCategory();
         loadFluids();
-        loadGameEvents();
+
+        try {
+            for (var field : org.bukkit.Registry.class.getFields()) {
+                if (Modifier.isStatic(field.getModifiers())
+                        && field.get(null) instanceof org.bukkit.Registry.SimpleRegistry<?> registry) {
+                    registry.reloader.run();
+                }
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     public static void loadItems() {
@@ -107,14 +117,12 @@ public class BukkitRegistry {
                 // inject item materials into Bukkit for Fabric
                 String materialName = normalizeName(resourceLocation.toString());
                 int id = Item.getId(item);
-                Material material = Material.addMaterial(materialName, id, false, resourceLocation.getNamespace());
+                Material material = Material.addMaterial(materialName, id, item.getMaxStackSize(), false, resourceLocation);
                 newTypes.add(material);
 
-                if (material != null) {
-                    CraftMagicNumbers.ITEM_MATERIAL.put(item, material);
-                    CraftMagicNumbers.MATERIAL_ITEM.put(material, item);
-                    BannerServer.LOGGER.debug("Registered {} as item {}" + material.name() + " - " + materialName);
-                }
+                CraftMagicNumbers.ITEM_MATERIAL.put(item, material);
+                CraftMagicNumbers.MATERIAL_ITEM.put(material, item);
+                BannerServer.LOGGER.debug("Save-ITEM: " + material.name() + " - " + material.key);
             }
         }
         BannerServer.LOGGER.info(BannerMCStart.I18N.get("registry.item"), newTypes.size());
@@ -130,35 +138,18 @@ public class BukkitRegistry {
                 // inject block materials into Bukkit for Fabric
                 String materialName = normalizeName(resourceLocation.toString());
                 int id = Item.getId(block.asItem());
-                Material material = Material.addMaterial(materialName, id, true, resourceLocation.getNamespace());
+                Item item = Item.byId(id);
+                Material material = Material.addMaterial(materialName, id, item.getMaxStackSize(), true, resourceLocation);
                 newTypes.add(material);
 
                 if (material != null) {
                     CraftMagicNumbers.BLOCK_MATERIAL.put(block, material);
                     CraftMagicNumbers.MATERIAL_BLOCK.put(material, block);
-                    BannerServer.LOGGER.debug("Registered {} as block {}" + material.name() + " - " + materialName);
+                    BannerServer.LOGGER.debug("Registered {} as block {}" + material.name() + " - " + material.key);
                 }
             }
         }
         BannerServer.LOGGER.info(BannerMCStart.I18N.get("registry.block"), newTypes.size());
-    }
-
-    private static void loadGameEvents() {
-        try {
-            var constructor = GameEvent.class.getDeclaredConstructor(NamespacedKey.class);
-            constructor.setAccessible(true);
-            var handle = Unsafe.lookup().unreflectConstructor(constructor);
-            for (var gameEvent : BuiltInRegistries.GAME_EVENT) {
-                var key = BuiltInRegistries.GAME_EVENT.getKey(gameEvent);
-                var bukkit = GameEvent.getByKey(CraftNamespacedKey.fromMinecraft(key));
-                if (bukkit == null) {
-                    bukkit = (GameEvent) handle.invoke(CraftNamespacedKey.fromMinecraft(key));
-                    BannerServer.LOGGER.debug("Registered {} as game event {}", key, bukkit);
-                }
-            }
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
     }
 
     private static void loadFluids() {
@@ -167,14 +158,13 @@ public class BukkitRegistry {
         Field keyField = Arrays.stream(org.bukkit.Fluid.class.getDeclaredFields()).filter(it -> it.getName().equals("key")).findAny().orElse(null);
         long keyOffset = Unsafe.objectFieldOffset(keyField);
         for (var fluidType : BuiltInRegistries.FLUID) {
-            var key = BuiltInRegistries.FLUID.getKey(fluidType);
-            var name = normalizeName(key.toString());
-            try {
-                org.bukkit.Fluid.valueOf(name);
-            } catch (Exception e) {
+            if (!FLUIDTYPE_FLUID.containsKey(fluidType)) {
+                var key = BuiltInRegistries.FLUID.getKey(fluidType);
+                var name = normalizeName(key.toString());
                 var bukkit = DynamicEnumHelper.makeEnum(org.bukkit.Fluid.class, name, id++, List.of(), List.of());
                 Unsafe.putObject(bukkit, keyOffset, CraftNamespacedKey.fromMinecraft(key));
                 newTypes.add(bukkit);
+                FLUIDTYPE_FLUID.put(fluidType, bukkit);
                 BannerServer.LOGGER.debug("Registered {} as fluid {}", key, bukkit);
             }
         }
@@ -418,9 +408,12 @@ public class BukkitRegistry {
     }
 
     private static void loadPotions() {
+        // Banner TODO
+        /*
         int origin = PotionEffectType.values().length;
         int size = BuiltInRegistries.MOB_EFFECT.size();
-        PotionEffectType[] types = new PotionEffectType[Math.max(origin + 1, size + 1)];
+        int maxId = BuiltInRegistries.MOB_EFFECT.stream().mapToInt(MobEffect::getId).max().orElse(0);
+        PotionEffectType[] types = new PotionEffectType[maxId + 1];
         putStatic(PotionEffectType.class, "byId", types);
         putBool(PotionEffectType.class, "acceptingNew", true);
         for (MobEffect eff : BuiltInRegistries.MOB_EFFECT) {
@@ -448,14 +441,15 @@ public class BukkitRegistry {
                     MobEffectInstance effectInstance = potion.getEffects().isEmpty() ? null : potion.getEffects().get(0);
                     PotionType potionType = DynamicEnumHelper.makeEnum(PotionType.class, name, typeId++,
                             Arrays.asList(PotionEffectType.class, boolean.class, boolean.class),
-                            Arrays.asList(effectInstance == null ? null : PotionEffectType.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.MOB_EFFECT.getKey(effectInstance.getEffect()))), false, false));
+                            Arrays.asList(effectInstance == null ? null : PotionEffectType.getById(MobEffect.getId(effectInstance.getEffect())), false, false));
                     newTypes.add(potionType);
                     map.put(potionType, location.toString());
                     BannerServer.LOGGER.debug("Registered {} as potion type {}", location, potionType);
                 }
             }
         }
-        DynamicEnumHelper.addEnums(PotionType.class, newTypes);
+        DynamicEnumHelper.addEnums(PotionType.class, newTypes);*/
+        // Banner TODO
     }
 
     private static void putStatic(Class<?> cl, String name, Object o) {
@@ -483,8 +477,10 @@ public class BukkitRegistry {
     }
 
     public static String normalizeName(String name) {
-        return name.toUpperCase(java.util.Locale.ENGLISH).replaceAll("(:|\\s)", "_")
-                .replaceAll("\\W", "");
+        return name.replace(':', '_')
+                .replaceAll("\\s+", "_")
+                .replaceAll("\\W", "")
+                .toUpperCase(Locale.ENGLISH);
     }
 
     public static boolean isMINECRAFT(ResourceLocation resourceLocation) {

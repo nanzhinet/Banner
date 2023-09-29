@@ -33,7 +33,7 @@ public class CraftFeatureFlag implements FeatureFlag {
 
     @Override
     public String toString() {
-        return "CraftFeatureFlag{key=" + this.getKey() + ",keyUniverse=" + this.getHandle().universe.toString() + "}";
+        return "CraftDataPack{key=" + this.getKey() + ",keyUniverse=" + this.getHandle().universe.toString() + "}";
     }
 
     public static Set<CraftFeatureFlag> getFromNMS(FeatureFlagSet featureFlagSet) {

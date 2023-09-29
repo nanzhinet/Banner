@@ -1,14 +1,14 @@
 package com.mohistmc.banner.mixin.world.entity;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.mohistmc.banner.bukkit.BukkitCaptures;
+import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.injection.world.entity.InjectionEntity;
 import net.minecraft.BlockUtil;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.PositionImpl;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -34,10 +34,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -46,7 +49,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.SpigotTimings;
 import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
@@ -73,7 +75,6 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spigotmc.ActivationRange;
-import org.spigotmc.CustomTimingsHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -85,7 +86,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -195,6 +195,7 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
 
     @Shadow public abstract void setRemainingFireTicks(int remainingFireTicks);
 
+    @Shadow private AABB bb;
     private CraftEntity bukkitEntity;
     public final org.spigotmc.ActivationRange.ActivationType activationType =
             org.spigotmc.ActivationRange.initializeEntityActivationType((Entity) (Object) this);
@@ -211,7 +212,6 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     public BlockPos lastLavaContact;
     private static transient BlockPos banner$damageEventBlock;
     private static final int CURRENT_LEVEL = 2;
-    public CustomTimingsHandler tickTimer = SpigotTimings.getEntityTimings(((Entity) (Object) this)); // Spigot
     @javax.annotation.Nullable
     private org.bukkit.util.Vector origin;
     @javax.annotation.Nullable
@@ -238,16 +238,6 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     @Override
     public void inactiveTick() {
 
-    }
-
-    @Inject(method = "move", at = @At("HEAD"))
-    private void banner$startTimings(MoverType type, Vec3 pos, CallbackInfo ci) {
-        SpigotTimings.entityMoveTimer.startTiming(); // Spigot
-    }
-
-    @Inject(method = "move", at = @At("HEAD"))
-    private void banner$stopimings(MoverType type, Vec3 pos, CallbackInfo ci) {
-        SpigotTimings.entityMoveTimer.stopTiming(); // Spigot
     }
 
     @Override
@@ -360,32 +350,28 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     public void banner$infCheck(float yaw, float pitch, CallbackInfo ci) {
         // CraftBukkit start - yaw was sometimes set to NaN, so we need to set it back to 0
         if (Float.isNaN(yaw)) {
-            this.yRot = 0;
-            ci.cancel();
+            yaw = 0;
         }
 
         if (yaw == Float.POSITIVE_INFINITY || yaw == Float.NEGATIVE_INFINITY) {
             if (((Object) this) instanceof Player) {
-                Bukkit.getLogger().warning(this.getScoreboardName() + " was caught trying to crash the server with an invalid yaw");
-                ((CraftPlayer) this.getBukkitEntity()).kickPlayer("Infinite yaw (Are you hacking?)");
+                this.level.getCraftServer().getLogger().warning(this.getScoreboardName() + " was caught trying to crash the server with an invalid yaw");
+                ((CraftPlayer) this.getBukkitEntity()).kickPlayer("Infinite yaw (Hacking?)");
             }
-            this.yRot = 0;
-            ci.cancel();
+            yaw = 0;
         }
 
         // pitch was sometimes set to NaN, so we need to set it back to 0
         if (Float.isNaN(pitch)) {
-            this.xRot = 0;
-            ci.cancel();
+            pitch = 0;
         }
 
         if (pitch == Float.POSITIVE_INFINITY || pitch == Float.NEGATIVE_INFINITY) {
             if (((Object) this) instanceof Player) {
-                Bukkit.getLogger().warning(this.getScoreboardName() + " was caught trying to crash the server with an invalid pitch");
-                ((CraftPlayer) this.getBukkitEntity()).kickPlayer("Infinite pitch (Are you hacking?)");
+                this.level.getCraftServer().getLogger().warning(this.getScoreboardName() + " was caught trying to crash the server with an invalid pitch");
+                ((CraftPlayer) this.getBukkitEntity()).kickPlayer("Infinite pitch (Hacking?)");
             }
-            this.xRot = 0;
-            ci.cancel();
+            pitch = 0;
         }
         // CraftBukkit end
     }
@@ -447,33 +433,32 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     }
 
     @Inject(method = "move", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/Entity;getMovementEmission()Lnet/minecraft/world/entity/Entity$MovementEmission;",
-            shift = At.Shift.AFTER))
-    private void banner$move$blockCollide(MoverType typeIn, Vec3 pos, CallbackInfo ci) {
-        if (horizontalCollision && this.getBukkitEntity() instanceof Vehicle vehicle) {
-            org.bukkit.block.Block block = this.level.getWorld().getBlockAt(Mth.floor(this.getX()), Mth.floor(this.getY()), Mth.floor(this.getZ()));
-            Vec3 vec3d = this.collide(pos);
-            if (pos.x > vec3d.x) {
-                block = block.getRelative(BlockFace.EAST);
-            } else if (vec3d.x < vec3d.x) {
-                block = block.getRelative(BlockFace.WEST);
-            } else if (pos.z > vec3d.z) {
-                block = block.getRelative(BlockFace.SOUTH);
-            } else if (pos.z < vec3d.z) {
-                block = block.getRelative(BlockFace.NORTH);
+            target = "Lnet/minecraft/world/entity/Entity;onGround()Z",
+            ordinal = 1), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void banner$move$blockCollide(MoverType type, Vec3 pos, CallbackInfo ci, Vec3 vec3,
+                                          double d, boolean bl, boolean bl2, BlockPos blockPos,
+                                          BlockState blockState, Block block) {
+        // CraftBukkit start
+        if (horizontalCollision && getBukkitEntity() instanceof Vehicle) {
+            Vehicle vehicle = (Vehicle) this.getBukkitEntity();
+            org.bukkit.block.Block cbBlock = this.level.getWorld().getBlockAt(Mth.floor(this.getX()), Mth.floor(this.getY()), Mth.floor(this.getZ()));
+
+            if (pos.x > vec3.x) {
+                cbBlock = cbBlock.getRelative(BlockFace.EAST);
+            } else if (pos.x < vec3.x) {
+                cbBlock = cbBlock.getRelative(BlockFace.WEST);
+            } else if (pos.z > vec3.z) {
+                cbBlock = cbBlock.getRelative(BlockFace.SOUTH);
+            } else if (pos.z < vec3.z) {
+                cbBlock = cbBlock.getRelative(BlockFace.NORTH);
             }
 
-            if (block.getType() != org.bukkit.Material.AIR) {
-                VehicleBlockCollisionEvent event = new VehicleBlockCollisionEvent(vehicle, block);
-                Bukkit.getPluginManager().callEvent(event);
+            if (!cbBlock.getType().isAir()) {
+                VehicleBlockCollisionEvent event = new VehicleBlockCollisionEvent(vehicle, cbBlock);
+                level.getCraftServer().getPluginManager().callEvent(event);
             }
         }
-    }
-
-    @Inject(method = "absMoveTo(DDDFF)V", at = @At("RETURN"))
-    private void banner$loadChunk(double x, double y, double z, float yaw, float pitch, CallbackInfo ci) {
-        if (this.valid)
-            this.level.getChunk((int) Math.floor(this.getX()) >> 4, (int) Math.floor(this.getZ()) >> 4);
+        // CraftBukkit end
     }
 
     @Inject(method = "saveAsPassenger", cancellable = true, at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/entity/Entity;getEncodeId()Ljava/lang/String;"))
@@ -607,73 +592,37 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
         }
     }
 
-    @Redirect(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addPassenger(Lnet/minecraft/world/entity/Entity;)V"))
-    private void banner$startRiding(Entity entity, Entity pPassenger) {
-        if (!(entity).banner$addPassenger(pPassenger)) {
-            this.vehicle = null;
-        }
-    }
-
-    @Redirect(method = "removeVehicle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;removePassenger(Lnet/minecraft/world/entity/Entity;)V"))
-    private void banner$stopRiding(Entity entity, Entity passenger) {
-        if (!(entity).banner$removePassenger(passenger)) {
-            this.vehicle = entity;
-        }
-    }
-
-    @Override
-    public boolean banner$addPassenger(Entity entity) {
-        if (entity.getVehicle() != (Object) this) {
-            throw new IllegalStateException("Use x.startRiding(y), not y.addPassenger(x)");
-        } else {
-            // CraftBukkit start
-            com.google.common.base.Preconditions.checkState(!(entity).getPassengers().contains(((Entity) (Object) this)), "Circular entity riding! %s %s", this, entity);
-
-            CraftEntity craft = (CraftEntity) (entity.getBukkitEntity().getVehicle());
-            Entity orig = craft == null ? null : craft.getHandle();
-            if (getBukkitEntity() instanceof Vehicle && (entity).getBukkitEntity() instanceof org.bukkit.entity.LivingEntity) {
-                VehicleEnterEvent event = new VehicleEnterEvent(
-                        (Vehicle) getBukkitEntity(),
-                        (entity.getBukkitEntity()
-                ));
-                // Suppress during worldgen
-                if (this.valid) {
-                    Bukkit.getPluginManager().callEvent(event);
-                }
-                CraftEntity craftn = (CraftEntity) entity.getBukkitEntity().getVehicle();
-                Entity n = craftn == null ? null : craftn.getHandle();
-                if (event.isCancelled() || n != orig) {
-                    return false;
-                }
-            }
-            // CraftBukkit end
-            // Spigot start
-            org.spigotmc.event.entity.EntityMountEvent event = new org.spigotmc.event.entity.EntityMountEvent((entity).getBukkitEntity(), this.getBukkitEntity());
+    @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", shift = At.Shift.BEFORE, target = "Lnet/minecraft/world/entity/Entity;setPose(Lnet/minecraft/world/entity/Pose;)V"))
+    public void banner$startRiding(Entity vehicle, boolean force, CallbackInfoReturnable<Boolean> cir) {
+        // CraftBukkit start
+        if (vehicle.getBukkitEntity() instanceof Vehicle && this.getBukkitEntity() instanceof org.bukkit.entity.LivingEntity) {
+            VehicleEnterEvent event = new VehicleEnterEvent((Vehicle) vehicle.getBukkitEntity(), this.getBukkitEntity());
             // Suppress during worldgen
             if (this.valid) {
                 Bukkit.getPluginManager().callEvent(event);
             }
             if (event.isCancelled()) {
-                return false;
+                cir.setReturnValue(false);
             }
-            // Spigot end
-            if (this.passengers.isEmpty()) {
-                this.passengers = ImmutableList.of(entity);
-            } else {
-                List<Entity> list = Lists.newArrayList(this.passengers);
-
-                if (!this.level.isClientSide && entity instanceof Player && !(this.getFirstPassenger() instanceof Player)) {
-                    list.add(0, entity);
-                } else {
-                    list.add(entity);
-                }
-
-                this.passengers = ImmutableList.copyOf(list);
-            }
-
-            this.gameEvent(GameEvent.ENTITY_MOUNT, entity);
         }
-        return true; // CraftBukkit
+        // CraftBukkit end
+        // Spigot start
+        org.spigotmc.event.entity.EntityMountEvent event = new org.spigotmc.event.entity.EntityMountEvent(this.getBukkitEntity(), vehicle.getBukkitEntity());
+        // Suppress during worldgen
+        if (this.valid) {
+            Bukkit.getPluginManager().callEvent(event);
+        }
+        if (event.isCancelled()) {
+            cir.setReturnValue(false);
+        }
+        // Spigot end
+    }
+
+    @Redirect(method = "removeVehicle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;removePassenger(Lnet/minecraft/world/entity/Entity;)V"))
+    private void banner$stopRiding(Entity entity, Entity passenger) {
+        if (!entity.banner$removePassenger(passenger)) {
+            this.vehicle = entity;
+        }
     }
 
     @Override
@@ -808,11 +757,11 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
         // Paper end
     }
 
-    private AtomicReference<Vec3> banner$location = new AtomicReference<>();
+    private AtomicReference<PositionImpl> banner$location = new AtomicReference<>();
 
     @Nullable
     @Override
-    public Entity teleportTo(ServerLevel worldserver, Vec3 location) {
+    public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
         banner$location.set(location);
         return changeDimension(worldserver);
     }
@@ -821,65 +770,6 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     public boolean teleportTo(ServerLevel worldserver, double d0, double d1, double d2, Set<RelativeMovement> set, float f, float f1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause) {
         return this.teleportTo(worldserver, d0, d1, d2, set, f, f1);
     }
-
-    /*
-    @Overwrite
-    @Nullable
-    public Entity changeDimension(ServerLevel destination) {
-        if (this.level() instanceof ServerLevel && !this.isRemoved()) {
-            this.level().getProfiler().push("changeDimension");
-            if (destination == null) {
-                return null;
-            }
-            this.level().getProfiler().push("reposition");
-            var bukkitPos = banner$location.getAndSet(null);
-            PortalInfo portalInfo = bukkitPos == null ? this.findDimensionEntryPoint(destination) : new PortalInfo(new Vec3(bukkitPos.x(), bukkitPos.y(), bukkitPos.z()), Vec3.ZERO, this.yRot, this.xRot);
-            portalInfo.banner$setWorld(destination);
-            portalInfo.banner$setPortalEventInfo(null);
-            if (portalInfo == null) {
-                return null;
-            } else {
-                destination = portalInfo.bridge$getWorld();
-                if (destination == this.level()) {
-                    this.moveTo(portalInfo.pos.x, portalInfo.pos.y, portalInfo.pos.z, portalInfo.yRot, portalInfo.xRot);
-                    this.setDeltaMovement(portalInfo.speed);
-                    return (Entity) (Object) this;
-                }
-                this.unRide();
-
-                this.level().getProfiler().popPush("reloading");
-                Entity entity = this.getType().create(destination);
-
-                if (entity != null) {
-                    entity.restoreFrom(((Entity) (Object) this));
-                    entity.moveTo(portalInfo.pos.x, portalInfo.pos.y, portalInfo.pos.z, portalInfo.yRot, entity.getXRot());
-                    entity.setDeltaMovement(portalInfo.speed);
-                    destination.addDuringTeleport(entity);
-                    if (destination.dimension() == Level.END) { // CraftBukkit
-                        BukkitCaptures.captureEndPortalEntity((Entity) (Object) this, true);
-                        ServerLevel.makeObsidianPlatform(destination); // CraftBukkit
-                    }
-                    // CraftBukkit start - Forward the CraftEntity to the new entity
-                    this.getBukkitEntity().setHandle(entity);
-                    entity.banner$setBukkitEntity(this.getBukkitEntity());
-
-                    if (((Entity) (Object) this) instanceof Mob) {
-                        ((Mob) (Object) this).dropLeash(true, false); // Unleash to prevent duping of leads.
-                    }
-                    // CraftBukkit end
-                }
-
-                this.removeAfterChangingDimensions();
-                this.level().getProfiler().pop();
-                ((ServerLevel)this.level()).resetEmptyTime();
-                destination.resetEmptyTime();
-                this.level().getProfiler().pop();
-                return entity;
-            }
-        } else {
-            return null;
-        }
-    }*/
 
     @Inject(method = "restoreFrom", at = @At("HEAD"))
     private void banner$forwardHandle(Entity entityIn, CallbackInfo ci) {
@@ -893,93 +783,17 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     @Inject(method = "setSharedFlag", at = @At("HEAD"),
             cancellable = true)
     private void banner$forwardHandle(int flag, boolean set, CallbackInfo ci) {
-        if (BukkitCaptures.banner$stopGlide()) {
+        if (BukkitSnapshotCaptures.banner$stopGlide()) {
             if (!(getSharedFlag(flag) && !CraftEventFactory.callToggleGlideEvent((LivingEntity) (Object)this, false).isCancelled())) {
-                BukkitCaptures.capturebanner$stopGlide(false);
+                BukkitSnapshotCaptures.capturebanner$stopGlide(false);
                 ci.cancel();
                 return;
             }
         }
     }
 
-    /*
-    @Nullable
-    @Overwrite
-    protected PortalInfo findDimensionEntryPoint(ServerLevel worldserver) {
-        // CraftBukkit start
-        if (worldserver == null) {
-            return null;
-        }
-        boolean flag = this.level().dimension() == Level.END && worldserver.dimension() == Level.OVERWORLD; // fromEndToOverworld
-        boolean flag1 = worldserver.dimension() == Level.END; // targetIsEnd
-        // CraftBukkit end
-
-        if (!flag && !flag1) {
-            boolean flag2 = worldserver.dimension() == Level.NETHER; // CraftBukkit
-
-            if (this.level().dimension() != Level.NETHER && !flag2) { // CraftBukkit
-                return null;
-            } else {
-                WorldBorder worldborder = worldserver.getWorldBorder();
-                double d0 = DimensionType.getTeleportationScale(this.level().dimensionType(), worldserver.dimensionType());
-                BlockPos blockposition = worldborder.clampToBounds(this.getX() * d0, this.getY(), this.getZ() * d0);
-                // CraftBukkit start
-                CraftPortalEvent event = callPortalEvent(((Entity) (Object) this), worldserver, new PositionImpl(blockposition.getX(), blockposition.getY(), blockposition.getZ()), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL, flag2 ? 16 : 128, 16);
-                if (event == null) {
-                    return null;
-                }
-                final ServerLevel worldserverFinal = worldserver = ((CraftWorld) event.getTo().getWorld()).getHandle();
-                worldborder = worldserverFinal.getWorldBorder();
-                blockposition = worldborder.clampToBounds(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
-
-                return (PortalInfo) this.getExitPortal(worldserver, blockposition, flag2, worldborder, event.getSearchRadius(), event.getCanCreatePortal(), event.getCreationRadius()).map((blockutil_rectangle) -> {
-                    // CraftBukkit end
-                    BlockState iblockdata = this.level().getBlockState(this.portalEntrancePos);
-                    Direction.Axis enumdirection_enumaxis;
-                    Vec3 vec3d;
-
-                    if (iblockdata.hasProperty(BlockStateProperties.HORIZONTAL_AXIS)) {
-                        enumdirection_enumaxis = (Direction.Axis) iblockdata.getValue(BlockStateProperties.HORIZONTAL_AXIS);
-                        BlockUtil.FoundRectangle blockutil_rectangle1 = BlockUtil.getLargestRectangleAround(this.portalEntrancePos, enumdirection_enumaxis, 21, Direction.Axis.Y, 21, (blockposition1) -> {
-                            return this.level().getBlockState(blockposition1) == iblockdata;
-                        });
-
-                        vec3d = this.getRelativePortalPosition(enumdirection_enumaxis, blockutil_rectangle1);
-                    } else {
-                        enumdirection_enumaxis = Direction.Axis.X;
-                        vec3d = new Vec3(0.5D, 0.0D, 0.0D);
-                    }
-
-                    var bukkitfiedPortalInfo = PortalShape.createPortalInfo(worldserverFinal, blockutil_rectangle, enumdirection_enumaxis, vec3d, ((Entity) (Object) this), this.getDeltaMovement(), this.getYRot(), this.getXRot()); // CraftBukkit
-                    bukkitfiedPortalInfo.banner$setPortalEventInfo(event);
-                    return bukkitfiedPortalInfo;
-                }).orElse(null); // CraftBukkit - decompile error
-            }
-        } else {
-            BlockPos blockposition1;
-
-            if (flag1) {
-                blockposition1 = ServerLevel.END_SPAWN_POINT;
-            } else {
-                blockposition1 = worldserver.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, worldserver.getSharedSpawnPos());
-            }
-            // CraftBukkit start
-            CraftPortalEvent event = callPortalEvent(((Entity) (Object) this), worldserver, new PositionImpl(blockposition1.getX() + 0.5D, blockposition1.getY(), blockposition1.getZ() + 0.5D), PlayerTeleportEvent.TeleportCause.END_PORTAL, 0, 0);
-            if (event == null) {
-                return null;
-            }
-
-            var newPortalInfo = new PortalInfo(new Vec3(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ()), this.getDeltaMovement(), this.getYRot(), this.getXRot());
-            newPortalInfo.banner$setWorld(((CraftWorld) event.getTo().getWorld()).getHandle());
-            newPortalInfo.banner$setPortalEventInfo(event);
-            return newPortalInfo;
-
-            // CraftBukkit end
-        }
-    }*/
-
     @Override
-    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, Vec3 exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
+    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, PositionImpl exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
         CraftEntity bukkitEntity =  entity.getBukkitEntity();
         Location enter = bukkitEntity.getLocation();
         Location exit = CraftLocation.toBukkit(exitPosition, exitWorldServer.getWorld());
@@ -995,9 +809,30 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
         return  serverWorld.getPortalForcer().findPortalAround(pos, worldborder, searchRadius);
     }
 
-    @Override
-    public boolean canCollideWith(Entity entity) {
-        return this.isPushable();
+    @Redirect(method = "setBoundingBox",
+            at = @At(value = "FIELD",
+            target = "Lnet/minecraft/world/entity/Entity;bb:Lnet/minecraft/world/phys/AABB;"))
+    private void banner$resetBBox(Entity instance, AABB axisalignedbb) {
+        // CraftBukkit start - block invalid bounding boxes
+        double minX = axisalignedbb.minX,
+                minY = axisalignedbb.minY,
+                minZ = axisalignedbb.minZ,
+                maxX = axisalignedbb.maxX,
+                maxY = axisalignedbb.maxY,
+                maxZ = axisalignedbb.maxZ;
+        double len = axisalignedbb.maxX - axisalignedbb.minX;
+        if (len < 0) maxX = minX;
+        if (len > 64) maxX = minX + 64.0;
+
+        len = axisalignedbb.maxY - axisalignedbb.minY;
+        if (len < 0) maxY = minY;
+        if (len > 64) maxY = minY + 64.0;
+
+        len = axisalignedbb.maxZ - axisalignedbb.minZ;
+        if (len < 0) maxZ = minZ;
+        if (len > 64) maxZ = minZ + 64.0;
+        this.bb = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
+        // CraftBukkit end
     }
 
     @Override
@@ -1116,13 +951,8 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     }
 
     @Override
-    public CommandSender getBukkitSender(CommandSourceStack wrapper) {
+    public CommandSender banner$getBukkitSender(CommandSourceStack wrapper) {
         return getBukkitEntity();
-    }
-
-    @Override
-    public CustomTimingsHandler bridge$tickTimer() {
-        return tickTimer;
     }
 
     @Override

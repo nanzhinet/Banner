@@ -3,7 +3,6 @@ package com.mohistmc.banner.mixin.world.item;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.injection.world.item.InjectionItemStack;
 import com.mojang.serialization.Dynamic;
-import io.papermc.paper.event.player.PlayerOpenSignEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -61,6 +60,7 @@ import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftMagicNumbers;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerSignOpenEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -68,13 +68,13 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 @Mixin(ItemStack.class)
@@ -106,6 +106,15 @@ public abstract class MixinItemStack implements InjectionItemStack {
     @Shadow public abstract ItemStack copy();
 
     @Shadow public abstract void shrink(int decrement);
+
+    @Redirect(method = "<init>(Lnet/minecraft/nbt/CompoundTag;)V",
+            at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/nbt/CompoundTag;getCompound(Ljava/lang/String;)Lnet/minecraft/nbt/CompoundTag;"))
+    private CompoundTag banner$markAsCopy(CompoundTag instance, String key) {
+        // CraftBukkit start - make defensive copy as this data may be coming from the save thread
+        return instance.getCompound(key).copy();
+        // CraftBukkit end
+    }
 
     @Override
     public void convertStack(int version) {
@@ -160,25 +169,19 @@ public abstract class MixinItemStack implements InjectionItemStack {
     }
 
     @Override
-    public void load(CompoundTag nbttagcompound) {
-        this.loadNbt(nbttagcompound);
-    }
-
-    @SuppressWarnings("all")
-    private CompoundTag loadNbt(CompoundTag compound) {
-        Item rawItem = this.item = BuiltInRegistries.ITEM.get(new ResourceLocation(compound.getString("id")));
-        this.count = compound.getByte("Count");
-        if (compound.contains("tag", 10)) {
+    public void load(CompoundTag compoundTag) {
+        this.item = BuiltInRegistries.ITEM.get(new ResourceLocation(compoundTag.getString("id")));
+        this.count = compoundTag.getByte("Count");
+        if (compoundTag.contains("tag", 10)) {
             // CraftBukkit start - make defensive copy as this data may be coming from the save thread
-            this.tag = compound.getCompound("tag").copy();
-            this.getItem().verifyTagAfterLoad(this.tag);
+            this.tag = compoundTag.getCompound("tag").copy();
             // CraftBukkit end
+            this.getItem().verifyTagAfterLoad(this.tag);
         }
 
         if (this.getItem().canBeDepleted()) {
             this.setDamageValue(this.getDamageValue());
         }
-        return compound;
     }
 
     @Override
@@ -209,8 +212,6 @@ public abstract class MixinItemStack implements InjectionItemStack {
         this.item = item;
     }
 
-    private final AtomicReference<InteractionHand> banner$hand = new AtomicReference<>(InteractionHand.MAIN_HAND);
-
     /**
      * @author wdog5
      * @reason functionality replaced
@@ -224,24 +225,28 @@ public abstract class MixinItemStack implements InjectionItemStack {
         if (player != null && !player.getAbilities().mayBuild && !this.hasAdventureModePlaceTagForBlock(context.getLevel().registryAccess().registryOrThrow(Registries.BLOCK), blockInWorld)) {
             return InteractionResult.PASS;
         } else {
+            Item item = this.getItem();
             // CraftBukkit start - handle all block place event logic here
             CompoundTag oldData = this.getTagClone();
             int oldCount = this.getCount();
             ServerLevel world = (ServerLevel) context.getLevel();
-            if (!(this.getItem() instanceof BucketItem || this.getItem() instanceof SolidBucketItem)) { // if not bucket
+            if (!(item instanceof BucketItem || item instanceof SolidBucketItem)) { // if not bucket
                 world.banner$setCaptureBlockStates(true);
                 // special case bonemeal
-                if (this.getItem() == Items.BONE_MEAL) {
+                if (item == Items.BONE_MEAL) {
                     world.banner$setCaptureTreeGeneration(true);
                 }
             }
-            Item item = this.getItem();
-            InteractionResult interactionResult = item.useOn(context);
+            InteractionResult interactionResult;
+            try {
+                interactionResult = item.useOn(context);
+            } finally {
+                world.banner$setCaptureBlockStates(false);
+            }
             CompoundTag newData = this.getTagClone();
             int newCount = this.getCount();
             this.setCount(oldCount);
             this.setTagClone(oldData);
-            world.banner$setCaptureBlockStates(false);
             if (interactionResult.consumesAction() && world.bridge$captureTreeGeneration() && !world.bridge$capturedBlockStates().isEmpty()) {
                 world.banner$setCaptureTreeGeneration(false);
                 Location location = CraftLocation.toBukkit(blockPos, world.getWorld());
@@ -370,7 +375,7 @@ public abstract class MixinItemStack implements InjectionItemStack {
                         try {
                             if (world.getBlockEntity(BukkitExtraConstants.openSign) instanceof SignBlockEntity tileentitysign) {
                                 if (world.getBlockState(BukkitExtraConstants.openSign).getBlock() instanceof SignBlock blocksign) {
-                                    blocksign.pushOpenSignCause(PlayerOpenSignEvent.Cause.PLACE);
+                                    blocksign.pushOpenSignCause(PlayerSignOpenEvent.Cause.PLACE);
                                     blocksign.openTextEdit(player, tileentitysign, true);
                                 }
                             }
@@ -404,12 +409,5 @@ public abstract class MixinItemStack implements InjectionItemStack {
 
             return interactionResult;
         }
-    }
-
-    @Override
-    public InteractionResult useOn(UseOnContext itemactioncontext, InteractionHand enumhand) {
-        enumhand = itemactioncontext.getHand();
-        banner$hand.set(enumhand);
-        return useOn(itemactioncontext);
     }
 }

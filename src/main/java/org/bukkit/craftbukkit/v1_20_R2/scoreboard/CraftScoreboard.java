@@ -100,15 +100,12 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
 
     @Override
     public Objective getObjective(DisplaySlot slot) {
-        /*
         Preconditions.checkArgument(slot != null, "Display slot cannot be null");
         net.minecraft.world.scores.Objective objective = board.getDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot));
         if (objective == null) {
             return null;
         }
-        return new CraftObjective(this, objective);*/
-        // Banner TODO
-        return null;
+        return new CraftObjective(this, objective);
     }
 
     @Override
@@ -203,11 +200,8 @@ public final class CraftScoreboard implements org.bukkit.scoreboard.Scoreboard {
 
     @Override
     public void clearSlot(DisplaySlot slot) {
-        /*
         Preconditions.checkArgument(slot != null, "Slot cannot be null");
         board.setDisplayObjective(CraftScoreboardTranslations.fromBukkitSlot(slot), null);
-         */
-        // Banner TODO
     }
 
     // CraftBukkit method

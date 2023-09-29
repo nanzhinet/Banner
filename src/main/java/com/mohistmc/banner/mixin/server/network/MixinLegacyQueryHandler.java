@@ -1,21 +1,36 @@
 package com.mohistmc.banner.mixin.server.network;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.LegacyQueryHandler;
+import net.minecraft.server.network.ServerConnectionListener;
+import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 @Mixin(LegacyQueryHandler.class)
 public abstract class MixinLegacyQueryHandler {
 
+    @Shadow @Final private ServerConnectionListener serverConnectionListener;
+
     @Shadow @Final private static Logger LOGGER;
+
+    @Shadow protected abstract void sendFlushAndClose(ChannelHandlerContext ctx, ByteBuf data);
+
+    @Shadow protected abstract ByteBuf createReply(String string);
 
     /**
      * @author wdog5
      * @reason bukkit
      */
-    /*
     @Overwrite
     public void channelRead(ChannelHandlerContext channelhandlercontext, Object object) {
         ByteBuf bytebuf = (ByteBuf) object;
@@ -29,7 +44,7 @@ public abstract class MixinLegacyQueryHandler {
             }
 
             InetSocketAddress inetsocketaddress = (InetSocketAddress) channelhandlercontext.channel().remoteAddress();
-            MinecraftServer minecraftserver = this.serverConnectionListenr.getServer();
+            MinecraftServer minecraftserver = this.serverConnectionListener.getServer();
             int i = bytebuf.readableBytes();
             String s;
             org.bukkit.event.server.ServerListPingEvent event = CraftEventFactory.callServerListPingEvent(minecraftserver.bridge$server(), inetsocketaddress.getAddress(), minecraftserver.getMotd(), minecraftserver.getPlayerCount(), minecraftserver.getMaxPlayers()); // CraftBukkit
@@ -86,5 +101,5 @@ public abstract class MixinLegacyQueryHandler {
             }
 
         }
-    }*/
+    }
 }

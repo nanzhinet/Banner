@@ -4,16 +4,16 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
-import com.mohistmc.banner.entity.MohistModsAbstractHorse;
-import com.mohistmc.banner.entity.MohistModsAnimals;
-import com.mohistmc.banner.entity.MohistModsChestHorse;
-import com.mohistmc.banner.entity.MohistModsEntity;
-import com.mohistmc.banner.entity.MohistModsMinecart;
-import com.mohistmc.banner.entity.MohistModsMinecartContainer;
-import com.mohistmc.banner.entity.MohistModsProjectileEntity;
-import com.mohistmc.banner.entity.MohistModsSkeleton;
-import com.mohistmc.banner.entity.MohistModsTameableEntity;
-import com.mohistmc.banner.entity.MohistModsThrowableProjectile;
+import com.mohistmc.banner.bukkit.entity.MohistModsAbstractHorse;
+import com.mohistmc.banner.bukkit.entity.MohistModsAnimals;
+import com.mohistmc.banner.bukkit.entity.MohistModsChestHorse;
+import com.mohistmc.banner.bukkit.entity.MohistModsEntity;
+import com.mohistmc.banner.bukkit.entity.MohistModsMinecart;
+import com.mohistmc.banner.bukkit.entity.MohistModsMinecartContainer;
+import com.mohistmc.banner.bukkit.entity.MohistModsProjectileEntity;
+import com.mohistmc.banner.bukkit.entity.MohistModsSkeleton;
+import com.mohistmc.banner.bukkit.entity.MohistModsTameableEntity;
+import com.mohistmc.banner.bukkit.entity.MohistModsThrowableProjectile;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -65,6 +65,7 @@ import net.minecraft.world.entity.vehicle.MinecartCommandBlock;
 import net.minecraft.world.phys.AABB;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
+import org.bukkit.Registry;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -78,8 +79,10 @@ import org.bukkit.craftbukkit.v1_20_R2.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.v1_20_R2.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftSpawnCategory;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftVector;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.SpawnCategory;
@@ -106,12 +109,15 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     protected final CraftServer server;
     protected Entity entity;
+    private final EntityType entityType;
     private EntityDamageEvent lastDamageEvent;
     private final CraftPersistentDataContainer persistentDataContainer = new CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
 
     public CraftEntity(final CraftServer server, final Entity entity) {
         this.server = server;
         this.entity = entity;
+        EntityType type = Registry.ENTITY_TYPE.get(CraftNamespacedKey.fromMinecraft(net.minecraft.world.entity.EntityType.getKey(entity.getType())));
+        this.entityType = (type != null) ? type : EntityType.UNKNOWN;
     }
 
     public static CraftEntity getEntity(CraftServer server, Entity entity) {
@@ -454,7 +460,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         if (location.getWorld() != null && !location.getWorld().equals(getWorld())) {
             // Prevent teleportation to an other world during world generation
             Preconditions.checkState(!entity.bridge$generation(), "Cannot teleport entity to an other world during world generation");
-            entity.teleportTo(((CraftWorld) location.getWorld()).getHandle(), CraftLocation.toVec3D(location));
+            entity.teleportTo(((CraftWorld) location.getWorld()).getHandle(), CraftLocation.toPosition(location));
             return true;
         }
 
@@ -668,6 +674,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     public Entity getHandle() {
         return entity;
+    }
+
+    @Override
+    public final EntityType getType() {
+        return entityType;
     }
 
     @Override

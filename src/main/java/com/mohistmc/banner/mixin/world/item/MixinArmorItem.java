@@ -2,7 +2,7 @@ package com.mohistmc.banner.mixin.world.item;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.dispenser.BlockSource;
+import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -34,8 +34,8 @@ public class MixinArmorItem {
             shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     private static void banner$callArmorEvent(BlockSource source, ItemStack stack, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos, List<LivingEntity> list, LivingEntity livingEntity, EquipmentSlot equipmentSlot, ItemStack itemStack) {
         // CraftBukkit start
-        Level world = source.level();
-        org.bukkit.block.Block block = world.getWorld().getBlockAt(source.pos().getX(), source.pos().getY(), source.pos().getZ());
+        Level world = source.getLevel();
+        org.bukkit.block.Block block = world.getWorld().getBlockAt(source.getPos().getX(), source.getPos().getY(), source.getPos().getZ());
         CraftItemStack craftItem = CraftItemStack.asCraftMirror(itemStack);
 
         BlockDispenseArmorEvent event = new BlockDispenseArmorEvent(block, craftItem.clone(), (CraftLivingEntity) livingEntity.getBukkitEntity());

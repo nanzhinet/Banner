@@ -3,8 +3,8 @@ package com.mohistmc.banner.mixin.server;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mohistmc.banner.BannerMCStart;
 import com.mohistmc.banner.api.color.ColorsAPI;
-import com.mohistmc.banner.bukkit.BukkitCaptures;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.config.BannerConfig;
 import com.mohistmc.banner.config.BannerConfigUtil;
 import com.mohistmc.banner.fabric.BukkitRegistry;
@@ -69,7 +69,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.craftbukkit.Main;
 import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R2.SpigotTimings;
 import org.bukkit.craftbukkit.v1_20_R2.scoreboard.CraftScoreboardManager;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_20_R2.util.LazyPlayerSet;
@@ -222,7 +221,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
 
     @Shadow @Nullable private CommandStorage commandStorage;
 
-    @Shadow public abstract String getServerModName();
+    @Shadow(remap = false) public abstract String getServerModName();
 
     @Shadow public abstract ModCheck getModdedStatus();
 
@@ -265,7 +264,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         }
         Main.handleParser(parser, options);
         this.vanillaCommandDispatcher = worldStem.dataPackResources().getCommands();
-        this.worldLoader = BukkitCaptures.getDataLoadContext();
+        this.worldLoader = BukkitSnapshotCaptures.getDataLoadContext();
     }
 
     @Inject(method = "stopServer", at = @At(value = "INVOKE", remap = false, ordinal = 0, shift = At.Shift.AFTER, target = "Lorg/slf4j/Logger;info(Ljava/lang/String;)V"))
@@ -636,37 +635,42 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         // this.nextTickTime = SystemUtils.getMillis() + 10L;
         this.executeModerately();
         // Iterator iterator = this.levels.values().iterator();
+        Iterator var5 = this.levels.values().iterator();
 
-        if (true) {
-            ServerLevel worldserver1 = worldserver;
-            // CraftBukkit end
-            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
+        while(true) {
+            ServerLevel serverLevel2;
+            ForcedChunksSavedData forcedChunksSavedData;
+            do {
+                if (!var5.hasNext()) {
+                    // CraftBukkit start
+                    // this.nextTickTime = SystemUtils.getMillis() + 10L;
+                    this.executeModerately();
+                    // CraftBukkit end
+                    listener.stop();
+                    // CraftBukkit start
+                    // this.updateMobSpawningFlags();
+                    worldserver.setSpawnSettings(this.isSpawningMonsters(), this.isSpawningAnimals());
 
-            if (forcedchunk != null) {
-                LongIterator longiterator = forcedchunk.getChunks().iterator();
-
-                while (longiterator.hasNext()) {
-                    long i = longiterator.nextLong();
-                    ChunkPos chunkcoordintpair = new ChunkPos(i);
-
-                    worldserver1.getChunkSource().updateChunkForced(chunkcoordintpair, true);
+                    this.forceTicks = false;
+                    // CraftBukkit end
+                    return;
                 }
+
+                serverLevel2 = (ServerLevel)var5.next();
+                forcedChunksSavedData = (ForcedChunksSavedData)serverLevel2.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            } while(forcedChunksSavedData == null);
+
+            LongIterator longIterator = forcedChunksSavedData.getChunks().iterator();
+
+            while(longIterator.hasNext()) {
+                long l = longIterator.nextLong();
+                ChunkPos chunkPos = new ChunkPos(l);
+                serverLevel2.getChunkSource().updateChunkForced(chunkPos, true);
             }
+
             worldserver.entityManager.tick(); // SPIGOT-6526: Load pending entities so they are available to the API // Banner - tick to sync chunks
-            Bukkit.getPluginManager().callEvent(new WorldLoadEvent(worldserver1.getWorld()));
+            Bukkit.getPluginManager().callEvent(new WorldLoadEvent(serverLevel2.getWorld()));
         }
-
-        // CraftBukkit start
-        // this.nextTickTime = SystemUtils.getMillis() + 10L;
-        this.executeModerately();
-        // CraftBukkit end
-        listener.stop();
-        // CraftBukkit start
-        // this.updateMobSpawningFlags();
-        worldserver.setSpawnSettings(this.isSpawningMonsters(), this.isSpawningAnimals());
-
-        this.forceTicks = false;
-        // CraftBukkit end
     }
 
     @Override
@@ -700,7 +704,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         if (true) {
             ServerLevel worldserver1 = worldserver;
             // CraftBukkit end
-            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
+            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
 
             if (forcedchunk != null) {
                 LongIterator longiterator = forcedchunk.getChunks().iterator();
@@ -747,63 +751,31 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     }
 
     @Inject(method = "tickServer", at = @At("HEAD"))
-    private void banner$useTimings(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.serverTickTimer.startTiming(); // Spigot
+    private void banner$serverTickStartEvent(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         new com.destroystokyo.paper.event.server.ServerTickStartEvent(this.tickCount+1).callEvent(); // Paper
-    }
-
-    @Inject(method = "tickServer", at = @At(value = "INVOKE",
-            target = "Lorg/slf4j/Logger;debug(Ljava/lang/String;)V",
-            ordinal = 0,
-            remap = false))
-    private void banner$useTimings0(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.worldSaveTimer.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tickServer", at = @At(value = "INVOKE",
-            target = "Lorg/slf4j/Logger;debug(Ljava/lang/String;)V",
-            ordinal = 1,
-            shift = At.Shift.AFTER,
-            remap = false))
-    private void banner$useTimings1(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.worldSaveTimer.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tickServer", at = @At("TAIL"))
-    private void banner$useTimings2(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.serverTickTimer.stopTiming(); // Spigot
-        org.spigotmc.CustomTimingsHandler.tick(); // Spigot
-    }
-
-    @Inject(method = "tickChildren", at = @At("HEAD"))
-    private void banner$addTimings(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.schedulerTimer.startTiming(); // Spigot
     }
 
     @Inject(method = "tickChildren",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V",
                     ordinal = 0))
-    private void banner$addTimings0(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+    private void banner$mainThreadHeartbeat0(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         this.server.getScheduler().mainThreadHeartbeat(this.tickCount); // CraftBukkit
-        SpigotTimings.schedulerTimer.stopTiming(); // Spigot
     }
 
     @Inject(method = "tickChildren",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/server/ServerFunctionManager;tick()V"))
-    private void banner$addTimings1(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+    private void banner$mainThreadHeartbeat1(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         this.server.getScheduler().mainThreadHeartbeat(this.tickCount); // CraftBukkit
-        SpigotTimings.commandFunctionsTimer.startTiming(); // Spigot
     }
 
     @Inject(method = "tickChildren",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
                     ordinal = 0))
-    private void banner$addTimings2(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+    private void banner$mainThreadHeartbeat2(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         this.server.getScheduler().mainThreadHeartbeat(this.tickCount); // CraftBukkit
-        SpigotTimings.commandFunctionsTimer.stopTiming(); // Spigot
     }
 
     @Inject(method = "tickServer",
@@ -822,13 +794,10 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     private void banner$checkHeart(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         // CraftBukkit start
         // Run tasks that are waiting on processing
-        SpigotTimings.processQueueTimer.startTiming(); // Spigot
         while (!processQueue.isEmpty()) {
             processQueue.remove().run();
         }
-        SpigotTimings.processQueueTimer.stopTiming(); // Spigot
 
-        SpigotTimings.timeUpdateTimer.startTiming(); // Spigot
         // Send time updates to everyone, it will get the right time from the world the player is in.
         if (this.tickCount % 20 == 0) {
             for (int i = 0; i < this.getPlayerList().players.size(); ++i) {
@@ -836,78 +805,32 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                 entityplayer.connection.send(new ClientboundSetTimePacket(entityplayer.level().getGameTime(), entityplayer.getPlayerTime(), entityplayer.level().getGameRules().getBoolean(GameRules.RULE_DAYLIGHT))); // Add support for per player time
             }
         }
-        SpigotTimings.timeUpdateTimer.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;tick(Ljava/util/function/BooleanSupplier;)V"),
-            locals = LocalCapture.CAPTURE_FAILHARD)
-    private void banner$addTimings3(BooleanSupplier hasTimeLeft, CallbackInfo ci,
-                                    Iterator var2, ServerLevel serverLevel) {
-        serverLevel.bridge$timings().doTick.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;tick(Ljava/util/function/BooleanSupplier;)V",
-                    shift = At.Shift.AFTER),
-            locals = LocalCapture.CAPTURE_FAILHARD)
-    private void banner$addTimings4(BooleanSupplier hasTimeLeft, CallbackInfo ci,
-                                    Iterator var2, ServerLevel serverLevel) {
-        serverLevel.bridge$timings().doTick.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerConnectionListener;tick()V"))
-    private void banner$addTimings4(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.connectionTimer.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
-                    ordinal = 2))
-    private void banner$addTimings5(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.connectionTimer.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/players/PlayerList;tick()V"))
-    private void banner$addTimings6(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.playerListTimer.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/server/players/PlayerList;tick()V",
-                    shift = At.Shift.AFTER))
-    private void banner$addTimings7(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.playerListTimer.stopTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
-                    shift = At.Shift.AFTER,
-                    ordinal = 3))
-    private void banner$addTimings8(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.tickablesTimer.startTiming(); // Spigot
-    }
-
-    @Inject(method = "tickChildren",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V",
-                    ordinal = 3))
-    private void banner$addTimings9(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
-        SpigotTimings.tickablesTimer.stopTiming(); // Spigot
     }
 
     // CraftBukkit start
     public final java.util.concurrent.ExecutorService chatExecutor = java.util.concurrent.Executors.newCachedThreadPool(
             new com.google.common.util.concurrent.ThreadFactoryBuilder().setDaemon(true).setNameFormat("Async Chat Thread - #%d").build());
+
+    @ModifyReturnValue(method = "getChatDecorator", at = @At("RETURN"))
+    private ChatDecorator banner$fireChatEvent(ChatDecorator decorator) {
+        return (entityplayer, ichatbasecomponent) -> {
+            // SPIGOT-7127: Console /say and similar
+            if (entityplayer == null) {
+                return CompletableFuture.completedFuture(ichatbasecomponent);
+            }
+
+            return CompletableFuture.supplyAsync(() -> {
+                AsyncPlayerChatPreviewEvent event = new AsyncPlayerChatPreviewEvent(true, entityplayer.getBukkitEntity(), CraftChatMessage.fromComponent(ichatbasecomponent), new LazyPlayerSet(((MinecraftServer) (Object) this)));
+                String originalFormat = event.getFormat(), originalMessage = event.getMessage();
+                this.server.getPluginManager().callEvent(event);
+
+                if (originalFormat.equals(event.getFormat()) && originalMessage.equals(event.getMessage()) && event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getDisplayName())) {
+                    return ichatbasecomponent;
+                }
+                return CraftChatMessage.fromStringOrNull(String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage()));
+            }, chatExecutor);
+        };
+    }
 
     @Inject(method = "method_29440", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/packs/repository/PackRepository;setSelected(Ljava/util/Collection;)V"))

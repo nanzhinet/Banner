@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R2.scoreboard;
 
 import com.google.common.base.Preconditions;
+import net.minecraft.world.scores.Scoreboard;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
 import org.bukkit.scoreboard.Criteria;
@@ -69,7 +70,6 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
 
     @Override
     public void setDisplaySlot(DisplaySlot slot) {
-        /*
         CraftScoreboard scoreboard = checkState();
         Scoreboard board = scoreboard.board;
         net.minecraft.world.scores.Objective objective = this.objective;
@@ -82,13 +82,11 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
         if (slot != null) {
             int slotNumber = CraftScoreboardTranslations.fromBukkitSlot(slot);
             board.setDisplayObjective(slotNumber, getHandle());
-        }*/
-        // Banner TODO
+        }
     }
 
     @Override
     public DisplaySlot getDisplaySlot() {
-        /*
         CraftScoreboard scoreboard = checkState();
         Scoreboard board = scoreboard.board;
         net.minecraft.world.scores.Objective objective = this.objective;
@@ -97,8 +95,7 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
             if (board.getDisplayObjective(i) == objective) {
                 return CraftScoreboardTranslations.toBukkitSlot(i);
             }
-        }*/
-        // Banner TODO
+        }
         return null;
     }
 

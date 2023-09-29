@@ -40,7 +40,6 @@ public abstract class MixinEnderMan extends Monster {
     }
     // @formatter:on
 
-    /*
     public void bridge$updateTarget(LivingEntity livingEntity) {
         AttributeInstance modifiableattributeinstance = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if (livingEntity == null) {
@@ -64,7 +63,7 @@ public abstract class MixinEnderMan extends Monster {
         }
         bridge$updateTarget(getTarget());
         return true;
-    }*/  // Banner TODO
+    }
 
     @Inject(method = "isLookingAtMe", at = @At("HEAD"), cancellable = true)
     private void banner$lookingCheck(Player player, CallbackInfoReturnable<Boolean> cir) {
@@ -93,7 +92,6 @@ public abstract class MixinEnderMan extends Monster {
      * @author wdog5
      * @reason bukkit
      */
-    /*
     @Overwrite
     public void setTarget(@Nullable LivingEntity entity) {
         this.bridge$pushGoalTargetReason(EntityTargetEvent.TargetReason.CLOSEST_PLAYER, true);
@@ -101,5 +99,5 @@ public abstract class MixinEnderMan extends Monster {
         if (getBanner$targetSuccess()) {
             bridge$updateTarget(getTarget());
         }
-    }*/  // Banner TODO
+    }
 }

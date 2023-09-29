@@ -336,14 +336,14 @@ public abstract class MixinServerPlayerGameMode implements InjectionServerPlayer
     @Inject(method = "destroyBlock", at = @At("TAIL"), cancellable = true)
     private void banner$fireDropEvent(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         org.bukkit.block.BlockState state = CraftBlock.at(level, pos).getState();
-        if (banner$event.get().isDropItems()) {
+        if (level.bridge$captureDrops() != null && banner$event.get().isDropItems()) {
             CraftEventFactory.handleBlockDropItemEvent(CraftBlock.at(level, pos), state, this.player, level.bridge$captureDrops());
         }
         level.banner$setCaptureDrops(null);
 
         // Drop event experience
         if (this.level.removeBlock(pos, false) && banner$event.get() != null) {
-            this.level.getBlockState(pos).getBlock().popExperience(this.level, pos, banner$event.get().getExpToDrop());
+            this.level.getBlockState(pos).getBlock().popExperience(this.level, pos, banner$event.getAndSet(null).getExpToDrop());
         }
         cir.setReturnValue(true);
     }
@@ -437,10 +437,10 @@ public abstract class MixinServerPlayerGameMode implements InjectionServerPlayer
                 InteractionResult interactionResult2;
                 if (this.isCreative()) {
                     int i = stack.getCount();
-                    interactionResult2 = stack.useOn(useOnContext, hand);// Banner - add Hand
+                    interactionResult2 = stack.useOn(useOnContext);
                     stack.setCount(i);
                 } else {
-                    interactionResult2 = stack.useOn(useOnContext, hand);// Banner - add Hand
+                    interactionResult2 = stack.useOn(useOnContext);
                 }
 
                 if (interactionResult2.consumesAction()) {

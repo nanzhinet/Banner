@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.world.entity.vehicle;
 
+import com.mohistmc.banner.injection.world.entity.vehicle.InjectionBoat;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -7,6 +8,7 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
@@ -22,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Boat.class)
-public abstract class MixinBoat extends Entity {
+public abstract class MixinBoat extends Entity implements InjectionBoat {
 
 
     // @formatter:off
@@ -72,7 +74,7 @@ public abstract class MixinBoat extends Entity {
 
     @Inject(method = "push", cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;push(Lnet/minecraft/world/entity/Entity;)V"))
     private void banner$collideVehicle(Entity entityIn, CallbackInfo ci) {
-        if (isPassengerOfSameVehicle(entityIn)) {
+        if (!isPassengerOfSameVehicle(entityIn)) {
             VehicleEntityCollisionEvent event = new VehicleEntityCollisionEvent((Vehicle) this.getBukkitEntity(), entityIn.getBukkitEntity());
             Bukkit.getPluginManager().callEvent(event);
 
@@ -84,9 +86,9 @@ public abstract class MixinBoat extends Entity {
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;tickBubbleColumn()V"))
     private void banner$updateVehicle(CallbackInfo ci) {
-        final org.bukkit.World bworld = this.level().getWorld();
-        final Location to = new Location(bworld, this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-        final Vehicle vehicle = (Vehicle) this.getBukkitEntity();
+        org.bukkit.World bworld = this.level().getWorld();
+        Location to = CraftLocation.toBukkit(this.position(), bworld, this.getYRot(), this.getXRot());
+        Vehicle vehicle = (Vehicle) this.getBukkitEntity();
         Bukkit.getPluginManager().callEvent(new VehicleUpdateEvent(vehicle));
         if (this.lastLocation != null && !this.lastLocation.equals(to)) {
             final VehicleMoveEvent event = new VehicleMoveEvent(vehicle, this.lastLocation, to);
@@ -105,5 +107,45 @@ public abstract class MixinBoat extends Entity {
         } else {
             return true;
         }
+    }
+
+    @Override
+    public double bridge$maxSpeed() {
+        return maxSpeed;
+    }
+
+    @Override
+    public void banner$setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    @Override
+    public double bridge$occupiedDeceleration() {
+        return occupiedDeceleration;
+    }
+
+    @Override
+    public void banner$setOccupiedDeceleration(double occupiedDeceleration) {
+        this.occupiedDeceleration = occupiedDeceleration;
+    }
+
+    @Override
+    public double bridge$unoccupiedDeceleration() {
+        return unoccupiedDeceleration;
+    }
+
+    @Override
+    public void banner$setUnoccupiedDeceleration(double unoccupiedDeceleration) {
+        this.unoccupiedDeceleration = unoccupiedDeceleration;
+    }
+
+    @Override
+    public boolean bridge$landBoats() {
+        return landBoats;
+    }
+
+    @Override
+    public void banner$setLandBoats(boolean landBoats) {
+        this.landBoats = landBoats;
     }
 }
