@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.SmithingRecipe;
 import net.minecraft.world.item.crafting.SmithingTransformRecipe;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftSmithingTransformRecipe;
@@ -27,20 +28,17 @@ public abstract class MixinSmithingTransformRecipe implements SmithingRecipe {
     @Shadow @Final
     Ingredient addition;
 
-    @Shadow @Final private ResourceLocation id;
-
     @Shadow @Final
     ItemStack result;
 
     // CraftBukkit start
     @Override
-    public Recipe toBukkitRecipe() {
+    public Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe((SmithingTransformRecipe) (Object) this);
+            return new BannerModdedRecipe(id, (SmithingTransformRecipe) (Object) this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
-        CraftSmithingTransformRecipe recipe = new CraftSmithingTransformRecipe(CraftNamespacedKey.fromMinecraft(this.id), result, CraftRecipe.toBukkit(this.template), CraftRecipe.toBukkit(this.base), CraftRecipe.toBukkit(this.addition));
-        return recipe;
+        return new CraftSmithingTransformRecipe(id, result, CraftRecipe.toBukkit(this.template), CraftRecipe.toBukkit(this.base), CraftRecipe.toBukkit(this.addition));
     }
     // CraftBukkit end
 }

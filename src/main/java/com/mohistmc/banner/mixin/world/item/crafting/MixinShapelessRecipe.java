@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
 import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftShapelessRecipe;
@@ -28,12 +29,12 @@ public abstract class MixinShapelessRecipe implements CraftingRecipe, InjectionS
 
     @Override
     // CraftBukkit start
-    public org.bukkit.inventory.ShapelessRecipe toBukkitRecipe() {
+    public org.bukkit.inventory.ShapelessRecipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerShapelessRecipe(((ShapelessRecipe) (Object) this));
+            return new BannerShapelessRecipe(id, ((ShapelessRecipe) (Object) this));
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
-        CraftShapelessRecipe recipe = new CraftShapelessRecipe(result, ((ShapelessRecipe) (Object) this));
+        CraftShapelessRecipe recipe = new CraftShapelessRecipe(id, result, ((ShapelessRecipe) (Object) this));
         recipe.setGroup(this.group);
         recipe.setCategory(CraftRecipe.getCategory(this.category()));
 

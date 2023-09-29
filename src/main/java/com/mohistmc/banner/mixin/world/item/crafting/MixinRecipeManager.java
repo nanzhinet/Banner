@@ -14,6 +14,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -35,13 +36,15 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
     @Shadow @Final
     private static Logger LOGGER;
 
-    @Shadow private Map<ResourceLocation, Recipe<?>> byName;
-
     @Shadow public Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes;
+    @Shadow
+    protected static RecipeHolder<?> fromJson(ResourceLocation resourceLocation, JsonObject jsonObject) {
+        return null;
+    }
 
-    @Shadow public static Recipe<?> fromJson(ResourceLocation recipeId, JsonObject json) { return null; }
+    @Shadow private Map<ResourceLocation, RecipeHolder<?>> byName;
 
-    @Shadow protected abstract <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> byType(RecipeType<T> recipeType);
+    @Shadow protected abstract <C extends Container, T extends Recipe<C>> Map<ResourceLocation, RecipeHolder<T>> byType(RecipeType<T> recipeType);
 
     public Map<RecipeType<?>, Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>>> recipesCB = ImmutableMap.of(); // CraftBukkit  // Mohist use obf name
 
@@ -64,7 +67,7 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
         // CraftBukkit end
 
         Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, Recipe<?>>> map = Maps.newHashMap();
-        ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder = ImmutableMap.builder();
 
         Iterator var6 = pObject.entrySet().iterator();
 
@@ -73,16 +76,16 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
             ResourceLocation resourceLocation = (ResourceLocation)entry.getKey();
 
             try {
-                Recipe<?> recipe = fromJson(resourceLocation, GsonHelper.convertToJsonObject(entry.getValue(), "top element"));
-                map.computeIfAbsent(recipe.getType(), (p_44075_) -> {
+                RecipeHolder<?> recipe = fromJson(resourceLocation, GsonHelper.convertToJsonObject(entry.getValue(), "top element"));
+                map.computeIfAbsent(recipe.value().getType(), (p_44075_) -> {
                     return ImmutableMap.builder();
-                }).put(resourceLocation, recipe);
+                }).put(resourceLocation, recipe.value());
 
                 // CraftBukkit start
-                (map1.computeIfAbsent(recipe.getType(), (recipes) -> {
+                (map1.computeIfAbsent(recipe.value().getType(), (recipes) -> {
                     return new Object2ObjectLinkedOpenHashMap<>();
                     // CraftBukkit end
-                })).put(resourceLocation, recipe);
+                })).put(resourceLocation, recipe.value());
                 builder.put(resourceLocation, recipe);
             } catch (IllegalArgumentException | JsonParseException jsonparseexception) {
                 LOGGER.error("Parsing error loading recipe {}", resourceLocation, jsonparseexception);
@@ -104,41 +107,41 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
      * @reason bukkit current recipe
      */
     @Overwrite
-    public <C extends Container, T extends Recipe<C>> Optional<T> getRecipeFor(RecipeType<T> recipeTypeIn, C inventoryIn, Level worldIn) {
-        Optional<T> optional = this.byType(recipeTypeIn).values().stream().filter((recipe) -> {
-            return recipe.matches(inventoryIn, worldIn);
+    public <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> getRecipeFor(RecipeType<T> recipeTypeIn, C inventoryIn, Level worldIn) {
+        Optional<RecipeHolder<T>> optional = this.byType(recipeTypeIn).values().stream().filter((recipe) -> {
+            return recipe.value().matches(inventoryIn, worldIn);
         }).findFirst();
         inventoryIn.setCurrentRecipe(optional.orElse(null));
         return optional;
     }
 
     @Override
-    public void addRecipe(Recipe<?> irecipe) {
+    public void addRecipe(RecipeHolder<?> irecipe) {
         if (this.recipes instanceof ImmutableMap) {
             this.recipes = new HashMap<>(recipes);
         }
         if (this.byName instanceof ImmutableMap) {
             this.byName = new HashMap<>(byName);
         }
-        Map<ResourceLocation, Recipe<?>> map = this.recipes.get(irecipe.getType());
+        Map<ResourceLocation, Recipe<?>> map = this.recipes.get(irecipe.value().getType());
         Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>> map0;
         if (!(map instanceof Object2ObjectLinkedOpenHashMap)) {
             Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>> hashMap = new Object2ObjectLinkedOpenHashMap<>();
             hashMap.putAll(map);
-            this.recipes.put(irecipe.getType(), hashMap);
+            this.recipes.put(irecipe.value().getType(), hashMap);
             map0 = hashMap;
         } else {
             map0 = ((Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>>) map);
         }
 
-        Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>> craftbukkit = this.recipesCB.get(irecipe.getType()); // CraftBukkit
+        Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>> craftbukkit = this.recipesCB.get(irecipe.value().getType()); // CraftBukkit
 
-        if (this.byName.containsKey(irecipe.getId()) || map0.containsKey(irecipe.getId()) || craftbukkit.containsKey(irecipe.getId())) {
-            throw new IllegalStateException("Duplicate recipe ignored with ID " + irecipe.getId());
+        if (this.byName.containsKey(irecipe.id()) || map0.containsKey(irecipe.id()) || craftbukkit.containsKey(irecipe.id())) {
+            throw new IllegalStateException("Duplicate recipe ignored with ID " + irecipe.id());
         } else {
-            map0.putAndMoveToFirst(irecipe.getId(), irecipe);
-            craftbukkit.putAndMoveToFirst(irecipe.getId(), irecipe); // CraftBukkit - SPIGOT-4638: last recipe gets priority
-            this.byName.put(irecipe.getId(), irecipe);
+            map0.putAndMoveToFirst(irecipe.id(), irecipe.value());
+            craftbukkit.putAndMoveToFirst(irecipe.id(), irecipe.value()); // CraftBukkit - SPIGOT-4638: last recipe gets priority
+            this.byName.put(irecipe.id(), irecipe);
         }
     }
 
