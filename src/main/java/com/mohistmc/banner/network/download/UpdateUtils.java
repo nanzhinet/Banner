@@ -28,7 +28,7 @@ public class UpdateUtils {
         System.out.println(BannerMCStart.I18N.get("update.stopcheck"));
 
         try {
-            Json json = Json.read(URI.create("https://ci.codemc.io/job/MohistMC/job/Banner-1.20/lastSuccessfulBuild/api/json").toURL());
+            Json json = Json.read(URI.create("https://ci.codemc.io/job/MohistMC/job/Banner-1.20.2/lastSuccessfulBuild/api/json").toURL());
 
             String jar_sha = BannerMCStart.getVersion();
             String build_number = json.asString("number");
