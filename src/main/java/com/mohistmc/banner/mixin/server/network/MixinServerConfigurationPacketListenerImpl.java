@@ -22,7 +22,6 @@ public abstract class MixinServerConfigurationPacketListenerImpl extends MixinSe
 
     @Redirect(method = "handleConfigurationFinished", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;getPlayerForLogin(Lcom/mojang/authlib/GameProfile;Lnet/minecraft/server/level/ClientInformation;)Lnet/minecraft/server/level/ServerPlayer;"))
     private ServerPlayer banner$useCurrentPlayer(PlayerList instance, GameProfile profile, ClientInformation clientInformation) {
-        this.player.updateOptions(clientInformation);
-        return this.player;
+        return instance.getPlayerForLogin(profile, clientInformation, this.player); // CraftBukkit
     }
 }

@@ -156,8 +156,6 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
     @Shadow protected abstract void save(ServerPlayer player);
 
     @Shadow @Final private Map<UUID, ServerStatsCounter> stats;
-
-    @Shadow public abstract ServerPlayer getPlayerForLogin(GameProfile gameProfile, ClientInformation clientInformation);
     private CraftServer cserver;
 
     private static final AtomicReference<String> PROFILE_NAMES = new AtomicReference<>();
@@ -438,8 +436,9 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
     }
 
     @Override
-    public ServerPlayer getPlayerForLogin(GameProfile gameprofile, ServerPlayer player) {
-        return this.getPlayerForLogin(gameprofile, player.clientInformation());
+    public ServerPlayer getPlayerForLogin(GameProfile gameprofile, ClientInformation clientinformation, ServerPlayer player) {
+        player.updateOptions(clientinformation);
+        return player;
     }
 
     @Override
@@ -469,7 +468,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         // depending on the outcome.
 
         SocketAddress socketaddress = handler.connection.getRemoteAddress();
-        ServerPlayer entity = getPlayerForLogin(gameProfile, ClientInformation.createDefault());
+        ServerPlayer entity = new ServerPlayer(this.server, this.server.getLevel(Level.OVERWORLD), gameProfile, ClientInformation.createDefault());
         org.bukkit.entity.Player player = entity.getBukkitEntity();
         PlayerLoginEvent event = new PlayerLoginEvent(player, handler.connection.bridge$hostname(), ((java.net.InetSocketAddress) socketaddress).getAddress());
 
@@ -585,7 +584,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             boolean isBedSpawn = false;
             ServerLevel worldserver1 = this.server.getLevel(playerIn.getRespawnDimension());
             if (worldserver1 != null) {
-                Optional optional;
+                Optional<?> optional;
 
                 if (blockposition != null) {
                     optional = net.minecraft.world.entity.player.Player.findRespawnPositionAndUseSpawnBlock(worldserver1, blockposition, f, flag1, conqueredEnd);
@@ -607,7 +606,10 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
                         f1 = (float) Mth.wrapDegrees(Mth.atan2(vec3d1.z, vec3d1.x) * 57.2957763671875D - 90.0D);
                     }
 
-                    // entityplayer1.setRespawnPosition(worldserver1.dimension(), blockposition, f, flag1, false); // CraftBukkit - not required, just copies old location into reused entity
+                    // Banner start - fix player login stuck under ground
+                    entityplayer1.moveTo(vec3d.x, vec3d.y, vec3d.z, f1, 0.0F);
+                    entityplayer1.setRespawnPosition(worldserver1.dimension(), blockposition, f, flag1, false); // CraftBukkit - not required, just copies old location into reused entity // Banner - remain for tp
+                    // Banner end
                     flag2 = !conqueredEnd && flag3;
                     isBedSpawn = true;
                     banner$loc = CraftLocation.toBukkit(vec3d, worldserver1.getWorld(), f1, 0.0F);
