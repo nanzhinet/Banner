@@ -140,8 +140,7 @@ dependencies {
 	implementation(include("net.fabricmc:mapping-io:0.3.0"))
 
 	// Kyori
-	implementation(include("net.kyori:adventure-platform-fabric:5.9.0"))
-
+	implementation(include("net.kyori:adventure-platform-fabric:5.10.0"))
 
 	// new LibraryLoader
 	implementation(include('com.mohistmc:json:0.2'))
@@ -176,7 +175,7 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
-	//options.compilerArgs << '-Xlint:-dep-ann' << '-Xlint:-removal'
+	options.compilerArgs << '-Xlint:-dep-ann' << '-Xlint:-removal'
 }
 
 jar {

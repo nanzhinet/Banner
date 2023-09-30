@@ -27,6 +27,7 @@ import org.bukkit.plugin.PluginLoadOrder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -128,28 +129,25 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         banner$rconConsoleSource.set(source);
     }
 
-    @Redirect(method = "runCommand", at = @At("HEAD"))
-    private void banner$resetRconConsole() {
-        this.rconConsoleSource = this.banner$rconConsoleSource.get();
-    }
-
-    @Inject(method = "runCommand", at = @At("HEAD"))
-    private void banner$getCommandString(String command, CallbackInfoReturnable<String> cir) {
-        banner$command.set(command);
-    }
-
-    @Redirect(method = "runCommand", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/dedicated/DedicatedServer;executeBlocking(Ljava/lang/Runnable;)V"))
-    private void banner$callCommandEvent(DedicatedServer instance, Runnable runnable) {
+    /**
+     * @author wdog5
+     * @reason bukkit
+     */
+    @Overwrite
+    public String runCommand(String command) {
+        RconConsoleSource rconConsoleSource1 = banner$rconConsoleSource.get();
+        rconConsoleSource1.prepareForCommand();
         this.executeBlocking(() -> {
-            CommandSourceStack wrapper = banner$rconConsoleSource.get().createCommandSourceStack();
-            RemoteServerCommandEvent event = new RemoteServerCommandEvent(banner$rconConsoleSource.get().getBukkitSender(wrapper), banner$command.get());
+            CommandSourceStack wrapper = rconConsoleSource1.createCommandSourceStack();
+            RemoteServerCommandEvent event = new RemoteServerCommandEvent(rconConsoleSource1.getBukkitSender(wrapper), command);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;
             }
-            this.bridge$server().dispatchServerCommand(event.getSender(), new ConsoleInput(event.getCommand(), this.rconConsoleSource.createCommandSourceStack()));
+            ConsoleInput serverCommand = new ConsoleInput(event.getCommand(), wrapper);
+            this.bridge$server().dispatchServerCommand(event.getSender(), serverCommand);
         });
+        return rconConsoleSource1.getCommandResponse();
     }
 
     @Inject(method = "onServerExit", at = @At("RETURN"))
