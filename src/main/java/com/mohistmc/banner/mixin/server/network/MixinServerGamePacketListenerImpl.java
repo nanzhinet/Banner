@@ -890,6 +890,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
     private void removePlayerFromWorld() {
         this.chatMessageChain.close();
         this.player.disconnect();
+        this.server.getPlayerList().remove(this.player);
         String quitMessage = this.server.getPlayerList().bridge$quiltMsg();
         if ((quitMessage != null) && (quitMessage.length() > 0)) {
             this.server.getPlayerList().broadcastMessage(CraftChatMessage.fromString(quitMessage));
