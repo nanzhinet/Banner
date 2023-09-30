@@ -24,7 +24,7 @@ public abstract class MixinStonecutterRecipe extends SingleItemRecipe {
     @Override
     public Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe(id, (StonecutterRecipe) (Object) this);
+            return new BannerModdedRecipe(id, this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
 

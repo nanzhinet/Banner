@@ -1,6 +1,7 @@
 package com.mohistmc.banner.mixin.server.network;
 
 import com.mohistmc.banner.config.BannerConfig;
+import com.mohistmc.banner.injection.server.network.InjectionServerCommonPacketListenerImpl;
 import com.mohistmc.banner.injection.server.network.InjectionServerLoginPacketListenerImpl;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.DefaultUncaughtExceptionHandler;

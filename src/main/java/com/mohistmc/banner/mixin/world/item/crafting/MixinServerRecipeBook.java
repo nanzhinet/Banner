@@ -1,6 +1,8 @@
 package com.mohistmc.banner.mixin.world.item.crafting;
 
 import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.protocol.game.ClientboundRecipePacket;
 import net.minecraft.resources.ResourceLocation;
@@ -15,9 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Collection;
-import java.util.List;
 
 @Mixin(ServerRecipeBook.class)
 public abstract class MixinServerRecipeBook extends RecipeBook {

@@ -33,7 +33,7 @@ public abstract class MixinSmithingTransformRecipe implements SmithingRecipe {
     @Override
     public Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe(id, (SmithingTransformRecipe) (Object) this);
+            return new BannerModdedRecipe(id, this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
         return new CraftSmithingTransformRecipe(id, result, CraftRecipe.toBukkit(this.template), CraftRecipe.toBukkit(this.base), CraftRecipe.toBukkit(this.addition));

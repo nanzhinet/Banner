@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.world.level.gameevent.vibrations;
 
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -15,8 +16,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-
-import java.util.Optional;
 
 @Mixin(VibrationSystem.Listener.class)
 public abstract class MixinVibrationSystem_Listener {

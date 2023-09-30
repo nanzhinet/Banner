@@ -24,7 +24,7 @@ public abstract class MixinSmeltingRecipe extends AbstractCookingRecipe {
     @Override
     public Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe(id, (SmeltingRecipe) (Object) this);
+            return new BannerModdedRecipe(id, this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
         CraftFurnaceRecipe recipe = new CraftFurnaceRecipe(id, result,

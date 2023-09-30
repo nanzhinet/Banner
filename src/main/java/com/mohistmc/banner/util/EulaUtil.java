@@ -1,7 +1,6 @@
 package com.mohistmc.banner.util;
 
 import com.mohistmc.banner.BannerMCStart;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;

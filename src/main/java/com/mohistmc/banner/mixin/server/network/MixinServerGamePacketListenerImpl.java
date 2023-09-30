@@ -31,6 +31,7 @@ import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundChatSessionUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundConfigurationAcknowledgedPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
@@ -49,12 +50,14 @@ import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
+import net.minecraft.network.protocol.login.ServerboundLoginAcknowledgedPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.FutureChain;
 import net.minecraft.util.Mth;
@@ -217,6 +220,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
     @Shadow private int chatSpamTickCount;
 
     @Shadow public abstract ServerPlayer getPlayer();
+    @Shadow private boolean waitingForSwitchToConfig;
 
     private static final int SURVIVAL_PLACE_DISTANCE_SQUARED = 6 * 6;
     private static final int CREATIVE_PLACE_DISTANCE_SQUARED = 7 * 7;
@@ -1681,6 +1685,21 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
             } else {
                 this.player.onUpdateAbilities();
             }
+        }
+    }
+
+    /**
+     * @author Mgazul
+     * @reason
+     */
+    @Overwrite
+    public void handleConfigurationAcknowledged(ServerboundConfigurationAcknowledgedPacket p_299199_) {
+        if (!this.waitingForSwitchToConfig) {
+            throw new IllegalStateException("Client acknowledged config, but none was requested");
+        } else {
+            ServerConfigurationPacketListenerImpl listener = new ServerConfigurationPacketListenerImpl(this.server, this.connection, this.createCookie(this.player.clientInformation()));
+            listener.banner$setPlayer(this.player);
+            this.connection.setListener(listener);
         }
     }
 

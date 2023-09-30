@@ -1,13 +1,18 @@
 package com.mohistmc.banner.mixin.server.network;
 
 import com.mohistmc.banner.bukkit.BukkitCaptures;
+import com.mohistmc.banner.bukkit.UnknownPayload;
 import com.mohistmc.banner.injection.server.network.InjectionServerCommonPacketListenerImpl;
+import io.netty.buffer.ByteBuf;
+import java.nio.charset.StandardCharsets;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
+import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
@@ -16,11 +21,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
+import net.minecraft.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_20_R2.util.Waitable;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
@@ -141,7 +148,7 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
     }
 
     @Inject(method = "onDisconnect", cancellable = true, at = @At("HEAD"))
-    private void banner$returnIfProcessed(Component reason, CallbackInfo ci) {
+    private void arclight$returnIfProcessed(Component reason, CallbackInfo ci) {
         if (processedDisconnect) {
             ci.cancel();
         } else {
@@ -151,22 +158,23 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
 
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V", cancellable = true, at = @At("HEAD"))
     private void banner$updateCompassTarget(Packet<?> packetIn, PacketSendListener futureListeners, CallbackInfo ci) {
-        if (packetIn == null || processedDisconnect) {
+        if (packetIn == null || this.player == null|| processedDisconnect) {
             ci.cancel();
             return;
         }
         if (packetIn instanceof ClientboundSetDefaultSpawnPositionPacket packet6) {
-            this.player.banner$setCompassTarget(new Location(this.getCraftPlayer().getWorld(), packet6.pos.getX(), packet6.pos.getY(), packet6.pos.getZ()));
+            this.player.banner$setCompassTarget(CraftLocation.toBukkit(packet6.pos, this.getCraftPlayer().getWorld()));
         }
     }
 
     private static final ResourceLocation CUSTOM_REGISTER = new ResourceLocation("register");
     private static final ResourceLocation CUSTOM_UNREGISTER = new ResourceLocation("unregister");
 
-    // Banner TODO - fixme
     @Inject(method = "handleCustomPayload", at = @At("HEAD"), cancellable = true)
     private void banner$handleCustomPayload(ServerboundCustomPayloadPacket packet, CallbackInfo ci) {
-        /*
+        if (!(packet.payload() instanceof UnknownPayload)) {
+            return;
+        }
         PacketUtils.ensureRunningOnSameThread(packet, ((ServerCommonPacketListener) (Object) this), this.player.serverLevel());
         ByteBuf payload = ((UnknownPayload)packet.payload()).data();
         var readerIndex = payload.readerIndex();
@@ -208,9 +216,8 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
                     this.disconnect("Invalid custom payload!");
                 }
             }
-        }*/
+        }
     }
-    // Banner TODO - fixme
 
     @Inject(method = "handleResourcePackResponse", at = @At("RETURN"))
     private void banner$handleResourcePackStatus(ServerboundResourcePackPacket packetIn, CallbackInfo ci) {

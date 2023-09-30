@@ -23,7 +23,7 @@ public abstract class MixinBlastingRecipe extends AbstractCookingRecipe {
     @Override
     public org.bukkit.inventory.Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe(id, (BlastingRecipe) (Object) this);
+            return new BannerModdedRecipe(id, this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
 

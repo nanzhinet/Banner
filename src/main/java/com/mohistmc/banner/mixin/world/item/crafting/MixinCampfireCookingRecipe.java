@@ -24,7 +24,7 @@ public abstract class MixinCampfireCookingRecipe extends AbstractCookingRecipe {
     @Override
     public Recipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerModdedRecipe(id, (CampfireCookingRecipe) (Object) this);
+            return new BannerModdedRecipe(id, this);
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
 

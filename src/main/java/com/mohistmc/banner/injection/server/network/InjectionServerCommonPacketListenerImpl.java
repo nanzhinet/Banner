@@ -23,5 +23,7 @@ public interface InjectionServerCommonPacketListenerImpl {
     default void banner$setProcessedDisconnect(boolean processedDisconnect) {
     }
 
-    void banner$setPlayer(ServerPlayer player);
+    default void banner$setPlayer(ServerPlayer player) {
+
+    }
 }
