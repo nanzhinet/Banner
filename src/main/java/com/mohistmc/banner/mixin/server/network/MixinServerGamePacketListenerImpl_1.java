@@ -24,6 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.spongepowered.asm.mixin.Final;
@@ -56,7 +57,7 @@ public abstract class MixinServerGamePacketListenerImpl_1 {
             boolean triggerLeashUpdate = itemInHand != null && itemInHand.getItem() == Items.LEAD && val$target instanceof Mob;
             Item origItem = field_28963.player.getInventory().getSelected() == null ? null : field_28963.player.getInventory().getSelected().getItem();
 
-            field_28963.bridge$craftServer().getPluginManager().callEvent(event);
+           Bukkit.getPluginManager().callEvent(event);
 
             // Entity in bucket - SPIGOT-4048 and SPIGOT-6859a
             if ((val$target instanceof Bucketable && val$target instanceof LivingEntity && origItem != null && origItem.asItem() == Items.WATER_BUCKET) && (event.isCancelled() || field_28963.player.getInventory().getSelected() == null || field_28963.player.getInventory().getSelected().getItem() != origItem)) {

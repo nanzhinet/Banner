@@ -33,10 +33,6 @@ public interface InjectionServerGamePacketListenerImpl extends InjectionServerCo
         return false;
     }
 
-    default CraftServer bridge$craftServer() {
-        return null;
-    }
-
     default Logger bridge$logger() {
         return null;
     }

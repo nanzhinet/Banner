@@ -2,6 +2,7 @@ package com.mohistmc.banner.mixin.server.network;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
+import com.mohistmc.banner.injection.server.network.InjectionServerCommonPacketListenerImpl;
 import com.mohistmc.banner.injection.server.network.InjectionServerGamePacketListenerImpl;
 import com.mojang.brigadier.ParseResults;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
@@ -59,6 +60,7 @@ import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.FutureChain;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
@@ -152,7 +154,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl implements InjectionServerGamePacketListenerImpl {
+public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl implements InjectionServerGamePacketListenerImpl, InjectionServerCommonPacketListenerImpl {
 
     @Shadow public ServerPlayer player;
     @Mutable
@@ -221,16 +223,10 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
 
     @Shadow public abstract ServerPlayer getPlayer();
     @Shadow private boolean waitingForSwitchToConfig;
-
-    private static final int SURVIVAL_PLACE_DISTANCE_SQUARED = 6 * 6;
-    private static final int CREATIVE_PLACE_DISTANCE_SQUARED = 7 * 7;
-    private CraftServer cserver;
-    public boolean processedDisconnect;
     private int allowedPlayerTicks;
-    private int dropCount;
+    private int dropCount = 0;
     private int lastTick;
     private volatile int lastBookTick;
-    private int lastDropTick;
 
     private double lastPosX;
     private double lastPosY;
@@ -251,7 +247,6 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void banner$init(MinecraftServer minecraftServer, Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        this.cserver = ((CraftServer) Bukkit.getServer());
         this.chatMessageChain = new FutureChain(minecraftServer.bridge$chatExecutor());
     }
 
@@ -389,7 +384,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
                     if (from.getX() != Double.MAX_VALUE) {
                         Location oldTo = to.clone();
                         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
-                        this.cserver.getPluginManager().callEvent(event);
+                        Bukkit.getPluginManager().callEvent(event);
 
                         // If the event is cancelled we move the player back to their old location.
                         if (event.isCancelled()) {
@@ -692,7 +687,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
                                     if (from.getX() != Double.MAX_VALUE) {
                                         Location oldTo = to.clone();
                                         PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
-                                        this.cserver.getPluginManager().callEvent(event);
+                                        Bukkit.getPluginManager().callEvent(event);
 
                                         // If the event is cancelled we move the player back to their old location.
                                         if (event.isCancelled()) {
@@ -762,7 +757,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         CraftItemStack mainHand = CraftItemStack.asCraftMirror(itemStack);
         CraftItemStack offHand = CraftItemStack.asCraftMirror(this.player.getItemInHand(InteractionHand.MAIN_HAND));
         PlayerSwapHandItemsEvent swapItemsEvent = new PlayerSwapHandItemsEvent(getCraftPlayer(), mainHand.clone(), offHand.clone());
-        this.cserver.getPluginManager().callEvent(swapItemsEvent);
+        Bukkit.getPluginManager().callEvent(swapItemsEvent);
         if (swapItemsEvent.isCancelled()) {
             return;
         }
@@ -879,35 +874,28 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
 
     @Inject(method = "onDisconnect", cancellable = true, at = @At("HEAD"))
     private void banner$returnIfProcessed(Component reason, CallbackInfo ci) {
-        if (processedDisconnect) {
+        if (this.bridge$processedDisconnect()) {
             ci.cancel();
         } else {
-            processedDisconnect = true;
+            this.banner$setProcessedDisconnect(true);
         }
     }
 
-    @Redirect(method = "onDisconnect", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerCommonPacketListenerImpl;onDisconnect(Lnet/minecraft/network/chat/Component;)V"))
-    public void banner$captureQuit(ServerCommonPacketListenerImpl instance, Component reason) {
-        // do nothing
-    }
 
-    @Inject(method = "onDisconnect", at = @At("HEAD"), cancellable = true)
-    private void banner$checkDisconnect(Component reason, CallbackInfo ci) {
-        // CraftBukkit start - Rarely it would send a disconnect line twice
-        if (this.processedDisconnect) {
-            ci.cancel();
-        } else {
-            this.processedDisconnect = true;
-        }
-        // CraftBukkit end
-    }
-
-    @Inject(method = "onDisconnect", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;removePlayerFromWorld()V"))
-    private void banner$setQuitMsg(Component message, CallbackInfo ci) {
+    /**
+     * @author Mgazul
+     * @reason
+     */
+    @Overwrite
+    private void removePlayerFromWorld() {
+        this.chatMessageChain.close();
+        this.player.disconnect();
         String quitMessage = this.server.getPlayerList().bridge$quiltMsg();
-        if ((quitMessage != null) && (!quitMessage.isEmpty())) {
+        if ((quitMessage != null) && (quitMessage.length() > 0)) {
             this.server.getPlayerList().broadcastMessage(CraftChatMessage.fromString(quitMessage));
         }
+        // CraftBukkit end
+        this.player.getTextFilter().leave();
     }
 
     @Inject(method = "handleAnimate",
@@ -947,7 +935,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
 
         // Arm swing animation
         PlayerAnimationEvent event = new PlayerAnimationEvent(this.getCraftPlayer(), packet.getHand() == InteractionHand.MAIN_HAND ? PlayerAnimationType.ARM_SWING : PlayerAnimationType.OFF_ARM_SWING);
-        this.cserver.getPluginManager().callEvent(event);
+        Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) ci.cancel();
         // CraftBukkit end
@@ -965,7 +953,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         }
         if (packet.getSlot() >= 0 && packet.getSlot() < net.minecraft.world.entity.player.Inventory.getSelectionSize()) {
             PlayerItemHeldEvent event = new PlayerItemHeldEvent(this.getCraftPlayer(), this.player.getInventory().selected, packet.getSlot());
-            this.cserver.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 this.send(new ClientboundSetCarriedItemPacket(this.player.getInventory().selected));
                 this.player.resetLastActionTime();
@@ -1032,7 +1020,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         LOGGER.info(this.player.getScoreboardName() + " issued server command: " + command);
 
         PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(getCraftPlayer(), command, new LazyPlayerSet(server));
-        this.cserver.getPluginManager().callEvent(event);
+        Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
             return;
@@ -1078,7 +1066,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
             Player thisPlayer = this.getCraftPlayer();
             AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(async, thisPlayer, s, new LazyPlayerSet(this.server));
             String originalFormat = event.getFormat(), originalMessage = event.getMessage();
-            this.cserver.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
             if (PlayerChatEvent.getHandlerList().getRegisteredListeners().length != 0) {
                 PlayerChatEvent queueEvent = new PlayerChatEvent(thisPlayer, event.getMessage(), event.getFormat(), event.getRecipients());
                 queueEvent.setCancelled(event.isCancelled());
@@ -1155,14 +1143,14 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         CraftPlayer player = this.getCraftPlayer();
 
         PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(player, s, new LazyPlayerSet(server));
-        this.cserver.getPluginManager().callEvent(event);
+        Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
             return;
         }
 
         try {
-            if (this.cserver.dispatchCommand(event.getPlayer(), event.getMessage().substring(1))) {
+            if (Bukkit.dispatchCommand(event.getPlayer(), event.getMessage().substring(1))) {
                 return;
             }
         } catch (org.bukkit.command.CommandException ex) {
@@ -1202,13 +1190,13 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         }
         if (packetIn.getAction() == ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY || packetIn.getAction() == ServerboundPlayerCommandPacket.Action.RELEASE_SHIFT_KEY) {
             PlayerToggleSneakEvent event = new PlayerToggleSneakEvent(this.getCraftPlayer(), packetIn.getAction() == ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY);
-            this.cserver.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 ci.cancel();
             }
         } else if (packetIn.getAction() == ServerboundPlayerCommandPacket.Action.START_SPRINTING || packetIn.getAction() == ServerboundPlayerCommandPacket.Action.STOP_SPRINTING) {
             PlayerToggleSprintEvent e2 = new PlayerToggleSprintEvent(this.getCraftPlayer(), packetIn.getAction() == ServerboundPlayerCommandPacket.Action.START_SPRINTING);
-            this.cserver.getPluginManager().callEvent(e2);
+            Bukkit.getPluginManager().callEvent(e2);
             if (e2.isCancelled()) {
                 ci.cancel();
             }
@@ -1471,7 +1459,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
 
                         event.setCancelled(cancelled);
                         AbstractContainerMenu oldContainer = this.player.containerMenu; // SPIGOT-1224
-                        cserver.getPluginManager().callEvent(event);
+                        Bukkit.getPluginManager().callEvent(event);
                         if (this.player.containerMenu != oldContainer) {
                             return;
                         }
@@ -1600,7 +1588,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
                     }
                 }
                 final InventoryCreativeEvent event = new InventoryCreativeEvent(inventory, type, flag ? -999 : packetplayinsetcreativeslot.getSlotNum(), item);
-                this.cserver.getPluginManager().callEvent(event);
+                Bukkit.getPluginManager().callEvent(event);
                 itemstack = CraftItemStack.asNMSCopy(event.getCursor());
                 switch (event.getResult()) {
                     case ALLOW: {
@@ -1636,7 +1624,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
             cancellable = true)
     private void banner$recipeClickEvent(ServerboundPlaceRecipePacket packet, CallbackInfo ci) {
         // CraftBukkit start - implement PlayerRecipeBookClickEvent
-        org.bukkit.inventory.Recipe recipe = this.cserver.getRecipe(CraftNamespacedKey.fromMinecraft(packet.getRecipe()));
+        org.bukkit.inventory.Recipe recipe = Bukkit.getRecipe(CraftNamespacedKey.fromMinecraft(packet.getRecipe()));
         if (recipe == null) {
             ci.cancel();
         }
@@ -1679,7 +1667,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         PacketUtils.ensureRunningOnSameThread(packet, (ServerGamePacketListenerImpl) (Object) this, this.player.serverLevel());
         if (this.player.getAbilities().mayfly && this.player.getAbilities().flying != packet.isFlying()) {
             PlayerToggleFlightEvent event = new PlayerToggleFlightEvent(getCraftPlayer(), packet.isFlying());
-            this.cserver.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(event);
             if (!event.isCancelled()) {
                 this.player.getAbilities().flying = packet.isFlying();
             } else {
@@ -1730,7 +1718,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         }
 
         PlayerTeleportEvent event = new PlayerTeleportEvent(player, from.clone(), to.clone(), cause);
-        this.cserver.getPluginManager().callEvent(event);
+        Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled() || !to.equals(event.getTo())) {
             set.clear(); // Can't relative teleport
@@ -1790,16 +1778,6 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
         this.awaitingTeleportTime = this.tickCount;
         this.player.absMoveTo(d0, d1, d2, f, f1);
         this.player.connection.send(new ClientboundPlayerPositionPacket(d0 - d3, d1 - d4, d2 - d5, f - f2, f1 - f3, set, this.awaitingTeleport));
-    }
-
-    @Override
-    public boolean bridge$processedDisconnect() {
-        return processedDisconnect;
-    }
-
-    @Override
-    public CraftServer bridge$craftServer() {
-        return cserver;
     }
 
     @Override
