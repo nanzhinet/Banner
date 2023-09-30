@@ -884,7 +884,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
 
     /**
      * @author Mgazul
-     * @reason
+     * @reason bukkit
      */
     @Overwrite
     private void removePlayerFromWorld() {
