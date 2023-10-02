@@ -554,7 +554,7 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         Optional optional_vanilla;
 
         if (worldserver_vanilla != null && blockposition != null) {
-            optional_vanilla = net.minecraft.world.entity.player.Player.findRespawnPositionAndUseSpawnBlock(worldserver_vanilla, blockposition, f, flag1, flag1);
+            optional_vanilla = net.minecraft.world.entity.player.Player.findRespawnPositionAndUseSpawnBlock(worldserver_vanilla, blockposition, f, flag1, conqueredEnd);
         } else {
             optional_vanilla = Optional.empty();
         }
