@@ -240,6 +240,15 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
         return (this.player == null) ? null : this.player.getBukkitEntity();
     }
 
+    @Inject(method = "<init>",
+            at = @At(value = "FIELD",
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;lastChatTimeStamp:Ljava/util/concurrent/atomic/AtomicReference;", shift = At.Shift.BEFORE))
+    private void banner$preHandlePlayer(MinecraftServer minecraftServer, Connection connection,
+                                        ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie,
+                                        CallbackInfo ci) {
+        banner$setPlayer(serverPlayer);
+    }
+
     @Inject(method = "<init>", at = @At("RETURN"))
     private void banner$init(MinecraftServer server, Connection connection,
                              ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie,

@@ -76,7 +76,6 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
      * @author wdog5
      * @reason bukkit
      */
-    /*
     @Overwrite
     public void handleKey(ServerboundKeyPacket serverboundKeyPacket) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.KEY, "Unexpected key packet", new Object[0]);
@@ -204,6 +203,6 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
         }
         LOGGER.info("UUID of player {} is {}", authenticatedProfile.getName(), authenticatedProfile.getId());
         this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;
-    }*/
+    }
 
 }
