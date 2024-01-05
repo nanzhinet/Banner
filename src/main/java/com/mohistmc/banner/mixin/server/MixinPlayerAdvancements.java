@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
@@ -32,45 +34,29 @@ public abstract class MixinPlayerAdvancements {
     @Shadow @Final private static Logger LOGGER;
 
     @Inject(method = "award",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/advancements/Advancement;getRewards()Lnet/minecraft/advancements/AdvancementRewards;"))
-    public void banner$callEvent(Advancement advancement, String criterionKey, CallbackInfoReturnable<Boolean> cir) {
-        Bukkit.getPluginManager().callEvent(new org.bukkit.event.player.PlayerAdvancementDoneEvent(this.player.getBukkitEntity(), advancement.bridge$bukkit()));
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerAdvancements;getOrStartProgress(Lnet/minecraft/advancements/AdvancementHolder;)Lnet/minecraft/advancements/AdvancementProgress;"))
+    public void banner$callEvent(AdvancementHolder advancementHolder, String string, CallbackInfoReturnable<Boolean> cir) {
+        Bukkit.getPluginManager().callEvent(new org.bukkit.event.player.PlayerAdvancementDoneEvent(this.player.getBukkitEntity(), advancementHolder.bridge$bukkit()));
     }
 
     private AtomicReference<Map.Entry<ResourceLocation, AdvancementProgress>> banner$entry = new AtomicReference<>();
 
-    @Inject(method = "method_48026",
-            at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/ServerAdvancementManager;getAdvancement(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/advancements/Advancement;"))
-    private void banner$getEntry(ServerAdvancementManager serverAdvancementManager, Map.Entry<ResourceLocation, AdvancementProgress> entry, CallbackInfo ci) {
-        banner$entry.set(entry);
-    }
-
-    @Redirect(method = "method_48026",
-            at = @At(value = "INVOKE",
-            target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V",
-                    remap = false))
-    private void banner$checkLogger(Logger instance, String s, Object o1, Object o2) {
-        if (banner$entry.get().getKey().getNamespace().equals("minecraft")) {
-            LOGGER.warn("Ignored advancement '{}' in progress file {} - it doesn't exist anymore?", banner$entry.getAndSet(null).getKey(), this.playerSavePath);
-        }
-    }
-
     @Inject(method = "method_48027",
             at = @At(value = "HEAD"), cancellable = true)
-    private void banner$disableAdvancementSaving(Set<Advancement> set, Set<ResourceLocation> set2, Advancement advancement, boolean bl, CallbackInfo ci) {
+    private void banner$disableAdvancementSaving(Set set, Set set2, AdvancementNode advancementNode, boolean bl, CallbackInfo ci) {
         if (org.spigotmc.SpigotConfig.disableAdvancementSaving) ci.cancel(); // Spigot
     }
 
     @Inject(method = "award", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/PlayerAdvancements;unregisterListeners(Lnet/minecraft/advancements/Advancement;)V"),
+            target = "Lnet/minecraft/server/PlayerAdvancements;unregisterListeners(Lnet/minecraft/advancements/AdvancementHolder;)V"),
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true)
-    private void banner$fireAdvancementEvent(Advancement advancement, String criterionKey, CallbackInfoReturnable<Boolean> cir,
-                                             boolean bl, AdvancementProgress advancementProgress, boolean bl2) {
+    private void banner$fireAdvancementEvent(AdvancementHolder advancementHolder, String string,
+                                             CallbackInfoReturnable<Boolean> cir, boolean bl,
+                                             AdvancementProgress advancementProgress, boolean bl2) {
         // Paper start
-        if (!new com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent(this.player.getBukkitEntity(), advancement.bridge$bukkit(), criterionKey).callEvent()) {
-            advancementProgress.revokeProgress(criterionKey);
+        if (!new com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent(this.player.getBukkitEntity(), advancementHolder.bridge$bukkit(), string).callEvent()) {
+            advancementProgress.revokeProgress(string);
             cir.setReturnValue(false);
         }
         // Paper end

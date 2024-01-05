@@ -47,12 +47,6 @@ public abstract class MixinAbstractMinecart extends Entity implements InjectionA
     @Shadow public abstract float getDamage();
     @Shadow public abstract void destroy(DamageSource source);
     @Shadow public abstract int getHurtTime();
-    @Shadow private int lSteps;
-    @Shadow private double lx;
-    @Shadow private double ly;
-    @Shadow private double lz;
-    @Shadow private double lyr;
-    @Shadow private double lxr;
     @Shadow protected abstract void moveAlongTrack(BlockPos pos, BlockState state);
     @Shadow public abstract void activateMinecart(int x, int y, int z, boolean receivingPower);
     @Shadow private boolean flipped;
@@ -60,6 +54,12 @@ public abstract class MixinAbstractMinecart extends Entity implements InjectionA
     // @formatter:on
 
     @Shadow private boolean onRails;
+    @Shadow private int lerpSteps;
+    @Shadow private double lerpX;
+    @Shadow private double lerpY;
+    @Shadow private double lerpZ;
+    @Shadow private double lerpYRot;
+    @Shadow private double lerpXRot;
     public boolean slowWhenEmpty = true;
     private double derailedX = 0.5;
     private double derailedY = 0.5;
@@ -174,16 +174,9 @@ public abstract class MixinAbstractMinecart extends Entity implements InjectionA
         this.checkBelowWorld();
         // this.handleNetherPortal(); // CraftBukkit - handled in postTick
         if (this.level().isClientSide) {
-            if (this.lSteps > 0) {
-                double d = this.getX() + (this.lx - this.getX()) / (double) this.lSteps;
-                double e = this.getY() + (this.ly - this.getY()) / (double)this.lSteps;
-                double f = this.getZ() + (this.lz - this.getZ()) / (double)this.lSteps;
-                double g = Mth.wrapDegrees(this.lyr - (double)this.getYRot());
-                this.setYRot(this.getYRot() + (float)g / (float)this.lSteps);
-                this.setXRot(this.getXRot() + (float)(this.lxr - (double)this.getXRot()) / (float)this.lSteps);
-                --this.lSteps;
-                this.setPos(d, e, f);
-                this.setRot(this.getYRot(), this.getXRot());
+            if (this.lerpSteps > 0) {
+                this.lerpPositionAndRotationStep(this.lerpSteps, this.lerpX, this.lerpY, this.lerpZ, this.lerpYRot, this.lerpXRot);
+                --this.lerpSteps;
             } else {
                 this.reapplyPosition();
                 this.setRot(this.getYRot(), this.getXRot());

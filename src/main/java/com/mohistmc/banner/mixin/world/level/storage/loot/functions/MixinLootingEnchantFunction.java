@@ -19,7 +19,8 @@ public abstract class MixinLootingEnchantFunction {
 
     @Shadow @Final private NumberProvider value;
 
-    @Shadow abstract boolean hasLimit();
+    @Shadow
+    protected abstract boolean hasLimit();
 
     @Shadow @Final private int limit;
 

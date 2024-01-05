@@ -12,7 +12,6 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.PositionImpl;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -756,11 +755,11 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
         // Paper end
     }
 
-    private AtomicReference<PositionImpl> banner$location = new AtomicReference<>();
+    private AtomicReference<Vec3> banner$location = new AtomicReference<>();
 
     @Nullable
     @Override
-    public Entity teleportTo(ServerLevel worldserver, PositionImpl location) {
+    public Entity teleportTo(ServerLevel worldserver, Vec3 location) {
         banner$location.set(location);
         return changeDimension(worldserver);
     }
@@ -792,7 +791,7 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     }
 
     @Override
-    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, PositionImpl exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
+    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, Vec3 exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
         CraftEntity bukkitEntity =  entity.getBukkitEntity();
         Location enter = bukkitEntity.getLocation();
         Location exit = CraftLocation.toBukkit(exitPosition, exitWorldServer.getWorld());

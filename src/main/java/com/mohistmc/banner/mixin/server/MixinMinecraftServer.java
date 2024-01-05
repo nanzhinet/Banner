@@ -654,7 +654,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                 }
 
                 serverLevel2 = (ServerLevel)var5.next();
-                forcedChunksSavedData = (ForcedChunksSavedData)serverLevel2.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+                forcedChunksSavedData = (ForcedChunksSavedData)serverLevel2.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
             } while(forcedChunksSavedData == null);
 
             LongIterator longIterator = forcedChunksSavedData.getChunks().iterator();
@@ -701,7 +701,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         if (true) {
             ServerLevel worldserver1 = worldserver;
             // CraftBukkit end
-            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            ForcedChunksSavedData forcedchunk = (ForcedChunksSavedData) worldserver1.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
 
             if (forcedchunk != null) {
                 LongIterator longiterator = forcedchunk.getChunks().iterator();
@@ -808,6 +808,8 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     public final java.util.concurrent.ExecutorService chatExecutor = java.util.concurrent.Executors.newCachedThreadPool(
             new com.google.common.util.concurrent.ThreadFactoryBuilder().setDaemon(true).setNameFormat("Async Chat Thread - #%d").build());
 
+    // Banner - remove it
+    /*
     @ModifyReturnValue(method = "getChatDecorator", at = @At("RETURN"))
     private ChatDecorator banner$fireChatEvent(ChatDecorator decorator) {
         return (entityplayer, ichatbasecomponent) -> {
@@ -827,7 +829,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                 return CraftChatMessage.fromStringOrNull(String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage()));
             }, chatExecutor);
         };
-    }
+    }*/
 
     @Inject(method = "method_29440", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/packs/repository/PackRepository;setSelected(Ljava/util/Collection;)V"))

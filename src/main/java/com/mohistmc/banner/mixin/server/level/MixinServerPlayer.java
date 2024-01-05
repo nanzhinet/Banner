@@ -17,16 +17,16 @@ import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.PositionImpl;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ServerboundClientInformationPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
-import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -569,20 +569,22 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Inject(method = "updateOptions", at = @At("HEAD"))
-    private void banner$settingChange(ServerboundClientInformationPacket packetIn, CallbackInfo ci) {
+    private void banner$settingChange(ClientInformation packetIn, CallbackInfo ci) {
         if (this.getMainArm() != packetIn.mainHand()) {
             PlayerChangedMainHandEvent event = new PlayerChangedMainHandEvent(this.getBukkitEntity(), (this.getMainArm() == HumanoidArm.LEFT) ? MainHand.LEFT : MainHand.RIGHT);
             Bukkit.getPluginManager().callEvent(event);
         }
-        if (this.locale == null || !this.locale.equals(packetIn.language)) { // Paper - check for null
+        if (this.locale == null || !this.locale.equals(packetIn.language())) { // Paper - check for null
             PlayerLocaleChangeEvent event2 = new PlayerLocaleChangeEvent(this.getBukkitEntity(), packetIn.language());
             Bukkit.getPluginManager().callEvent(event2);
-            this.server.bridge$server().getPluginManager().callEvent(new com.destroystokyo.paper.event.player.PlayerLocaleChangeEvent(this.getBukkitEntity(), this.locale, packetIn.language)); // Paper
+            this.server.bridge$server().getPluginManager().callEvent(new com.destroystokyo.paper.event.player.PlayerLocaleChangeEvent(this.getBukkitEntity(), this.locale, packetIn.language())); // Paper
         }
         this.locale = packetIn.language();
         this.clientViewDistance = packetIn.viewDistance();
     }
 
+    // Banner TODO - fix
+    /**
     @Inject(method = "trackChunk",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V",
@@ -605,7 +607,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
             new io.papermc.paper.event.packet.PlayerChunkUnloadEvent(this.getBukkitEntity().getWorld().getChunkAt(chunkPos.x, chunkPos.z), this.getBukkitEntity()).callEvent();
         }
         // Paper end
-    }
+    }*/
 
     @Inject(method = "setCamera",
             at = @At(value = "INVOKE",
@@ -885,7 +887,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Override
-    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, PositionImpl exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
+    public CraftPortalEvent callPortalEvent(Entity entity, ServerLevel exitWorldServer, Vec3 exitPosition, PlayerTeleportEvent.TeleportCause cause, int searchRadius, int creationRadius) {
         Location enter = this.getBukkitEntity().getLocation();
         Location exit = new Location(exitWorldServer.getWorld(), exitPosition.x(), exitPosition.y(), exitPosition.z(), this.getYRot(), this.getXRot());
         PlayerPortalEvent event = new PlayerPortalEvent(this.getBukkitEntity(), enter, exit, cause, 128, true, creationRadius);

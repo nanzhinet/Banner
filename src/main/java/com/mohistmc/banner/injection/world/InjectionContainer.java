@@ -3,6 +3,7 @@ package com.mohistmc.banner.injection.world;
 import java.util.Collections;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftHumanEntity;
 import org.bukkit.inventory.InventoryView;
 
@@ -38,11 +39,11 @@ public interface InjectionContainer {
         return null;
     }
 
-    default Recipe<?> getCurrentRecipe() {
+    default RecipeHolder<?> getCurrentRecipe() {
         return null;
     }
 
-    default void setCurrentRecipe(Recipe<?> recipe) {
+    default void setCurrentRecipe(RecipeHolder<?> recipe) {
     }
 
     default InventoryView getBukkitView() {

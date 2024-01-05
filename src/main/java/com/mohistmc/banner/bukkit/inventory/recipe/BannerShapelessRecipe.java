@@ -13,7 +13,7 @@ public class BannerShapelessRecipe extends CraftShapelessRecipe {
 
     private final ShapelessRecipe recipe;
 
-    public BannerShapelessRecipe(ShapelessRecipe recipe) {
+    public BannerShapelessRecipe(NamespacedKey id, ShapelessRecipe recipe) {
         super(null, recipe);
         this.recipe = recipe;
     }

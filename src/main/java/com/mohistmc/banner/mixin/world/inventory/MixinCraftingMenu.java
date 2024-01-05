@@ -14,6 +14,8 @@ import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RepairItemRecipe;
 import net.minecraft.world.level.Level;
 import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
@@ -61,8 +63,8 @@ public abstract class MixinCraftingMenu extends RecipeBookMenu<CraftingContainer
     private static transient boolean banner$capture;
 
     @Redirect(method = "slotChangedCraftingGrid", at = @At(value = "INVOKE", remap = false, target = "Ljava/util/Optional;isPresent()Z"))
-    private static boolean banner$testRepair(Optional<?> optional) {
-        banner$capture = optional.orElse(null) instanceof RepairItemRecipe;
+    private static boolean banner$testRepair(Optional<RecipeHolder<CraftingRecipe>> optional) {
+        banner$capture = optional.map(it -> ((RecipeHolder) (Object) it).toBukkitRecipe()).orElse(null) instanceof RepairItemRecipe;
         return optional.isPresent();
     }
 

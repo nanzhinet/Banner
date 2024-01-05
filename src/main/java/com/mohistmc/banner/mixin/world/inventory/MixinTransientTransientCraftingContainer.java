@@ -10,6 +10,7 @@ import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
@@ -27,7 +28,7 @@ public abstract class MixinTransientTransientCraftingContainer implements Contai
     @Shadow @Final public AbstractContainerMenu menu;
     // CraftBukkit start - add fields
     public List<HumanEntity> transaction = new java.util.ArrayList<>();
-    private Recipe<?> currentRecipe;
+    private RecipeHolder<?> currentRecipe;
     public Container resultInventory;
     private Player owner;
     private int maxStack = MAX_STACK;
@@ -77,7 +78,7 @@ public abstract class MixinTransientTransientCraftingContainer implements Contai
     }
 
     @Override
-    public Recipe<?> getCurrentRecipe() {
+    public RecipeHolder<?> getCurrentRecipe() {
         return currentRecipe;
     }
 
@@ -98,7 +99,7 @@ public abstract class MixinTransientTransientCraftingContainer implements Contai
     }
 
     @Override
-    public void setCurrentRecipe(Recipe<?> recipe) {
+    public void setCurrentRecipe(RecipeHolder<?> recipe) {
         this.currentRecipe = recipe;
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,7 +46,7 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
 
 
     // Banner - fix mixin(locals = LocalCapture.CAPTURE_FAILSOFT)
-    private static Optional<CampfireCookingRecipe> recipe;
+    private static Optional<RecipeHolder<CampfireCookingRecipe>> recipe;
     private static CraftItemStack source;
     private static  org.bukkit.inventory.ItemStack result;
     private static BlockCookEvent blockCookEvent;
@@ -69,7 +70,7 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
                     recipe = ((MixinCampfireBlockEntity) (Object) tileentitycampfire).quickCheck.getRecipeFor( inventorysubcontainer, world);
                     ItemStack itemStack2 = recipe.map((recipecampfire) -> {
                         // Paper end
-                        return recipecampfire.assemble(inventorysubcontainer, world.registryAccess());
+                        return recipecampfire.value().assemble(inventorysubcontainer, world.registryAccess());
                     }).orElse(itemstack);
 
                     if (itemStack2.isItemEnabled(world.enabledFeatures())) {
@@ -77,7 +78,7 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
                         source = CraftItemStack.asCraftMirror(itemstack);
                         result = CraftItemStack.asBukkitCopy(itemStack2);
 
-                        blockCookEvent = new BlockCookEvent(CraftBlock.at(world, blockposition), source, result, (org.bukkit.inventory.CookingRecipe<?>) recipe.map(CampfireCookingRecipe::toBukkitRecipe).orElse(null)); // Paper
+                        blockCookEvent = new BlockCookEvent(CraftBlock.at(world, blockposition), source, result, (org.bukkit.inventory.CookingRecipe<?>) recipe.map(((RecipeHolder<CampfireCookingRecipe>::toBukkitRecipe))).orElse(null)); // Paper
                         world.getCraftServer().getPluginManager().callEvent(blockCookEvent);
 
                         if (blockCookEvent.isCancelled()) {
@@ -105,7 +106,7 @@ public abstract class MixinCampfireBlockEntity extends BlockEntity {
     @Inject(method = "placeFood", locals = LocalCapture.CAPTURE_FAILHARD,
             at = @At(value = "FIELD", target = "Lnet/minecraft/world/level/block/entity/CampfireBlockEntity;cookingProgress:[I"))
     private void banner$cookStart(Entity p_238285_, ItemStack stack, int p_238287_, CallbackInfoReturnable<Boolean> cir, int i) {
-        var event = new CampfireStartEvent(CraftBlock.at(this.level, this.worldPosition), CraftItemStack.asCraftMirror(stack), (CampfireRecipe)  getCookableRecipe(stack).get().toBukkitRecipe());
+        var event = new CampfireStartEvent(CraftBlock.at(this.level, this.worldPosition), CraftItemStack.asCraftMirror(stack), (CampfireRecipe) ((RecipeHolder) (Object) getCookableRecipe(stack).get()).toBukkitRecipe());
         Bukkit.getPluginManager().callEvent(event);
         this.cookingTime[i] = event.getTotalCookTime();
     }

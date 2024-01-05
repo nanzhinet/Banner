@@ -15,11 +15,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.RecipeHolder;
+import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
@@ -48,7 +48,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractFurnaceBlockEntity.class)
-public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeHolder, StackedContentsCompatible, InjectionAbstractFurnaceBlockEntity {
+public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, InjectionAbstractFurnaceBlockEntity {
 
 
     // @formatter:off
@@ -56,13 +56,13 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
     @Shadow protected abstract int getBurnDuration(ItemStack stack);
     @Shadow protected abstract boolean isLit();
     @Shadow @Final private Object2IntOpenHashMap<ResourceLocation> recipesUsed;
-    @Shadow public abstract List<Recipe<?>> getRecipesToAwardAndPopExperience(ServerLevel p_154996_, Vec3 p_154997_);
+    @Shadow public abstract List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel p_154996_, Vec3 p_154997_);
+    // @formatter:on
 
     @Shadow
-    protected static boolean canBurn(RegistryAccess p_266924_, @Nullable Recipe<?> p_155006_, NonNullList<ItemStack> p_155007_, int p_155008_) {
+    private static boolean canBurn(RegistryAccess registryAccess, @Nullable RecipeHolder<?> recipeHolder, NonNullList<ItemStack> nonNullList, int i) {
         return false;
     }
-    // @formatter:on
 
     public List<HumanEntity> transaction = new ArrayList<>();
     private int maxStack = MAX_STACK;
@@ -91,13 +91,6 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
         return furnace.isLit() && furnaceBurnEvent.isBurning();
     }
 
-    @Inject(method = "serverTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;burn(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/item/crafting/Recipe;Lnet/minecraft/core/NonNullList;I)Z"))
-    private static void banner$smeltEvent(Level level,
-                                          BlockPos pos,
-                                          BlockState state,
-                                          AbstractFurnaceBlockEntity blockEntity, CallbackInfo ci) {
-    }
-
     @Redirect(method = "createExperience", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ExperienceOrb;award(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/phys/Vec3;I)V"))
     private static void banner$expEvent(ServerLevel level, Vec3 vec3, int amount) {
         if (banner$capturePlayer != null && banner$captureAmount != 0) {
@@ -122,12 +115,12 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
 
     @Redirect(method = "serverTick",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;burn(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/item/crafting/Recipe;Lnet/minecraft/core/NonNullList;I)Z"))
-    private static boolean banner$burnEvent(RegistryAccess registryAccess, Recipe<?> recipe, NonNullList<ItemStack> nonNullList, int i) {
-        return burn(banner$world.get(), banner$blockPos.get(), registryAccess, recipe, nonNullList, i);
+                    target = "Lnet/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity;burn(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/item/crafting/RecipeHolder;Lnet/minecraft/core/NonNullList;I)Z"))
+    private static boolean banner$burnEvent(RegistryAccess registryAccess, RecipeHolder<?> recipeHolder, NonNullList<ItemStack> nonNullList, int i) {
+        return burn(banner$world.get(), banner$blockPos.get(), registryAccess, recipeHolder, nonNullList, i);
     }
 
-    private static boolean burn(Level world, BlockPos blockposition, RegistryAccess iregistrycustom, @Nullable Recipe<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
+    private static boolean burn(Level world, BlockPos blockposition, RegistryAccess iregistrycustom, @Nullable RecipeHolder<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
         banner$level.set(world);
         banner$pos.set(blockposition);
         return burn(iregistrycustom, irecipe, nonnulllist, i);
@@ -138,10 +131,10 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
      * @reason bukkit
      */
     @Overwrite
-    private static boolean burn(RegistryAccess iregistrycustom, @Nullable Recipe<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
+    private static boolean burn(RegistryAccess iregistrycustom, @Nullable RecipeHolder<?> irecipe, NonNullList<ItemStack> nonnulllist, int i) {
         if (irecipe != null && canBurn(iregistrycustom, irecipe, nonnulllist, i)) {
             ItemStack itemstack = (ItemStack) nonnulllist.get(0);
-            ItemStack itemstack1 = irecipe.getResultItem(iregistrycustom);
+            ItemStack itemstack1 = irecipe.value().getResultItem(iregistrycustom);
             ItemStack itemstack2 = (ItemStack) nonnulllist.get(2);
 
             // CraftBukkit start - fire FurnaceSmeltEvent
@@ -189,13 +182,13 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
     }
 
     @Override
-    public List<Recipe<?>> getRecipesToAwardAndPopExperience(ServerLevel world, Vec3 vec, BlockPos pos, Player entity, ItemStack itemStack, int amount) {
+    public List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel world, Vec3 vec, BlockPos pos, Player entity, ItemStack itemStack, int amount) {
         try {
             banner$item = itemStack;
             banner$captureAmount = amount;
             banner$captureFurnace = (AbstractFurnaceBlockEntity) (Object) this;
             banner$capturePlayer = entity;
-            List<Recipe<?>> list = this.getRecipesToAwardAndPopExperience(world, vec);
+            List<RecipeHolder<?>> list = this.getRecipesToAwardAndPopExperience(world, vec);
             entity.awardRecipes(list);
             this.recipesUsed.clear();
             return list;
@@ -243,7 +236,7 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
     }
 
     @Override
-    public List<Recipe<?>> bridge$dropExp(ServerPlayer entity, ItemStack itemStack, int amount) {
+    public List<RecipeHolder<?>> bridge$dropExp(ServerPlayer entity, ItemStack itemStack, int amount) {
         return getRecipesToAwardAndPopExperience(entity.serverLevel(), entity.position(), this.worldPosition, entity, itemStack, amount);
     }
 
