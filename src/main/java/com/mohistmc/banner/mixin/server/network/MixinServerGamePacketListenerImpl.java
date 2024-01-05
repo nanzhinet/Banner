@@ -248,6 +248,7 @@ public abstract class MixinServerGamePacketListenerImpl extends ServerCommonPack
     @Inject(method = "<init>", at = @At("RETURN"))
     private void banner$init(MinecraftServer minecraftServer, Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         this.chatMessageChain = new FutureChain(minecraftServer.bridge$chatExecutor());
+        banner$setPlayer(serverPlayer);
     }
 
     /**
