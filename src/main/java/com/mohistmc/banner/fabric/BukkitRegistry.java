@@ -350,7 +350,7 @@ public class BukkitRegistry {
             if (isMods(location) && CraftPotionUtil.toBukkit(location.toString()).getType() == PotionType.UNCRAFTABLE && potion != Potions.EMPTY) {
                 String name = normalizeName(location.toString());
                 MobEffectInstance effectInstance = potion.getEffects().isEmpty() ? null : potion.getEffects().get(0);
-                PotionType potionType = MohistDynamEnum.addEnum(PotionType.class, name, Arrays.asList(PotionEffectType.class, Boolean.TYPE, Boolean.TYPE), Arrays.asList(effectInstance == null ? null : PotionEffectType.getById(MobEffect.getId(effectInstance.getEffect())), false, false));
+                PotionType potionType = MohistDynamEnum.addEnum(PotionType.class, name, Arrays.asList(PotionEffectType.class, Boolean.TYPE, Boolean.TYPE), Arrays.asList(effectInstance == null ? null : PotionEffectType.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.MOB_EFFECT.getKey(effectInstance.getEffect()))), false, false));
                 if (potionType != null) {
                     CraftPotionUtil.mods.put(potionType, location.toString());
                     BannerServer.LOGGER.debug("Registered {} as potion type {}", location, potionType);

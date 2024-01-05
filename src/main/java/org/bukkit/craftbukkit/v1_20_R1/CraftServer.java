@@ -23,6 +23,7 @@ import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -67,6 +68,7 @@ import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.RepairItemRecipe;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -157,6 +159,7 @@ import org.bukkit.craftbukkit.v1_20_R1.metadata.PlayerMetadataStore;
 import org.bukkit.craftbukkit.v1_20_R1.metadata.WorldMetadataStore;
 import org.bukkit.craftbukkit.v1_20_R1.packs.CraftDataPackManager;
 import org.bukkit.craftbukkit.v1_20_R1.potion.CraftPotionBrewer;
+import org.bukkit.craftbukkit.v1_20_R1.profile.CraftGameProfile;
 import org.bukkit.craftbukkit.v1_20_R1.profile.CraftPlayerProfile;
 import org.bukkit.craftbukkit.v1_20_R1.scheduler.CraftScheduler;
 import org.bukkit.craftbukkit.v1_20_R1.scoreboard.CraftCriteria;
@@ -1328,7 +1331,7 @@ public final class CraftServer implements Server {
     public Recipe getRecipe(NamespacedKey recipeKey) {
         Preconditions.checkArgument(recipeKey != null, "NamespacedKey recipeKey cannot be null");
 
-        return getServer().getRecipeManager().byKey(CraftNamespacedKey.toMinecraft(recipeKey)).map(net.minecraft.world.item.crafting.Recipe::toBukkitRecipe).orElse(null);
+        return getServer().getRecipeManager().byKey(CraftNamespacedKey.toMinecraft(recipeKey)).map(net.minecraft.world.item.crafting.RecipeHolder::toBukkitRecipe).orElse(null);
     }
 
     @Override
@@ -1352,7 +1355,7 @@ public final class CraftServer implements Server {
         };
         CraftingContainer inventoryCrafting = new TransientCraftingContainer(container, 3, 3);
 
-        return getNMSRecipe(craftingMatrix, inventoryCrafting, (CraftWorld) world).map(net.minecraft.world.item.crafting.Recipe::toBukkitRecipe).orElse(null);
+        return getNMSRecipe(craftingMatrix, inventoryCrafting, (CraftWorld) world).map(net.minecraft.world.item.crafting.RecipeHolder::toBukkitRecipe).orElse(null);
     }
 
     @Override
@@ -1368,21 +1371,20 @@ public final class CraftServer implements Server {
         CraftingContainer inventoryCrafting = container.craftSlots;
         ResultContainer craftResult = container.resultSlots;
 
-        Optional<CraftingRecipe> recipe = getNMSRecipe(craftingMatrix, inventoryCrafting, craftWorld);
+        Optional<RecipeHolder<CraftingRecipe>> recipe = getNMSRecipe(craftingMatrix, inventoryCrafting, craftWorld);
 
         // Generate the resulting ItemStack from the Crafting Matrix
         net.minecraft.world.item.ItemStack itemstack = net.minecraft.world.item.ItemStack.EMPTY;
 
         if (recipe.isPresent()) {
-            CraftingRecipe recipeCrafting = recipe.get();
+            RecipeHolder<CraftingRecipe> recipeCrafting = recipe.get();
             if (craftResult.setRecipeUsed(craftWorld.getHandle(), craftPlayer.getHandle(), recipeCrafting)) {
-                itemstack = recipeCrafting.assemble(inventoryCrafting, craftWorld.getHandle().registryAccess());
+                itemstack = recipeCrafting.value().assemble(inventoryCrafting, craftWorld.getHandle().registryAccess());
             }
         }
 
         // Call Bukkit event to check for matrix/result changes.
-        net.minecraft.world.item.ItemStack result = CraftEventFactory.callPreCraftEvent(inventoryCrafting, craftResult, itemstack, container.getBukkitView(), recipe.orElse(null) instanceof RepairItemRecipe);
-
+        net.minecraft.world.item.ItemStack result = CraftEventFactory.callPreCraftEvent(inventoryCrafting, craftResult, itemstack, container.getBukkitView(), recipe.map(RecipeHolder::toBukkitRecipe).orElse(null) instanceof RepairItemRecipe);
         // Set the resulting matrix items
         for (int i = 0; i < craftingMatrix.length; i++) {
             Item remaining = inventoryCrafting.getContents().get(i).getItem().getCraftingRemainingItem();
@@ -1392,7 +1394,7 @@ public final class CraftServer implements Server {
         return CraftItemStack.asBukkitCopy(result);
     }
 
-    private Optional<CraftingRecipe> getNMSRecipe(ItemStack[] craftingMatrix, CraftingContainer inventoryCrafting, CraftWorld world) {
+    private Optional<RecipeHolder<CraftingRecipe>> getNMSRecipe(ItemStack[] craftingMatrix, CraftingContainer inventoryCrafting, CraftWorld world) {
         Preconditions.checkArgument(craftingMatrix != null, "craftingMatrix must not be null");
         Preconditions.checkArgument(craftingMatrix.length == 9, "craftingMatrix must be an array of length 9");
         Preconditions.checkArgument(world != null, "world must not be null");
@@ -1668,7 +1670,7 @@ public final class CraftServer implements Server {
             // Spigot end
             if (profile == null) {
                 // Make an OfflinePlayer using an offline mode UUID since the name has no profile
-                result = getOfflinePlayer(new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8)), name));
+                result = getOfflinePlayer(new CraftGameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8)), name));
             } else {
                 // Use the GameProfile even when we get a UUID so we ensure we still have a name
                 result = getOfflinePlayer(profile);
@@ -2226,15 +2228,15 @@ public final class CraftServer implements Server {
     public org.bukkit.advancement.Advancement getAdvancement(NamespacedKey key) {
         Preconditions.checkArgument(key != null, "NamespacedKey key cannot be null");
 
-        Advancement advancement = console.getAdvancements().getAdvancement(CraftNamespacedKey.toMinecraft(key));
+        AdvancementHolder advancement = console.getAdvancements().get(CraftNamespacedKey.toMinecraft(key));
         return (advancement == null) ? null : advancement.bridge$bukkit();
     }
 
     @Override
     public Iterator<org.bukkit.advancement.Advancement> advancementIterator() {
-        return Iterators.unmodifiableIterator(Iterators.transform(console.getAdvancements().getAllAdvancements().iterator(), new Function<Advancement, org.bukkit.advancement.Advancement>() {
+        return Iterators.unmodifiableIterator(Iterators.transform(console.getAdvancements().getAllAdvancements().iterator(), new Function<AdvancementHolder, org.bukkit.advancement.Advancement>() {
             @Override
-            public org.bukkit.advancement.Advancement apply(Advancement advancement) {
+            public org.bukkit.advancement.Advancement apply(AdvancementHolder advancement) {
                 return advancement.bridge$bukkit();
             }
         }));

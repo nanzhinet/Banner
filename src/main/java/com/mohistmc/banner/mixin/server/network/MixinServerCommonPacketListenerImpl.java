@@ -7,7 +7,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
@@ -107,6 +106,7 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
         this.disconnect(CraftChatMessage.fromComponent(textComponent));
     }
 
+    @Override
     public void disconnect(String s) {
         if (this.processedDisconnect) {
             return;

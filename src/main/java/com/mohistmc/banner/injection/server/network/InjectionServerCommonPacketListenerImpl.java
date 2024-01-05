@@ -4,6 +4,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 public interface InjectionServerCommonPacketListenerImpl {
 
+    default void disconnect(String s) {
+    }
+
     default boolean bridge$processedDisconnect() {
         return false;
     }

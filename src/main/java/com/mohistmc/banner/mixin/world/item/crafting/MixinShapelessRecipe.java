@@ -31,7 +31,7 @@ public abstract class MixinShapelessRecipe implements CraftingRecipe, InjectionS
     // CraftBukkit start
     public org.bukkit.inventory.ShapelessRecipe toBukkitRecipe(NamespacedKey id) {
         if (this.result.isEmpty()) {
-            return new BannerShapelessRecipe(id， ((ShapelessRecipe) (Object) this));
+            return new BannerShapelessRecipe(id, ((ShapelessRecipe) (Object) this));
         }
         CraftItemStack result = CraftItemStack.asCraftMirror(this.result);
         CraftShapelessRecipe recipe = new CraftShapelessRecipe(id, result, ((ShapelessRecipe) (Object) this));

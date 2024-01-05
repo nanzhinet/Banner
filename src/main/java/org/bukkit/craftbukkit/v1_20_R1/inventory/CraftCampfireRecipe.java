@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R1.inventory;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.CampfireRecipe;
@@ -26,6 +27,6 @@ public class CraftCampfireRecipe extends CampfireRecipe implements CraftRecipe {
     public void addToCraftingManager() {
         ItemStack result = this.getResult();
 
-        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(new net.minecraft.world.item.crafting.CampfireCookingRecipe(CraftNamespacedKey.toMinecraft(this.getKey()), this.getGroup(), CraftRecipe.getCategory(this.getCategory()), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime()));
+        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(new RecipeHolder<>(CraftNamespacedKey.toMinecraft(this.getKey()), new net.minecraft.world.item.crafting.CampfireCookingRecipe(this.getGroup(), CraftRecipe.getCategory(this.getCategory()), toNMS(this.getInputChoice(), true), CraftItemStack.asNMSCopy(result), getExperience(), getCookingTime())));
     }
 }
