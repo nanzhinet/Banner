@@ -3,15 +3,12 @@ package com.mohistmc.banner.mixin.server.network;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
-import java.net.InetSocketAddress;
+
 import java.net.SocketAddress;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import net.minecraft.server.MinecraftServer;
+
 import net.minecraft.server.ServerInfo;
 import net.minecraft.server.network.LegacyQueryHandler;
-import net.minecraft.server.network.ServerConnectionListener;
-import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -70,7 +67,7 @@ public abstract class MixinLegacyQueryHandler {
                 SocketAddress socketaddress = channelhandlercontext.channel().remoteAddress();
                 int i = bytebuf.readableBytes();
                 String s;
-                org.bukkit.event.server.ServerListPingEvent event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callServerListPingEvent(socketaddress, server.getMotd(), server.getPlayerCount(), server.getMaxPlayers()); // CraftBukkit
+                org.bukkit.event.server.ServerListPingEvent event = org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory.callServerListPingEvent(socketaddress, server.getMotd(), server.getPlayerCount(), server.getMaxPlayers()); // CraftBukkit
 
                 if (i == 0) {
                     LOGGER.debug("Ping: (<1.3.x) from {}", socketaddress);

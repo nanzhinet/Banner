@@ -15,6 +15,7 @@ import java.net.SocketAddress;
 @Mixin(ServerConfigurationPacketListenerImpl.class)
 public abstract class MixinServerConfigurationPacketListenerImpl extends MixinServerCommonPacketListenerImpl {
 
+    /*
     @Redirect(method = "handleConfigurationFinished", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;canPlayerLogin(Ljava/net/SocketAddress;Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/network/chat/Component;"))
     private Component banner$skipLoginCheck(PlayerList instance, SocketAddress address, GameProfile gameProfile) {
         return null;
@@ -24,5 +25,5 @@ public abstract class MixinServerConfigurationPacketListenerImpl extends MixinSe
     private ServerPlayer banner$useCurrentPlayer(PlayerList instance, GameProfile profile, ClientInformation clientInformation) {
         this.player.updateOptions(clientInformation);
         return this.player;
-    }
+    }*/
 }

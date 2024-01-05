@@ -1,6 +1,5 @@
 package com.mohistmc.banner.mixin.server;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mohistmc.banner.api.color.ColorsAPI;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
@@ -25,7 +24,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Level;
@@ -44,7 +42,6 @@ import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.ChatDecorator;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceKey;
@@ -85,11 +82,8 @@ import net.minecraft.world.level.storage.WorldData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.craftbukkit.Main;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R1.scoreboard.CraftScoreboardManager;
-import org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_20_R1.util.LazyPlayerSet;
-import org.bukkit.event.player.AsyncPlayerChatPreviewEvent;
+import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R2.scoreboard.CraftScoreboardManager;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -229,7 +223,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
 
     // CraftBukkit start
     public WorldLoader.DataLoadContext worldLoader;
-    public org.bukkit.craftbukkit.v1_20_R1.CraftServer server;
+    public org.bukkit.craftbukkit.v1_20_R2.CraftServer server;
     public OptionSet options;
     public org.bukkit.command.ConsoleCommandSender console;
     public ConsoleReader reader;

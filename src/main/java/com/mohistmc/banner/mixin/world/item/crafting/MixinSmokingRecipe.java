@@ -8,9 +8,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmokingRecipe;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftRecipe;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftSmokingRecipe;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftSmokingRecipe;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(SmokingRecipe.class)

@@ -11,6 +11,6 @@ public abstract class MixinCustomRecipe implements CraftingRecipe {
 
     @Override
     public Recipe toBukkitRecipe(NamespacedKey id) {
-        return new org.bukkit.craftbukkit.v1_20_R1.inventory.CraftComplexRecipe(id, ((CustomRecipe) (Object) this));
+        return new org.bukkit.craftbukkit.v1_20_R2.inventory.CraftComplexRecipe(id, ((CustomRecipe) (Object) this));
     }
 }

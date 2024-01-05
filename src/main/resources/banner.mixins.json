@@ -551,7 +551,6 @@
     "world.level.storage.MixinPrimaryLevelData",
     "world.level.storage.loot.MixinLootDataManager",
     "world.level.storage.loot.MixinLootTable",
-    "world.level.storage.loot.entries.MixinLootEntry_Serializer",
     "world.level.storage.loot.functions.MixinLootingEnchantFunction",
     "world.level.storage.loot.parameters.LootParametersMixin",
     "world.level.storage.loot.predicates.MixinExplosionCondition",
