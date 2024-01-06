@@ -5,7 +5,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.ServerStatsCounter;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.item.Item;
@@ -196,21 +195,6 @@ public enum CraftStatistic {
             return CraftMagicNumbers.getMaterial(statisticBlockValue);
         }
         return null;
-    }
-
-    public static void setStatistic(ServerStatsCounter manager, Statistic statistic, int newValue, ServerPlayer player) {
-        Preconditions.checkArgument(statistic != null, "Statistic cannot be null");
-        Preconditions.checkArgument(statistic.getType() == Type.UNTYPED, "Must supply additional parameter for this statistic");
-        Preconditions.checkArgument(newValue >= 0, "Value must be greater than or equal to 0");
-        net.minecraft.stats.Stat nmsStatistic = CraftStatistic.getNMSStatistic(statistic);
-        manager.setValue(null, nmsStatistic, newValue);
-
-        // Update scoreboards
-        if (player != null) {
-            player.level().getCraftServer().getScoreboardManager().forAllObjectives(nmsStatistic, player, score -> {
-                score.set(newValue);
-            });
-        }
     }
 
     public static void incrementStatistic(ServerStatsCounter manager, Statistic statistic) {

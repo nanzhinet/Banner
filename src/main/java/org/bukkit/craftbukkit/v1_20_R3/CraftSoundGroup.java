@@ -35,26 +35,26 @@ public class CraftSoundGroup implements SoundGroup {
 
     @Override
     public Sound getBreakSound() {
-        return CraftSound.minecraftToBukkit(getHandle().getBreakSound());
+        return CraftSound.getBukkit(getHandle().getBreakSound());
     }
 
     @Override
     public Sound getStepSound() {
-        return CraftSound.minecraftToBukkit(getHandle().getStepSound());
+        return CraftSound.getBukkit(getHandle().getStepSound());
     }
 
     @Override
     public Sound getPlaceSound() {
-        return CraftSound.minecraftToBukkit(getHandle().getPlaceSound());
+        return CraftSound.getBukkit(getHandle().getPlaceSound());
     }
 
     @Override
     public Sound getHitSound() {
-        return CraftSound.minecraftToBukkit(getHandle().getHitSound());
+        return CraftSound.getBukkit(getHandle().getHitSound());
     }
 
     @Override
     public Sound getFallSound() {
-        return CraftSound.minecraftToBukkit(getHandle().getFallSound());
+        return CraftSound.getBukkit(getHandle().getFallSound());
     }
 }

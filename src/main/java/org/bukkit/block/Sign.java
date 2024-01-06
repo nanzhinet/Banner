@@ -51,37 +51,45 @@ public interface Sign extends TileState, Colorable {
 
     /**
      * Marks whether this sign can be edited by players.
+     * <br>
+     * This is a special value, which is not persisted. It should only be set if
+     * a placed sign is manipulated during the BlockPlaceEvent. Behaviour
+     * outside of this event is undefined.
      *
      * @return if this sign is currently editable
-     * @deprecated use {@link #isWaxed()} instead
+     * @deprecated use {@link #isWaxed()}
      */
-    @Deprecated
+    @Deprecated // Paper
     public boolean isEditable();
 
     /**
      * Marks whether this sign can be edited by players.
+     * <br>
+     * This is a special value, which is not persisted. It should only be set if
+     * a placed sign is manipulated during the BlockPlaceEvent. Behaviour
+     * outside of this event is undefined.
      *
      * @param editable if this sign is currently editable
-     * @deprecated use {@link #setWaxed(boolean)} instead
+     * @deprecated use {@link #setWaxed(boolean)}
      */
-    @Deprecated
+    @Deprecated // Paper
     public void setEditable(boolean editable);
 
+    // Paper start
     /**
-     * Gets whether or not this sign has been waxed. If a sign has been waxed, it
-     * cannot be edited by a player.
+     * Gets whether the sign has been waxed and therefore prevents editing.
      *
-     * @return if this sign is waxed
+     * @return true if waxed
      */
-    public boolean isWaxed();
+    boolean isWaxed();
 
     /**
-     * Sets whether or not this sign has been waxed. If a sign has been waxed, it
-     * cannot be edited by a player.
+     * Sets whether the sign is waxed.
      *
-     * @param waxed if this sign is waxed
+     * @param waxed true to wax and therefore prevent editing
      */
-    public void setWaxed(boolean waxed);
+    void setWaxed(boolean waxed);
+    // Paper end
 
     /**
      * Gets whether this sign has glowing text. Only affects the {@link Side#FRONT}.

@@ -2,10 +2,13 @@ package org.bukkit;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class MusicInstrument implements Keyed {
 
@@ -26,9 +29,7 @@ public abstract class MusicInstrument implements Keyed {
      * @deprecated Use {@link Registry#get(NamespacedKey)} instead.
      */
     @Nullable
-    @Deprecated
     public static MusicInstrument getByKey(@NotNull NamespacedKey namespacedKey) {
-
         return Registry.INSTRUMENT.get(namespacedKey);
     }
 
@@ -39,7 +40,6 @@ public abstract class MusicInstrument implements Keyed {
      * @deprecated use {@link Registry#iterator()}.
      */
     @NotNull
-    @Deprecated
     public static Collection<MusicInstrument> values() {
         return Collections.unmodifiableCollection(Lists.newArrayList(Registry.INSTRUMENT));
     }

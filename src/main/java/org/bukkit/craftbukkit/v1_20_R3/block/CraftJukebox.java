@@ -77,7 +77,7 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
 
     @Override
     public org.bukkit.inventory.ItemStack getRecord() {
-        ItemStack record = this.getSnapshot().getTheItem();
+        ItemStack record = this.getSnapshot().getFirstItem();
         return CraftItemStack.asBukkitCopy(record);
     }
 
@@ -110,7 +110,7 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
             return false;
         }
 
-        ItemStack record = jukebox.getTheItem();
+        ItemStack record = jukebox.getFirstItem();
         if (record.isEmpty() || isPlaying()) {
             return false;
         }
@@ -142,7 +142,7 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
         if (!(tileEntity instanceof JukeboxBlockEntity)) return false;
 
         JukeboxBlockEntity jukebox = (JukeboxBlockEntity) tileEntity;
-        boolean result = !jukebox.getTheItem().isEmpty();
+        boolean result = !jukebox.getFirstItem().isEmpty();
         jukebox.popOutRecord();
         return result;
     }

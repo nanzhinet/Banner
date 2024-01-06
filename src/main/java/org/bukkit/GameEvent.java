@@ -2,10 +2,13 @@ package org.bukkit;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a generic Mojang game event.
@@ -94,7 +97,6 @@ public abstract class GameEvent implements Keyed {
     public static final GameEvent STEP = getEvent("step");
     public static final GameEvent SWIM = getEvent("swim");
     public static final GameEvent TELEPORT = getEvent("teleport");
-    public static final GameEvent UNEQUIP = getEvent("unequip");
     @Deprecated
     public static final GameEvent WOLF_SHAKING = getEvent("entity_action");
     public static final GameEvent RESONATE_1 = getEvent("resonate_1");
@@ -113,6 +115,7 @@ public abstract class GameEvent implements Keyed {
     public static final GameEvent RESONATE_14 = getEvent("resonate_14");
     public static final GameEvent RESONATE_15 = getEvent("resonate_15");
 
+
     /**
      * Returns a {@link GameEvent} by a {@link NamespacedKey}.
      *
@@ -121,7 +124,6 @@ public abstract class GameEvent implements Keyed {
      * @deprecated Use {@link Registry#get(NamespacedKey)} instead.
      */
     @Nullable
-    @Deprecated
     public static GameEvent getByKey(@NotNull NamespacedKey namespacedKey) {
         return Registry.GAME_EVENT.get(namespacedKey);
     }
@@ -133,11 +135,9 @@ public abstract class GameEvent implements Keyed {
      * @deprecated use {@link Registry#iterator()}.
      */
     @NotNull
-    @Deprecated
     public static Collection<GameEvent> values() {
         return Collections.unmodifiableCollection(Lists.newArrayList(Registry.GAME_EVENT));
     }
-
     @NotNull
     private static GameEvent getEvent(@NotNull String key) {
         NamespacedKey namespacedKey = NamespacedKey.minecraft(key);

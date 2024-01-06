@@ -6,10 +6,11 @@ import com.google.gson.JsonParseException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.chat.contents.PlainTextContents.LiteralContents;
+import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.bukkit.ChatColor;
 
@@ -88,7 +89,7 @@ public final class CraftChatMessage {
                         hex.append(c);
 
                         if (hex.length() == 7) {
-                            modifier = RESET.withColor(TextColor.parseColor(hex.toString()).result().get());
+                            modifier = RESET.withColor(TextColor.parseColor(hex.toString()));
                             hex = null;
                         }
                     } else if (format.isFormat() && format != ChatFormatting.RESET) {
@@ -296,7 +297,7 @@ public final class CraftChatMessage {
         for (Component c : list(component)) {
             Style modi = c.getStyle();
             TextColor color = modi.getColor();
-            if (c.getContents() != LiteralContents.EMPTY || color != null) {
+            if (c.getContents() != ComponentContents.EMPTY || color != null) {
                 if (color != null) {
                     if (color.bridge$format() != null) {
                         out.append(color.bridge$format());

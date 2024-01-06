@@ -1,6 +1,5 @@
 package org.bukkit;
 
-import java.util.Collection;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -9,6 +8,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
 
 /**
  * Represents a chunk of blocks.
@@ -253,6 +254,7 @@ public interface Chunk extends PersistentDataHolder {
      * @return if the biome is contained within
      */
     boolean contains(@NotNull Biome biome);
+
 
     /**
      * Gets the load level of this chunk, which determines what game logic is

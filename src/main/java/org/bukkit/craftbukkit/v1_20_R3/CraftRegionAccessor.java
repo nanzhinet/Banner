@@ -16,7 +16,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.entity.monster.breeze.Breeze;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.EyeOfEnder;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
@@ -146,7 +145,6 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.SkeletonHorse;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.SmallFireball;
-import org.bukkit.entity.Sniffer;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.SpectralArrow;
@@ -171,7 +169,6 @@ import org.bukkit.entity.Villager;
 import org.bukkit.entity.Vindicator;
 import org.bukkit.entity.WanderingTrader;
 import org.bukkit.entity.Warden;
-import org.bukkit.entity.WindCharge;
 import org.bukkit.entity.Witch;
 import org.bukkit.entity.Wither;
 import org.bukkit.entity.WitherSkeleton;
@@ -631,8 +628,6 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
                     entity = net.minecraft.world.entity.EntityType.WITHER_SKULL.create(world);
                 } else if (DragonFireball.class.isAssignableFrom(clazz)) {
                     entity = net.minecraft.world.entity.EntityType.DRAGON_FIREBALL.create(world);
-                } else if (WindCharge.class.isAssignableFrom(clazz)) {
-                    entity = net.minecraft.world.entity.EntityType.WIND_CHARGE.create(world);
                 } else {
                     entity = net.minecraft.world.entity.EntityType.FIREBALL.create(world);
                 }
@@ -867,10 +862,6 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
                 entity = net.minecraft.world.entity.EntityType.FROG.create(world);
             } else if (Warden.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.WARDEN.create(world);
-            } else if (Sniffer.class.isAssignableFrom(clazz)) {
-                entity = net.minecraft.world.entity.EntityType.SNIFFER.create(world);
-            } else if (Breeze.class.isAssignableFrom(clazz)) {
-                entity = net.minecraft.world.entity.EntityType.BREEZE.create(world);
             }
 
             if (entity != null) {

@@ -15,10 +15,6 @@ public abstract class CraftLootable<T extends RandomizableContainerBlockEntity> 
         super(world, tileEntity);
     }
 
-    protected CraftLootable(CraftLootable<T> state) {
-        super(state);
-    }
-
     @Override
     public void applyTo(T lootable) {
         super.applyTo(lootable);
@@ -57,7 +53,4 @@ public abstract class CraftLootable<T extends RandomizableContainerBlockEntity> 
         ResourceLocation key = (table == null) ? null : CraftNamespacedKey.toMinecraft(table.getKey());
         getSnapshot().setLootTable(key, seed);
     }
-
-    @Override
-    public abstract CraftLootable<T> copy();
 }

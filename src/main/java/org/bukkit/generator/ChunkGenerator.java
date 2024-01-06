@@ -1,8 +1,5 @@
 package org.bukkit.generator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
@@ -14,6 +11,10 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * A chunk generator is responsible for the initial shaping of an entire
@@ -467,7 +468,7 @@ public abstract class ChunkGenerator {
      * {@link #shouldGenerateCaves(WorldInfo, Random, int, int)} is overridden.
      *
      * @return true if the server should generate Vanilla caves
-     * #shouldGenerateCaves(WorldInfo, Random, int, int)
+     * @see #shouldGenerateCaves(WorldInfo, Random, int, int)
      */
     public boolean shouldGenerateCaves() {
         return false;
@@ -504,7 +505,7 @@ public abstract class ChunkGenerator {
      * {@link #shouldGenerateDecorations(WorldInfo, Random, int, int)} is overridden.
      *
      * @return true if the server should generate Vanilla decorations
-     * #shouldGenerateDecorations(WorldInfo, Random, int, int)
+     * @see #shouldGenerateDecorations(WorldInfo, Random, int, int)
      */
     public boolean shouldGenerateDecorations() {
         return false;

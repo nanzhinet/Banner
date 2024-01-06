@@ -2,9 +2,10 @@ package org.bukkit;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
 
 /**
  * A note class to store a specific note.
@@ -115,14 +116,6 @@ public class Note {
                     BY_DATA.put((byte) id, tone);
                 }
             }
-        }
-    }
-
-    private static final float[] pitchArray = new float[25];
-    static {
-        for (int i = 0; i <= 24; i++) {
-            // See https://minecraft.wiki/w/Note_Block#Notes
-            pitchArray[i] = (float) Math.pow(2, (i - 12) / 12f);
         }
     }
 
@@ -260,16 +253,6 @@ public class Note {
     public boolean isSharped() {
         byte note = getToneByte();
         return Tone.getById(note).isSharped(note);
-    }
-
-    /**
-     * Gets the pitch of this note. This is the value used with
-     * {@link World#playSound} or the /playsound command.
-     *
-     * @return the pitch
-     */
-    public float getPitch() {
-        return pitchArray[this.note];
     }
 
     @Override

@@ -121,9 +121,7 @@ public class CraftMetaBlockState extends CraftMetaItem implements BlockStateMeta
             Material.CHISELED_BOOKSHELF,
             Material.DECORATED_POT,
             Material.SUSPICIOUS_SAND,
-            Material.SUSPICIOUS_GRAVEL,
-            Material.TRIAL_SPAWNER,
-            Material.CRAFTER
+            Material.SUSPICIOUS_GRAVEL
     );
 
     static {

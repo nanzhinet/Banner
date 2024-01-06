@@ -12,10 +12,6 @@ public abstract class CraftContainer<T extends BaseContainerBlockEntity> extends
         super(world, tileEntity);
     }
 
-    protected CraftContainer(CraftContainer<T> state) {
-        super(state);
-    }
-
     @Override
     public boolean isLocked() {
         return !this.getSnapshot().lockKey.key.isEmpty();
@@ -50,7 +46,4 @@ public abstract class CraftContainer<T extends BaseContainerBlockEntity> extends
             container.setCustomName(null);
         }
     }
-
-    @Override
-    public abstract CraftContainer<T> copy();
 }

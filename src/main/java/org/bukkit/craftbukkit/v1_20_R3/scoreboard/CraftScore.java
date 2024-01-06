@@ -1,7 +1,5 @@
 package org.bukkit.craftbukkit.v1_20_R3.scoreboard;
 
-import net.minecraft.world.scores.ReadOnlyScoreInfo;
-import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -17,22 +15,22 @@ import java.util.Map;
  * Also, as an added perk, a CraftScore will (intentionally) stay a valid reference so long as objective is valid.
  */
 final class CraftScore implements Score {
-    private final ScoreHolder entry;
+    private final String entry;
     private final CraftObjective objective;
 
-    CraftScore(CraftObjective objective, ScoreHolder entry) {
+    CraftScore(CraftObjective objective, String entry) {
         this.objective = objective;
         this.entry = entry;
     }
 
     @Override
     public OfflinePlayer getPlayer() {
-        return Bukkit.getOfflinePlayer(entry.getScoreboardName());
+        return Bukkit.getOfflinePlayer(entry);
     }
 
     @Override
     public String getEntry() {
-        return entry.getScoreboardName();
+        return entry;
     }
 
     @Override
@@ -45,9 +43,10 @@ final class CraftScore implements Score {
         Scoreboard board = objective.checkState().board;
 
         if (board.getTrackedPlayers().contains(entry)) { // Lazy
-            ReadOnlyScoreInfo score = board.getPlayerScoreInfo(entry, objective.getHandle());
+            Map<net.minecraft.world.scores.Objective, net.minecraft.world.scores.Score> scores = board.getPlayerScores(entry);
+            net.minecraft.world.scores.Score score = scores.get(objective.getHandle());
             if (score != null) { // Lazy
-                return score.value();
+                return score.getScore();
             }
         }
 
@@ -56,14 +55,14 @@ final class CraftScore implements Score {
 
     @Override
     public void setScore(int score) {
-        objective.checkState().board.getOrCreatePlayerScore(entry, objective.getHandle()).set(score);
+        objective.checkState().board.getOrCreatePlayerScore(entry, objective.getHandle()).setScore(score);
     }
 
     @Override
     public boolean isScoreSet() {
         Scoreboard board = objective.checkState().board;
 
-        return board.getTrackedPlayers().contains(entry) && board.getPlayerScoreInfo(entry, objective.getHandle()) != null;
+        return board.getTrackedPlayers().contains(entry) && board.getPlayerScores(entry).containsKey(objective.getHandle());
     }
 
     @Override

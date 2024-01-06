@@ -7,11 +7,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.util.WeakCollection;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.ScoreboardManager;
 
 import java.util.Collection;
@@ -92,15 +92,15 @@ public final class CraftScoreboardManager implements ScoreboardManager {
     }
 
     // CraftBukkit method
-    public void removePlayer(CraftPlayer player) {
+    public void removePlayer(Player player) {
         playerBoards.remove(player);
     }
 
     // CraftBukkit method
-    public void forAllObjectives(ObjectiveCriteria criteria, ScoreHolder holder, Consumer<net.minecraft.world.scores.ScoreAccess> consumer) {
+    public void getScoreboardScores(ObjectiveCriteria criteria, String name, Consumer<net.minecraft.world.scores.Score> consumer) {
         for (CraftScoreboard scoreboard : scoreboards) {
             Scoreboard board = scoreboard.board;
-            board.forAllObjectives(criteria, holder, (score) -> consumer.accept(score));
+            board.forAllObjectives(criteria, name, score -> consumer.accept(score));
         }
     }
 }

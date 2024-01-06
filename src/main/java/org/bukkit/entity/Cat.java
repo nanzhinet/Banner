@@ -1,8 +1,6 @@
 package org.bukkit.entity;
 
 import org.bukkit.DyeColor;
-import org.bukkit.Keyed;
-import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,29 +41,17 @@ public interface Cat extends Tameable, Sittable {
     /**
      * Represents the various different cat types there are.
      */
-    public enum Type implements Keyed {
-        TABBY("tabby"),
-        BLACK("black"),
-        RED("red"),
-        SIAMESE("siamese"),
-        BRITISH_SHORTHAIR("british_shorthair"),
-        CALICO("calico"),
-        PERSIAN("persian"),
-        RAGDOLL("ragdoll"),
-        WHITE("white"),
-        JELLIE("jellie"),
-        ALL_BLACK("all_black");
-
-        private final NamespacedKey key;
-
-        private Type(String key) {
-            this.key = NamespacedKey.minecraft(key);
-        }
-
-        @Override
-        @NotNull
-        public NamespacedKey getKey() {
-            return key;
-        }
+    public enum Type {
+        TABBY,
+        BLACK,
+        RED,
+        SIAMESE,
+        BRITISH_SHORTHAIR,
+        CALICO,
+        PERSIAN,
+        RAGDOLL,
+        WHITE,
+        JELLIE,
+        ALL_BLACK;
     }
 }

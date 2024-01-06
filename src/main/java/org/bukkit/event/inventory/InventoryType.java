@@ -1,8 +1,6 @@
 package org.bukkit.event.inventory;
 
-import org.bukkit.MinecraftExperimental;
 import org.bukkit.inventory.InventoryHolder;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -84,7 +82,7 @@ public enum InventoryType {
      */
     ANVIL(3, "Repairing"),
     /**
-     * A smithing inventory, with 3 CRAFTING slots and 1 RESULT slot.
+     * A smithing inventory, with 3 CRAFTING slots and 1 RESULT slot
      */
     SMITHING(4, "Upgrade Gear"),
     /**
@@ -145,12 +143,6 @@ public enum InventoryType {
      */
     JUKEBOX(1, "Jukebox", false),
     /**
-     * A crafter inventory, with 9 CRAFTING slots.
-     */
-    @MinecraftExperimental
-    @ApiStatus.Experimental
-    CRAFTER(9, "Crafter"),
-    /**
      * The new smithing inventory, with 3 CRAFTING slots and 1 RESULT slot.
      *
      * @deprecated use {@link #SMITHING}
@@ -162,7 +154,6 @@ public enum InventoryType {
     private final int size;
     private final String title;
     private final boolean isCreatable;
-    private boolean isMods;
 
     private InventoryType(int defaultSize, /*@NotNull*/ String defaultTitle) {
         this(defaultSize, defaultTitle, true);
@@ -172,7 +163,6 @@ public enum InventoryType {
         size = defaultSize;
         title = defaultTitle;
         this.isCreatable = isCreatable;
-        this.isMods = false;
     }
 
     public int getDefaultSize() {
@@ -192,14 +182,6 @@ public enum InventoryType {
      */
     public boolean isCreatable() {
         return isCreatable;
-    }
-
-    public boolean isMods() {
-        return isMods;
-    }
-
-    public void setMods(boolean isMods) {
-        this.isMods = isMods;
     }
 
     public enum SlotType {

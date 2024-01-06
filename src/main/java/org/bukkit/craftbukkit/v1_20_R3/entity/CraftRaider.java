@@ -106,6 +106,6 @@ public abstract class CraftRaider extends CraftMonster implements Raider {
 
     @Override
     public Sound getCelebrationSound() {
-        return CraftSound.minecraftToBukkit(getHandle().getCelebrateSound());
+        return CraftSound.getBukkit(getHandle().getCelebrateSound());
     }
 }

@@ -1,5 +1,7 @@
 package org.bukkit;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -13,6 +15,7 @@ import java.lang.annotation.RetentionPolicy;
  * suggests a bad API design.
  */
 @Retention(RetentionPolicy.CLASS)
+@ApiStatus.Internal
 @Deprecated
 public @interface UndefinedNullability {
 

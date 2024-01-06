@@ -116,9 +116,10 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
 
     @Override
     public Score getScore(OfflinePlayer player) {
+        Preconditions.checkArgument(player != null, "Player cannot be null");
         checkState();
 
-        return new CraftScore(this, CraftScoreboard.getScoreHolder(player));
+        return new CraftScore(this, player.getName());
     }
 
     @Override
@@ -127,7 +128,7 @@ final class CraftObjective extends CraftScoreboardComponent implements Objective
         Preconditions.checkArgument(entry.length() <= Short.MAX_VALUE, "Score '" + entry + "' is longer than the limit of 32767 characters");
         checkState();
 
-        return new CraftScore(this, CraftScoreboard.getScoreHolder(entry));
+        return new CraftScore(this, entry);
     }
 
     @Override
