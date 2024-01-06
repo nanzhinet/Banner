@@ -37,6 +37,7 @@
     "network.chat.MixinTextColor",
     "network.connection.MixinConnection",
     "network.protocol.MixinPacketUtils",
+    "network.protocol.common.MixinServerboundCustomPayloadPacket",
     "network.protocol.game.MixinClientboundCommandsPacket_ArgumentNodeStub",
     "network.protocol.game.MixinClientboundInitializeBorderPacket",
     "network.protocol.game.MixinClientboundSectionBlocksUpdatePacket",

@@ -1,13 +1,17 @@
 package com.mohistmc.banner.mixin.server.network;
 
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
+import com.mohistmc.banner.bukkit.network.BannerServerboundCustomPayloadPacket;
 import com.mohistmc.banner.injection.server.network.InjectionServerCommonPacketListenerImpl;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
+import net.minecraft.network.protocol.common.ServerCommonPacketListener;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
@@ -171,51 +175,48 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
     private static final ResourceLocation CUSTOM_REGISTER = new ResourceLocation("register");
     private static final ResourceLocation CUSTOM_UNREGISTER = new ResourceLocation("unregister");
 
-    @Inject(method = "handleCustomPayload", at = @At("HEAD"))
-    private void banner$customPayload(ServerboundCustomPayloadPacket packet, CallbackInfo ci) {
-        // Banner TODO - fix bukkit channel
-        /*
-        PacketUtils.ensureRunningOnSameThread(packet, (ServerGamePacketListenerImpl) (Object) this, this.player.serverLevel());
-        var readerIndex = packet.data.readerIndex();
-        var buf = new byte[packet.data.readableBytes()];
-        packet.data.readBytes(buf);
-        packet.data.readerIndex(readerIndex);
+    @Inject(method = "handleCustomPayload", at = @At("HEAD"), cancellable = true)
+    private void banner$customPayload(ServerboundCustomPayloadPacket serverboundcustompayloadpacket, CallbackInfo ci) {
+        if (!(serverboundcustompayloadpacket.payload() instanceof BannerServerboundCustomPayloadPacket.UnknownPayload)) {
+            ci.cancel();
+        }
+        PacketUtils.ensureRunningOnSameThread(serverboundcustompayloadpacket, (ServerCommonPacketListener) (Object) this, this.player.serverLevel());
+        ResourceLocation identifier = serverboundcustompayloadpacket.payload().id();
+        ByteBuf payload = ((BannerServerboundCustomPayloadPacket.UnknownPayload)serverboundcustompayloadpacket.payload()).data();
 
-        if (this.connection.isConnected()) {
-            if (packet.identifier.equals(CUSTOM_REGISTER)) {
-                try {
-                    String channels = new String(buf, StandardCharsets.UTF_8);
-                    for (String channel : channels.split("\0")) {
-                        if (!StringUtil.isNullOrEmpty(channel)) {
-                            this.getCraftPlayer().addChannel(channel);
-                        }
-                    }
-                } catch (Exception ex) {
-                    LOGGER.error("Couldn't register custom payload", ex);
-                    this.disconnect("Invalid payload REGISTER!");
+        if (identifier.equals(CUSTOM_REGISTER)) {
+            try {
+                String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
+                for (String channel : channels.split("\0")) {
+                    getCraftPlayer().addChannel(channel);
                 }
-            } else if (packet.identifier.equals(CUSTOM_UNREGISTER)) {
-                try {
-                    String channels = new String(buf, StandardCharsets.UTF_8);
-                    for (String channel : channels.split("\0")) {
-                        if (!StringUtil.isNullOrEmpty(channel)) {
-                            this.getCraftPlayer().removeChannel(channel);
-                        }
-                    }
-                } catch (Exception ex) {
-                    LOGGER.error("Couldn't unregister custom payload", ex);
-                    this.disconnect("Invalid payload UNREGISTER!");
+            } catch (Exception ex) {
+                LOGGER.error("Couldn\'t register custom payload", ex);
+                LOGGER.error("WARNING:Banner changed for letting you can enter the game, but you should take the risks by yourselves", ex);
+                //  this.disconnect("Invalid payload REGISTER!"); // Banner - allow enter when custom payload not register
+            }
+        } else if (identifier.equals(CUSTOM_UNREGISTER)) {
+            try {
+                String channels = payload.toString(com.google.common.base.Charsets.UTF_8);
+                for (String channel : channels.split("\0")) {
+                    getCraftPlayer().removeChannel(channel);
                 }
-            } else {
-                try {
-                    this.cserver.getMessenger().dispatchIncomingMessage(this.player.getBukkitEntity(), packet.identifier.toString(), buf);
-                } catch (Exception ex) {
-                    LOGGER.error("Couldn't dispatch custom payload", ex);
-                    this.disconnect("Invalid custom payload!");
-                }
+            } catch (Exception ex) {
+                LOGGER.error("Couldn\'t unregister custom payload", ex);
+                LOGGER.error("WARNING:Banner changed for letting you can enter the game, but you should take the risks by yourselves", ex);
+                //  this.disconnect("Invalid payload UNREGISTER!"); // Banner - allow enter when custom payload not register
+            }
+        } else {
+            try {
+                byte[] data = new byte[payload.readableBytes()];
+                payload.readBytes(data);
+                cserver.getMessenger().dispatchIncomingMessage(player.getBukkitEntity(), identifier.toString(), data);
+            } catch (Exception ex) {
+                LOGGER.error("Couldn\'t dispatch custom payload", ex);
+                LOGGER.error("WARNING:Banner changed for letting you can enter the game, but you should take the risks by yourselves", ex);
+                // this.disconnect("Invalid custom payload!"); // Banner - allow enter when custom payload not register
             }
         }
-        */
     }
 
     @Inject(method = "handleResourcePackResponse", at = @At("RETURN"))
