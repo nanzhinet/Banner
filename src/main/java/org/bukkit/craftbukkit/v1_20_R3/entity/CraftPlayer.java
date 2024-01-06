@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -2187,7 +2188,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     // Paper start
     @Override
     public java.util.Locale locale() {
-        return net.kyori.adventure.translation.Translator.parseLocale(this.getHandle().bridge$locale());
+        //return net.kyori.adventure.translation.Translator.parseLocale(this.getHandle().bridge$locale());
+        return new Locale(this.getHandle().bridge$locale()); // Banner TODO - fixeme
     }
     // Paper end
 
