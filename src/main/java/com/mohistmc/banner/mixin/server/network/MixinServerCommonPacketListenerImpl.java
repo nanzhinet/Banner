@@ -177,6 +177,7 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
 
     @Inject(method = "handleCustomPayload", at = @At("HEAD"), cancellable = true)
     private void banner$customPayload(ServerboundCustomPayloadPacket serverboundcustompayloadpacket, CallbackInfo ci) {
+        /*
         if (!(serverboundcustompayloadpacket.payload() instanceof BannerServerboundCustomPayloadPacket.UnknownPayload)) {
             ci.cancel();
         }
@@ -216,7 +217,7 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
                 LOGGER.error("WARNING:Banner changed for letting you can enter the game, but you should take the risks by yourselves", ex);
                 // this.disconnect("Invalid custom payload!"); // Banner - allow enter when custom payload not register
             }
-        }
+        }*/
     }
 
     @Inject(method = "handleResourcePackResponse", at = @At("RETURN"))
