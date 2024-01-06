@@ -6,10 +6,10 @@ name: Build And Publish to Modrinth
 on : [push, pull_request]
 
 env:
-  MINECRAFT_VERSION: 1.20.1
-  VERSION: 1.20.x-snapshot
+  MINECRAFT_VERSION: 1.20.4
+  VERSION: 1.20.4-snapshot
   MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
-  RELEASE_NAME: banner-1.20.x
+  RELEASE_NAME: banner-1.20.4
 
 jobs:
   build:
@@ -49,5 +49,5 @@ jobs:
           version-type: release
 
           loaders: fabric
-          game-versions: '1.20.1'
+          game-versions: '1.20.4'
           java: "17"
