@@ -326,7 +326,7 @@ public abstract class MixinServerPlayerGameMode implements InjectionServerPlayer
     }
 
     @Inject(method = "destroyBlock", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/Block;playerWillDestroy(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/player/Player;)V",
+            target = "Lnet/minecraft/world/level/block/Block;playerWillDestroy(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/level/block/state/BlockState;",
             shift = At.Shift.BEFORE))
     private void banner$setDrops(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         level.banner$setCaptureDrops(new ArrayList<>());
