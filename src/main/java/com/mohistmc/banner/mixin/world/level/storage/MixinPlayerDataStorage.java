@@ -4,11 +4,12 @@ import com.mohistmc.banner.injection.world.level.storage.InjectionPlayerDataStor
 import java.io.File;
 import java.io.FileInputStream;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.PlayerDataStorage;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,7 +48,7 @@ public class MixinPlayerDataStorage implements InjectionPlayerDataStorage {
         try {
             final File file1 = new File(this.playerDir, uuid + ".dat");
             if (file1.exists()) {
-                return NbtIo.readCompressed(new FileInputStream(file1));
+                return NbtIo.readCompressed(new FileInputStream(file1), NbtAccounter.unlimitedHeap());
             }
         } catch (Exception exception) {
             LOGGER.warn("Failed to load player data for " + uuid);

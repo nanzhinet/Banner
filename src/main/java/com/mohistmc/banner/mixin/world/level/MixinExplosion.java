@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import com.mohistmc.banner.injection.world.level.InjectionExplosion;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -22,6 +25,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ProtectionEnchantment;
@@ -41,7 +46,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.TNTPrimeEvent;
@@ -67,76 +72,91 @@ public abstract class MixinExplosion implements InjectionExplosion {
     @Shadow @Final private double y;
     @Shadow @Final private double z;
     @Shadow @Final public Entity source;
-    @Shadow public abstract DamageSource getDamageSource();
     @Shadow @Final private Map<Player, Vec3> hitPlayers;
     @Shadow @Final private boolean fire;
     @Shadow @Final private RandomSource random;
-    @Shadow private static void addBlockDrops(ObjectArrayList<Pair<ItemStack, BlockPos>> dropPositionArray, ItemStack stack, BlockPos pos) { }
     @Shadow @Final private ExplosionDamageCalculator damageCalculator;
     @Shadow public abstract boolean interactsWithBlocks();
     @Shadow @Nullable public abstract LivingEntity getIndirectSourceEntity();
     @Shadow public static float getSeenPercent(Vec3 p_46065_, Entity p_46066_) { return 0f; }
     // @formatter:on
 
+    @Shadow @Final private DamageSource damageSource;
+
+    @Shadow @Final private SoundEvent explosionSound;
+
     @Inject(method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;DDDFZLnet/minecraft/world/level/Explosion$BlockInteraction;)V",
             at = @At("RETURN"))
     public void banner$adjustSize(Level worldIn, Entity exploderIn, double xIn, double yIn, double zIn, float sizeIn, boolean causesFireIn, Explosion.BlockInteraction modeIn, CallbackInfo ci) {
         this.radius = Math.max(sizeIn, 0F);
+        this.yield = this.blockInteraction == Explosion.BlockInteraction.DESTROY_WITH_DECAY ? 1.0F / this.radius : 1.0F;
     }
 
     public boolean wasCanceled = false; // CraftBukkit - add field
+    public float yield;
 
+    @Override
+    public float bridge$getYield() {
+        return yield;
+    }
 
     /**
      * @author wdog5
-     * @reason
+     * @reason bukkit
      */
     @Overwrite
     public void explode() {
+        // CraftBukkit start
         if (this.radius < 0.1F) {
             return;
         }
+        // CraftBukkit end
         this.level.gameEvent(this.source, GameEvent.EXPLODE, new Vec3(this.x, this.y, this.z));
         Set<BlockPos> set = Sets.newHashSet();
-        int i = 16;
+        boolean flag = true;
 
-        for (int j = 0; j < 16; ++j) {
-            for (int k = 0; k < 16; ++k) {
-                for (int l = 0; l < 16; ++l) {
-                    if (j == 0 || j == 15 || k == 0 || k == 15 || l == 0 || l == 15) {
-                        double d0 = ((float) j / 15.0F * 2.0F - 1.0F);
-                        double d1 = ((float) k / 15.0F * 2.0F - 1.0F);
-                        double d2 = ((float) l / 15.0F * 2.0F - 1.0F);
+        int i;
+        int j;
+
+        for (int k = 0; k < 16; ++k) {
+            for (i = 0; i < 16; ++i) {
+                for (j = 0; j < 16; ++j) {
+                    if (k == 0 || k == 15 || i == 0 || i == 15 || j == 0 || j == 15) {
+                        double d0 = (double) ((float) k / 15.0F * 2.0F - 1.0F);
+                        double d1 = (double) ((float) i / 15.0F * 2.0F - 1.0F);
+                        double d2 = (double) ((float) j / 15.0F * 2.0F - 1.0F);
                         double d3 = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
-                        d0 = d0 / d3;
-                        d1 = d1 / d3;
-                        d2 = d2 / d3;
+
+                        d0 /= d3;
+                        d1 /= d3;
+                        d2 /= d3;
                         float f = this.radius * (0.7F + this.level.random.nextFloat() * 0.6F);
                         double d4 = this.x;
-                        double d6 = this.y;
-                        double d8 = this.z;
+                        double d5 = this.y;
+                        double d6 = this.z;
 
                         for (float f1 = 0.3F; f > 0.0F; f -= 0.22500001F) {
-                            BlockPos blockpos = BlockPos.containing(d4, d6, d8);
-                            BlockState blockstate = this.level.getBlockState(blockpos);
-                            FluidState fluidstate = this.level.getFluidState(blockpos);
+                            BlockPos blockposition = BlockPos.containing(d4, d5, d6);
+                            BlockState iblockdata = this.level.getBlockState(blockposition);
+                            FluidState fluid = this.level.getFluidState(blockposition);
 
-                            if (!this.level.isInWorldBounds(blockpos)) {
+                            if (!this.level.isInWorldBounds(blockposition)) {
                                 break;
                             }
 
-                            Optional<Float> optional = this.damageCalculator.getBlockExplosionResistance((Explosion) (Object) this, this.level, blockpos, blockstate, fluidstate);
+                            Optional<Float> optional = this.damageCalculator.getBlockExplosionResistance(((Explosion) (Object) this), this.level, blockposition, iblockdata, fluid);
+
                             if (optional.isPresent()) {
-                                f -= (optional.get() + 0.3F) * 0.3F;
+                                f -= ((Float) optional.get() + 0.3F) * 0.3F;
                             }
 
-                            if (f > 0.0F && this.damageCalculator.shouldBlockExplode((Explosion) (Object) this, this.level, blockpos, blockstate, f)) {
-                                set.add(blockpos);
+                            if (f > 0.0F && this.damageCalculator.shouldBlockExplode(((Explosion) (Object) this), this.level, blockposition, iblockdata, f)) {
+                                set.add(blockposition);
                             }
 
-                            d4 += d0 * (double) 0.3F;
-                            d6 += d1 * (double) 0.3F;
-                            d8 += d2 * (double) 0.3F;
+                            d4 += d0 * 0.30000001192092896D;
+                            d5 += d1 * 0.30000001192092896D;
+                            d6 += d2 * 0.30000001192092896D;
                         }
                     }
                 }
@@ -144,72 +164,91 @@ public abstract class MixinExplosion implements InjectionExplosion {
         }
 
         this.toBlow.addAll(set);
-        float f3 = this.radius * 2.0F;
-        int k1 = Mth.floor(this.x - (double) f3 - 1.0D);
-        int l1 = Mth.floor(this.x + (double) f3 + 1.0D);
-        int i2 = Mth.floor(this.y - (double) f3 - 1.0D);
-        int i1 = Mth.floor(this.y + (double) f3 + 1.0D);
-        int j2 = Mth.floor(this.z - (double) f3 - 1.0D);
-        int j1 = Mth.floor(this.z + (double) f3 + 1.0D);
-        List<Entity> list = this.level.getEntities(this.source, new AABB(k1, i2, j2, l1, i1, j1));
+        float f2 = this.radius * 2.0F;
+
+        i = Mth.floor(this.x - (double) f2 - 1.0D);
+        j = Mth.floor(this.x + (double) f2 + 1.0D);
+        int l = Mth.floor(this.y - (double) f2 - 1.0D);
+        int i1 = Mth.floor(this.y + (double) f2 + 1.0D);
+        int j1 = Mth.floor(this.z - (double) f2 - 1.0D);
+        int k1 = Mth.floor(this.z + (double) f2 + 1.0D);
+        List<Entity> list = this.level.getEntities(this.source, new AABB((double) i, (double) l, (double) j1, (double) j, (double) i1, (double) k1));
         Vec3 vec3d = new Vec3(this.x, this.y, this.z);
+        Iterator iterator = list.iterator();
 
-        for (Entity entity : list) {
-            if (!entity.ignoreExplosion()) {
-                double d12 = Math.sqrt(entity.distanceToSqr(vec3d)) / f3;
-                if (d12 <= 1.0D) {
-                    double d5 = entity.getX() - this.x;
-                    double d7 = entity.getEyeY() - this.y;
-                    double d9 = entity.getZ() - this.z;
-                    double d13 = Math.sqrt(d5 * d5 + d7 * d7 + d9 * d9);
-                    if (d13 != 0.0D) {
-                        d5 = d5 / d13;
-                        d7 = d7 / d13;
-                        d9 = d9 / d13;
-                        double d14 = Explosion.getSeenPercent(vec3d, entity);
-                        double d10 = (1.0D - d12) * d14;
+        while (iterator.hasNext()) {
+            Entity entity = (Entity) iterator.next();
 
+            if (!entity.ignoreExplosion(((Explosion) (Object) this))) {
+                double d7 = Math.sqrt(entity.distanceToSqr(vec3d)) / (double) f2;
+
+                if (d7 <= 1.0D) {
+                    double d8 = entity.getX() - this.x;
+                    double d9 = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY()) - this.y;
+                    double d10 = entity.getZ() - this.z;
+                    double d11 = Math.sqrt(d8 * d8 + d9 * d9 + d10 * d10);
+
+                    if (d11 != 0.0D) {
+                        d8 /= d11;
+                        d9 /= d11;
+                        d10 /= d11;
+                        double d12 = (double) getSeenPercent(vec3d, entity);
+                        double d13 = (1.0D - d7) * d12;
+
+                        // CraftBukkit start
+
+                        // Special case ender dragon only give knockback if no damage is cancelled
+                        // Thinks to note:
+                        // - Setting a velocity to a ComplexEntityPart is ignored (and therefore not needed)
+                        // - Damaging ComplexEntityPart while forward the damage to EntityEnderDragon
+                        // - Damaging EntityEnderDragon does nothing
+                        // - EntityEnderDragon hitbock always covers the other parts and is therefore always present
                         if (entity instanceof EnderDragonPart) {
                             continue;
                         }
 
-                        CraftEventFactory.entityDamage = this.source;
+                        CraftEventFactory.entityDamage = source;
                         entity.banner$setLastDamageCancelled(false);
 
                         if (entity instanceof EnderDragon) {
                             for (EnderDragonPart entityComplexPart : ((EnderDragon) entity).subEntities) {
                                 // Calculate damage separately for each EntityComplexPart
                                 double d7part;
-                                if (list.contains(entityComplexPart) && (d7part = Math.sqrt(entityComplexPart.distanceToSqr(vec3d)) / f3) <= 1.0D) {
+                                if (list.contains(entityComplexPart) && (d7part = Math.sqrt(entityComplexPart.distanceToSqr(vec3d)) / f2) <= 1.0D) {
                                     double d13part = (1.0D - d7part) * getSeenPercent(vec3d, entityComplexPart);
-                                    entityComplexPart.hurt(this.getDamageSource(), (float) ((int) ((d13part * d13part + d13part) / 2.0D * 7.0D * (double) f3 + 1.0D)));
+                                    entityComplexPart.hurt(this.damageSource, (float) ((int) ((d13part * d13part + d13part) / 2.0D * 7.0D * (double) f2 + 1.0D)));
                                 }
                             }
                         } else {
-                            entity.hurt(this.getDamageSource(), (float) ((int) ((d10 * d10 + d10) / 2.0D * 7.0D * (double) f3 + 1.0D)));
+                            entity.hurt(this.damageSource, (float) ((int) ((d13 * d13 + d13) / 2.0D * 7.0D * (double) f2 + 1.0D)));
                         }
 
                         CraftEventFactory.entityDamage = null;
-                        if (entity.bridge$lastDamageCancelled()) {
+                        if (entity.bridge$lastDamageCancelled()) { // SPIGOT-5339, SPIGOT-6252, SPIGOT-6777: Skip entity if damage event was cancelled
                             continue;
                         }
+                        // CraftBukkit end
+                        double d14;
 
-                        double d11;
-                        if (entity instanceof LivingEntity livingEntity) {
-                            d11 = ProtectionEnchantment.getExplosionKnockbackAfterDampener(livingEntity, d10);
+                        if (entity instanceof LivingEntity) {
+                            LivingEntity entityliving = (LivingEntity) entity;
+
+                            d14 = ProtectionEnchantment.getExplosionKnockbackAfterDampener(entityliving, d13);
                         } else {
-                            d11 = d10;
+                            d14 = d13;
                         }
 
-                        d5 *= d11;
-                        d7 *= d11;
-                        d9 *= d11;
-                        Vec3 vec3d1 = new Vec3(d5, d7, d9);
+                        d8 *= d14;
+                        d9 *= d14;
+                        d10 *= d14;
+                        Vec3 vec3d1 = new Vec3(d8, d9, d10);
 
                         entity.setDeltaMovement(entity.getDeltaMovement().add(vec3d1));
-                        if (entity instanceof Player playerentity) {
-                            if (!playerentity.isSpectator() && (!playerentity.isCreative() || !playerentity.getAbilities().flying)) {
-                                this.hitPlayers.put(playerentity, vec3d1);
+                        if (entity instanceof Player) {
+                            Player entityhuman = (Player) entity;
+
+                            if (!entityhuman.isSpectator() && (!entityhuman.isCreative() || !entityhuman.getAbilities().flying)) {
+                                this.hitPlayers.put(entityhuman, vec3d1);
                             }
                         }
                     }
@@ -339,6 +378,27 @@ public abstract class MixinExplosion implements InjectionExplosion {
                 }
             }
         }
+    }
+
+    private static void addBlockDrops(ObjectArrayList<Pair<ItemStack, BlockPos>> objectarraylist, ItemStack itemstack, BlockPos blockposition) {
+        if (itemstack.isEmpty()) return; // CraftBukkit - SPIGOT-5425
+        int i = objectarraylist.size();
+
+        for (int j = 0; j < i; ++j) {
+            Pair<ItemStack, BlockPos> pair = (Pair) objectarraylist.get(j);
+            ItemStack itemstack1 = (ItemStack) pair.getFirst();
+
+            if (ItemEntity.areMergable(itemstack1, itemstack)) {
+                ItemStack itemstack2 = ItemEntity.merge(itemstack1, itemstack, 16);
+
+                objectarraylist.set(j, Pair.of(itemstack2, (BlockPos) pair.getSecond()));
+                if (itemstack.isEmpty()) {
+                    return;
+                }
+            }
+        }
+
+        objectarraylist.add(Pair.of(itemstack, blockposition));
     }
 
     @Override

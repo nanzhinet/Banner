@@ -2,12 +2,13 @@ package com.mohistmc.banner.mixin.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StemBlock;
-import net.minecraft.world.level.block.StemGrownBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(StemBlock.class)
 public class MixinStemBlock {
 
-    @Shadow @Final private StemGrownBlock fruit;
+    @Shadow @Final private ResourceKey<Block> fruit;
 
     @Redirect(method = "randomTick", at = @At (value = "INVOKE",
             target = "Lnet/minecraft/server/level/ServerLevel;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
@@ -34,7 +35,7 @@ public class MixinStemBlock {
             cancellable = true,
             locals = LocalCapture.CAPTURE_FAILHARD)
     private void banner$growEvent0(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, CallbackInfo ci, float f, int i, Direction direction, BlockPos blockPos) {
-        if (!CraftEventFactory.handleBlockGrowEvent(level, blockPos, this.fruit.defaultBlockState())) { ci.cancel(); }
+        if (!CraftEventFactory.handleBlockGrowEvent(level, blockPos, state)) { ci.cancel(); }
     }
 
     @Redirect(method = "randomTick", at = @At (value = "INVOKE",

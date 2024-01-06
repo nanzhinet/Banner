@@ -2,16 +2,18 @@ package com.mohistmc.banner.mixin.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import java.util.Iterator;
 import java.util.Map;
+
+import com.google.gson.JsonParseException;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementTree;
 import net.minecraft.advancements.TreeNodePosition;
-import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ServerAdvancementManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -25,7 +27,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ServerAdvancementManager.class)
-public class MixinServerAdvancementManager {
+public abstract class MixinServerAdvancementManager {
 
     @Shadow @Final private static Logger LOGGER;
 
@@ -35,9 +37,11 @@ public class MixinServerAdvancementManager {
 
     @Shadow private AdvancementTree tree;
 
+    @Shadow protected abstract void validate(ResourceLocation resourceLocation, Advancement advancement);
+
     /**
      * @author wdog5
-     * @reason
+     * @reason bukkit
      */
     @Overwrite
     protected void apply(Map<ResourceLocation, JsonElement> map, ResourceManager resourceManager, ProfilerFiller profiler) {
@@ -52,13 +56,12 @@ public class MixinServerAdvancementManager {
             }
             // Spigot end
             try {
-                JsonObject jsonObject = GsonHelper.convertToJsonObject(jsonElement, "advancement");
-                Advancement advancement = Advancement.fromJson(jsonObject, new DeserializationContext(resourceLocation, this.lootData));
+                Advancement advancement = (Advancement) Util.getOrThrow(Advancement.CODEC.parse(JsonOps.INSTANCE, jsonElement), JsonParseException::new);
+                this.validate(resourceLocation, advancement);
                 builder.put(resourceLocation, new AdvancementHolder(resourceLocation, advancement));
-            } catch (Exception var6) {
-                LOGGER.error("Parsing error loading custom advancement {}: {}", resourceLocation, var6.getMessage());
+            } catch (Exception var5) {
+                LOGGER.error("Parsing error loading custom advancement {}: {}", resourceLocation, var5.getMessage());
             }
-
         });
         this.advancements = builder.buildOrThrow();
         AdvancementTree advancementTree = new AdvancementTree();

@@ -10,6 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
@@ -31,8 +32,8 @@ public abstract class MixinArrow extends AbstractArrow implements InjectionArrow
 
     @Shadow @Final public Set<MobEffectInstance> effects;
 
-    protected MixinArrow(EntityType<? extends AbstractArrow> entityType, Level level) {
-        super(entityType, level);
+    protected MixinArrow(EntityType<? extends AbstractArrow> entityType, Level level, ItemStack itemStack) {
+        super(entityType, level, itemStack);
     }
 
     @Inject(method = "doPostHurtEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"))

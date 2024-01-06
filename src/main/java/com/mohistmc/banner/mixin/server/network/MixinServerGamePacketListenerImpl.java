@@ -6,7 +6,6 @@ import com.mohistmc.banner.injection.server.network.InjectionServerGamePacketLis
 import com.mojang.brigadier.ParseResults;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -99,16 +98,16 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventoryView;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
-import org.bukkit.craftbukkit.v1_20_R2.util.LazyPlayerSet;
-import org.bukkit.craftbukkit.v1_20_R2.util.Waitable;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftInventoryView;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_20_R3.util.LazyPlayerSet;
+import org.bukkit.craftbukkit.v1_20_R3.util.Waitable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
@@ -199,7 +198,6 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     @Shadow private boolean clientIsFloating;
     @Shadow public abstract void ackBlockChangesUpTo(int i);
     @Shadow private static boolean isChatMessageIllegal(String message) {return false;}
-    @Shadow protected abstract Optional<LastSeenMessages> tryHandleChat(String message, Instant timestamp, LastSeenMessages.Update update);
     @Shadow protected abstract PlayerChatMessage getSignedMessage(ServerboundChatPacket packet, LastSeenMessages lastSeenMessages) throws SignedMessageChain.DecodeException;
     @Shadow protected abstract void handleMessageDecodeFailure(SignedMessageChain.DecodeException exception);
     @Shadow protected abstract CompletableFuture<FilteredText> filterTextPacket(String text);
@@ -217,6 +215,8 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     @Shadow private int chatSpamTickCount;
 
     @Shadow public abstract ServerPlayer getPlayer();
+
+    @Shadow protected abstract Optional<LastSeenMessages> tryHandleChat(LastSeenMessages.Update update);
 
     private static final int SURVIVAL_PLACE_DISTANCE_SQUARED = 6 * 6;
     private static final int CREATIVE_PLACE_DISTANCE_SQUARED = 7 * 7;
@@ -242,7 +242,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
 
     @Inject(method = "<init>",
             at = @At(value = "FIELD",
-            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;lastChatTimeStamp:Ljava/util/concurrent/atomic/AtomicReference;", shift = At.Shift.BEFORE))
+            target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;chunkSender:Lnet/minecraft/server/network/PlayerChunkSender;", shift = At.Shift.BEFORE))
     private void banner$preHandlePlayer(MinecraftServer minecraftServer, Connection connection,
                                         ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie,
                                         CallbackInfo ci) {
@@ -992,7 +992,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
         if (isChatMessageIllegal(packet.message())) {
             this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
         } else {
-            Optional<LastSeenMessages> optional = this.tryHandleChat(packet.message(), packet.timeStamp(), packet.lastSeenMessages());
+            Optional<LastSeenMessages> optional = this.tryHandleChat(packet.lastSeenMessages());
             if (optional.isPresent()) {
                 PlayerChatMessage playerchatmessage;
 
@@ -1006,14 +1006,13 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
                 CompletableFuture<FilteredText> completablefuture = this.filterTextPacket(playerchatmessage.signedContent());
                 Component ichatbasecomponent = this.server.getChatDecorator().decorate(this.player, playerchatmessage.decoratedContent());
 
-                this.chatMessageChain.append((executor) -> {
-                    return completablefuture.thenAcceptAsync((filteredtext) -> {
-                        PlayerChatMessage playerchatmessage1 = playerchatmessage.withUnsignedContent(ichatbasecomponent).filter(filteredtext.mask());
+                this.chatMessageChain.append(completablefuture, (text) -> {
+                    if (ichatbasecomponent == null) return;
+                    PlayerChatMessage playerchatmessage1 = playerchatmessage.withUnsignedContent(ichatbasecomponent).filter(completablefuture.join().mask());
 
-                        this.broadcastChatMessage(playerchatmessage1);
-                    }, this.server.bridge$chatExecutor()); // CraftBukkit - async chat
-                });
-                // }); // CraftBukkit - async chat
+                    this.broadcastChatMessage(playerchatmessage1);
+                }
+                );
             }
         }
     }
@@ -1055,7 +1054,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     }
 
     @Inject(method = "tryHandleChat", cancellable = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;unpackAndApplyLastSeen(Lnet/minecraft/network/chat/LastSeenMessages$Update;)Ljava/util/Optional;"))
-    private void banner$deadMenTellNoTales(String message, Instant timestamp, LastSeenMessages.Update update, CallbackInfoReturnable<Optional<LastSeenMessages>> cir) {
+    private void banner$deadMenTellNoTales(LastSeenMessages.Update update, CallbackInfoReturnable<Optional<LastSeenMessages>> cir) {
         if (this.player.isRemoved()) {
             this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), false));
             cir.setReturnValue(Optional.empty());

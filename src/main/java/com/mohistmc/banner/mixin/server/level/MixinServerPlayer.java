@@ -58,21 +58,23 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ScoreAccess;
+import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.WeatherType;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorldBorder;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftPortalEvent;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.util.BlockStateListPopulator;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorldBorder;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftPortalEvent;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.util.BlockStateListPopulator;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
+import org.bukkit.event.entity.EntityExhaustionEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedMainHandEvent;
@@ -253,14 +255,14 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
 
-    @Redirect(method = "awardKillScore", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Ljava/lang/String;Ljava/util/function/Consumer;)V"))
-    private void banner$useCustomScoreboard(Scoreboard instance, ObjectiveCriteria criteria, String scoreboardName, Consumer<Score> points) {
-        this.level().getCraftServer().getScoreboardManager().getScoreboardScores(criteria, scoreboardName, points);
+    @Redirect(method = "awardKillScore", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/world/scores/ScoreHolder;Ljava/util/function/Consumer;)V"))
+    private void banner$useCustomScoreboard(Scoreboard instance, ObjectiveCriteria criteria, ScoreHolder scoreboardName, Consumer<ScoreAccess> points) {
+       this.level().getCraftServer().getScoreboardManager().forAllObjectives(criteria, scoreboardName, points);
     }
 
-    @Redirect(method = "handleTeamKill", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Ljava/lang/String;Ljava/util/function/Consumer;)V"))
-    private void banner$teamKill(Scoreboard instance, ObjectiveCriteria criteria, String scoreboardName, Consumer<Score> points) {
-        this.level().getCraftServer().getScoreboardManager().getScoreboardScores(criteria, scoreboardName, points);
+    @Redirect(method = "handleTeamKill", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/world/scores/ScoreHolder;Ljava/util/function/Consumer;)V"))
+    private void banner$teamKill(Scoreboard instance, ObjectiveCriteria criteria, ScoreHolder scoreboardName, Consumer<ScoreAccess> points) {
+        this.level().getCraftServer().getScoreboardManager().forAllObjectives(criteria, scoreboardName, points);
     }
 
     @Inject(method = "isPvpAllowed", cancellable = true, at = @At("HEAD"))
@@ -517,6 +519,36 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         this.setDeltaMovement(0, 0, 0);
     }
 
+    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"))
+    private void banner$exhauseCause1(double x, double y, double z, CallbackInfo ci) {
+        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.SWIM);
+    }
+
+    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"))
+    private void banner$exhauseCause2(double x, double y, double z, CallbackInfo ci) {
+        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.WALK_UNDERWATER);
+    }
+
+    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 2, target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"))
+    private void banner$exhauseCause3(double x, double y, double z, CallbackInfo ci) {
+        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.WALK_ON_WATER);
+    }
+
+    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 3, target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"))
+    private void banner$exhauseCause4(double x, double y, double z, CallbackInfo ci) {
+        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.SPRINT);
+    }
+
+    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 4, target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"))
+    private void banner$exhauseCause5(double x, double y, double z, CallbackInfo ci) {
+        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.CROUCH);
+    }
+
+    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 5, target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"))
+    private void banner$exhauseCause6(double x, double y, double z, CallbackInfo ci) {
+        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.WALK);
+    }
+
     @Inject(method = "doCloseContainer", at = @At("HEAD"))
     private void banner$invClose(CallbackInfo ci) {
         if (this.containerMenu != this.inventoryMenu) {
@@ -542,21 +574,21 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     @Redirect(method = "restoreFrom", at = @At(value = "INVOKE", target = "Lnet/minecraft/stats/ServerRecipeBook;copyOverData(Lnet/minecraft/stats/RecipeBook;)V"))
     private void banner$copyOverData(ServerRecipeBook instance, RecipeBook recipeBook) {}
 
-    @Redirect(method = "awardStat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Ljava/lang/String;Ljava/util/function/Consumer;)V"))
-    private void banner$addStats(Scoreboard instance, ObjectiveCriteria criteria, String scoreboardName, Consumer<Score> points) {
-        this.level().getCraftServer().getScoreboardManager().getScoreboardScores(criteria, scoreboardName, points);
+    @Redirect(method = "awardStat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/world/scores/ScoreHolder;Ljava/util/function/Consumer;)V"))
+    private void banner$addStats(Scoreboard instance, ObjectiveCriteria criteria, ScoreHolder scoreHolder, Consumer<ScoreAccess> points) {
+        this.level().getCraftServer().getScoreboardManager().forAllObjectives(criteria, scoreHolder, points);
     }
 
-    @Redirect(method = "resetStat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Ljava/lang/String;Ljava/util/function/Consumer;)V"))
-    private void banner$takeStats(Scoreboard instance, ObjectiveCriteria criteria, String scoreboardName, Consumer<Score> points) {
-        this.level().getCraftServer().getScoreboardManager().getScoreboardScores(criteria, scoreboardName, points);
+    @Redirect(method = "resetStat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/world/scores/ScoreHolder;Ljava/util/function/Consumer;)V"))
+    private void banner$takeStats(Scoreboard instance, ObjectiveCriteria objectiveCriteria, ScoreHolder scoreHolder, Consumer<ScoreAccess> consumer) {
+        this.level().getCraftServer().getScoreboardManager().forAllObjectives(objectiveCriteria, scoreHolder, consumer);
     }
 
-    @Redirect(method = "updateScoreForCriteria", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Ljava/lang/String;Ljava/util/function/Consumer;)V"))
-    private void banner$updateStats(Scoreboard instance, ObjectiveCriteria criteria, String scoreboardName, Consumer<Score> action) {
+    @Redirect(method = "updateScoreForCriteria", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/world/scores/ScoreHolder;Ljava/util/function/Consumer;)V"))
+    private void banner$updateStats(Scoreboard instance, ObjectiveCriteria objectiveCriteria, ScoreHolder scoreHolder, Consumer<ScoreAccess> consumer) {
         // CraftBukkit - Use our scores instead
-        this.level().getCraftServer().getScoreboardManager().getScoreboardScores(criteria, this.getScoreboardName(),
-                action);
+        this.level().getCraftServer().getScoreboardManager().forAllObjectives(objectiveCriteria, scoreHolder,
+                consumer);
     }
 
     @Inject(method = "resetSentInfo", at = @At("HEAD"))
@@ -813,12 +845,12 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     @Redirect(method = "die", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Ljava/lang/String;Ljava/util/function/Consumer;)V"))
-    private void banner$useBukkitScore(Scoreboard instance, ObjectiveCriteria criteria, String scoreboardName, Consumer<Score> action) {
+            target = "Lnet/minecraft/world/scores/Scoreboard;forAllObjectives(Lnet/minecraft/world/scores/criteria/ObjectiveCriteria;Lnet/minecraft/world/scores/ScoreHolder;Ljava/util/function/Consumer;)V"))
+    private void banner$useBukkitScore(Scoreboard instance, ObjectiveCriteria objectiveCriteria, ScoreHolder scoreHolder, Consumer<ScoreAccess> consumer) {
         this.setCamera(((ServerPlayer) (Object) this)); // Remove spectated target
         // CraftBukkit end
         // CraftBukkit - Get our scores instead
-        this.level().getCraftServer().getScoreboardManager().getScoreboardScores(ObjectiveCriteria.DEATH_COUNT, this.getScoreboardName(), Score::increment);
+        this.level().getCraftServer().getScoreboardManager().forAllObjectives(ObjectiveCriteria.DEATH_COUNT, scoreHolder, ScoreAccess::increment);
     }
 
     private AtomicReference<PlayerTeleportEvent.TeleportCause> banner$changeDimensionCause = new AtomicReference<>(PlayerTeleportEvent.TeleportCause.UNKNOWN);

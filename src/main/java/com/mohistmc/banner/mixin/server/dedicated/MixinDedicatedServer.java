@@ -25,7 +25,7 @@ import net.minecrell.terminalconsole.TerminalConsoleAppender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.io.IoBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R2.util.ForwardLogHandler;
+import org.bukkit.craftbukkit.v1_20_R3.util.ForwardLogHandler;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.PluginLoadOrder;
@@ -101,17 +101,16 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         cir.setReturnValue(result.toString());
     }
 
-    @Redirect(method = "handleConsoleInputs", at = @At(value = "INVOKE", target = "Lnet/minecraft/commands/Commands;performPrefixedCommand(Lnet/minecraft/commands/CommandSourceStack;Ljava/lang/String;)I"))
-    private int banner$serverCommandEvent(Commands commands, CommandSourceStack source, String command) {
+    @Redirect(method = "handleConsoleInputs", at = @At(value = "INVOKE", target = "Lnet/minecraft/commands/Commands;performPrefixedCommand(Lnet/minecraft/commands/CommandSourceStack;Ljava/lang/String;)V"))
+    private void banner$serverCommandEvent(Commands commands, CommandSourceStack source, String command) {
         if (command.isEmpty()) {
-            return 0;
+            return;
         }
         ServerCommandEvent event = new ServerCommandEvent(bridge$console(), command);
         Bukkit.getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             bridge$server().dispatchServerCommand(bridge$console(), new ConsoleInput(event.getCommand(), source));
         }
-        return 0;
     }
 
     public AtomicReference<RconConsoleSource> rconConsoleSource = new AtomicReference<>(null);

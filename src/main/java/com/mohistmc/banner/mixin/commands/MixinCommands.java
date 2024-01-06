@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.ExecutionCommandSource;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,26 +32,26 @@ public abstract class MixinCommands implements InjectionCommands {
 
     @Shadow protected abstract void fillUsableCommands(CommandNode<CommandSourceStack> rootCommandSource, CommandNode<SharedSuggestionProvider> rootSuggestion, CommandSourceStack source, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> commandNodeToSuggestionNode);
 
-    @Shadow public abstract int performCommand(ParseResults<CommandSourceStack> parseResults, String command);
+    @Shadow public abstract void performCommand(ParseResults<CommandSourceStack> parseResults, String string);
 
-    @Shadow public abstract int performPrefixedCommand(CommandSourceStack source, String command);
+    @Shadow public abstract void performPrefixedCommand(CommandSourceStack commandSourceStack, String string);
 
     public void banner$constructor() {
-        this.dispatcher.setConsumer((context, b, i) -> context.getSource().onCommandComplete(context, b, i));
+        this.dispatcher.setConsumer(ExecutionCommandSource.resultConsumer());
     }
 
     @Override
-    public int performPrefixedCommand(CommandSourceStack commandSourceStack, String s, String label) {
-        return this.performPrefixedCommand(commandSourceStack, s);
+    public void performPrefixedCommand(CommandSourceStack commandSourceStack, String s, String label) {
+        this.performPrefixedCommand(commandSourceStack, s);
     }
 
     @Override
-    public int performCommand(ParseResults<CommandSourceStack> parseResults, String s, String label) {
-        return this.performCommand(parseResults, s);
+    public void performCommand(ParseResults<CommandSourceStack> parseResults, String s, String label) {
+        this.performCommand(parseResults, s);
     }
 
     @Override
-    public int dispatchServerCommand(CommandSourceStack sender, String command) {
+    public void dispatchServerCommand(CommandSourceStack sender, String command) {
         Joiner joiner = Joiner.on(" ");
         if (command.startsWith("/")) {
             command = command.substring(1);
@@ -59,7 +60,7 @@ public abstract class MixinCommands implements InjectionCommands {
         ServerCommandEvent event = new ServerCommandEvent(sender.banner$getBukkitSender(), command);
         org.bukkit.Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
-            return 0;
+            return;
         }
         command = event.getCommand();
 
@@ -73,7 +74,7 @@ public abstract class MixinCommands implements InjectionCommands {
         if (cmd.equalsIgnoreCase("stop") || cmd.equalsIgnoreCase("kick") || cmd.equalsIgnoreCase("op")
                 || cmd.equalsIgnoreCase("deop") || cmd.equalsIgnoreCase("ban") || cmd.equalsIgnoreCase("ban-ip")
                 || cmd.equalsIgnoreCase("pardon") || cmd.equalsIgnoreCase("pardon-ip") || cmd.equalsIgnoreCase("reload")) {
-            return 0;
+            return;
         }
 
         // Handle vanilla commands;
@@ -82,7 +83,7 @@ public abstract class MixinCommands implements InjectionCommands {
         }
 
         String newCommand = joiner.join(args);
-        return this.performPrefixedCommand(sender, newCommand, newCommand);
+        this.performPrefixedCommand(sender, newCommand, newCommand);
     }
 
     /**

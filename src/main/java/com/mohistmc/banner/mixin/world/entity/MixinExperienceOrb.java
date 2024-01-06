@@ -8,8 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -75,7 +75,7 @@ public abstract class MixinExperienceOrb {
 
         if (entry != null) {
             ItemStack itemstack = entry.getValue();
-            int j = Math.min(this.xpToDurability(this.value), itemstack.getDamageValue());
+            int j = Math.min(this.xpToDurability(i), itemstack.getDamageValue());
             // CraftBukkit start
             org.bukkit.event.player.PlayerItemMendEvent event = CraftEventFactory.callPlayerItemMendEvent(player, (ExperienceOrb) (Object) this, itemstack, entry.getKey(), j);
             j = event.getRepairAmount();

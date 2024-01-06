@@ -9,9 +9,9 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftRecipe;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftShapedRecipe;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftRecipe;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftShapedRecipe;
 import org.bukkit.inventory.RecipeChoice;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,18 +29,11 @@ public abstract class MixinShapedRecipe implements CraftingRecipe, InjectionShap
     @Shadow @Final
     CraftingBookCategory category;
 
-    @Shadow @Final
-    int width;
-
-    @Shadow @Final
-    int height;
-
-    @Shadow @Final
-    NonNullList<Ingredient> recipeItems;
-
     @Shadow public abstract int getHeight();
 
     @Shadow public abstract int getWidth();
+
+    @Shadow public abstract NonNullList<Ingredient> getIngredients();
 
     @Override
     // CraftBukkit start
@@ -53,23 +46,23 @@ public abstract class MixinShapedRecipe implements CraftingRecipe, InjectionShap
         recipe.setGroup(this.group);
         recipe.setCategory(CraftRecipe.getCategory(this.category()));
 
-        switch (this.height) {
+        switch (this.getHeight()) {
             case 1 -> {
-                switch (this.width) {
+                switch (this.getWidth()) {
                     case 1 -> recipe.shape("a");
                     case 2 -> recipe.shape("ab");
                     case 3 -> recipe.shape("abc");
                 }
             }
             case 2 -> {
-                switch (this.width) {
+                switch (this.getWidth()) {
                     case 1 -> recipe.shape("a", "b");
                     case 2 -> recipe.shape("ab", "cd");
                     case 3 -> recipe.shape("abc", "def");
                 }
             }
             case 3 -> {
-                switch (this.width) {
+                switch (this.getWidth()) {
                     case 1 -> recipe.shape("a", "b", "c");
                     case 2 -> recipe.shape("ab", "cd", "ef");
                     case 3 -> recipe.shape("abc", "def", "ghi");
@@ -77,7 +70,7 @@ public abstract class MixinShapedRecipe implements CraftingRecipe, InjectionShap
             }
         }
         char c = 'a';
-        for (Ingredient list : this.recipeItems) {
+        for (Ingredient list : this.getIngredients()) {
             RecipeChoice choice = CraftRecipe.toBukkit(list);
             if (choice != null) {
                 recipe.setIngredient(c, choice);

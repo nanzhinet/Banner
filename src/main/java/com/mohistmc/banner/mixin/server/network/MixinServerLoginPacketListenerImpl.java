@@ -6,6 +6,7 @@ import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import io.netty.channel.local.LocalAddress;
 import net.minecraft.DefaultUncaughtExceptionHandler;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.Connection;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
@@ -17,7 +18,7 @@ import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 import org.apache.commons.lang3.Validate;
-import org.bukkit.craftbukkit.v1_20_R2.util.Waitable;
+import org.bukkit.craftbukkit.v1_20_R3.util.Waitable;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +60,6 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
     @Shadow @Nullable String requestedUsername;
     @Shadow @Final private static Logger LOGGER;
     @Shadow abstract void startClientVerification(GameProfile profile);
-
-    @Shadow
-    protected static GameProfile createOfflineProfile(String string) {
-        return null;
-    }
 
     @Shadow @Nullable private GameProfile authenticatedProfile;
 
@@ -114,7 +110,7 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
                         startClientVerification(gameProfile);
                     } else if (server.isSingleplayer()) {
                         LOGGER.warn("Failed to verify username but will let them in anyway!");
-                        startClientVerification(createOfflineProfile(stringx));
+                        startClientVerification(UUIDUtil.createOfflineProfile(stringx));
                     } else {
                         disconnect(Component.translatable("multiplayer.disconnect.unverified_username"));
                         LOGGER.error("Username '{}' tried to join with an invalid session", stringx);
@@ -122,7 +118,7 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
                 } catch (AuthenticationUnavailableException var4) {
                     if (server.isSingleplayer()) {
                         LOGGER.warn("Authentication servers are down but will let them in anyway!");
-                        startClientVerification(createOfflineProfile(stringx));
+                        startClientVerification(UUIDUtil.createOfflineProfile(stringx));
                     } else {
                         disconnect(Component.translatable("multiplayer.disconnect.authservers_down"));
                         LOGGER.error("Couldn't verify username because servers are unavailable");

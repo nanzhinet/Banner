@@ -25,9 +25,9 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftHumanEntity;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityExhaustionEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -273,37 +273,7 @@ public abstract class MixinPlayer extends LivingEntity implements InjectionPlaye
             playerEntity.setSharedFlag(flag, set);
         }
     }
-
-    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 0, target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
-    private void banner$exhauseCause1(double distanceX, double distanceY, double distanceZ, CallbackInfo ci) {
-        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.SWIM);
-    }
-
-    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 1, target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
-    private void banner$exhauseCause2(double distanceX, double distanceY, double distanceZ, CallbackInfo ci) {
-        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.WALK_UNDERWATER);
-    }
-
-    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 2, target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
-    private void banner$exhauseCause3(double distanceX, double distanceY, double distanceZ, CallbackInfo ci) {
-        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.WALK_ON_WATER);
-    }
-
-    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 3, target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
-    private void banner$exhauseCause4(double distanceX, double distanceY, double distanceZ, CallbackInfo ci) {
-        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.SPRINT);
-    }
-
-    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 4, target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
-    private void banner$exhauseCause5(double distanceX, double distanceY, double distanceZ, CallbackInfo ci) {
-        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.CROUCH);
-    }
-
-    @Inject(method = "checkMovementStatistics", at = @At(value = "INVOKE", ordinal = 5, target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"))
-    private void banner$exhauseCause6(double distanceX, double distanceY, double distanceZ, CallbackInfo ci) {
-        pushExhaustReason(EntityExhaustionEvent.ExhaustionReason.WALK);
-    }
-
+    
     @Inject(method = "startFallFlying", cancellable = true, at = @At("HEAD"))
     private void banner$startGlidingEvent(CallbackInfo ci) {
         if (CraftEventFactory.callToggleGlideEvent((net.minecraft.world.entity.player.Player) (Object) this, true).isCancelled()) {

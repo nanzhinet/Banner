@@ -2,6 +2,7 @@ package com.mohistmc.banner.mixin.network.protocol;
 
 import static com.mohistmc.banner.BannerServer.LOGGER;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
@@ -35,7 +36,14 @@ public class MixinPacketUtils {
                             }
                         }
                         if (processor.shouldPropagateHandlingExceptions()) {
-                            throw var3;
+                            if (var3 instanceof ReportedException r) {
+                                processor.fillCrashReport(r.getReport());
+                                throw var3;
+                            } else {
+                                CrashReport crashreport = CrashReport.forThrowable(var3, "Main thread packet handler");
+                                processor.fillCrashReport(crashreport);
+                                throw new ReportedException(crashreport);
+                            }
                         }
 
                         LOGGER.error("Failed to handle packet {}, suppressing error", packet, var3);

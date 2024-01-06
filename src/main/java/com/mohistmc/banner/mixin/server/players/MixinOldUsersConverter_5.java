@@ -3,6 +3,7 @@ package com.mohistmc.banner.mixin.server.players;
 import java.io.File;
 import java.io.IOException;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,7 +23,7 @@ public class MixinOldUsersConverter_5 {
         final File fileUnknown = new File(file.getParentFile(), "unknownplayers");
         CompoundTag root = null;
         try {
-            root = NbtIo.readCompressed(new java.io.FileInputStream(file2));
+            root = NbtIo.readCompressed(new java.io.FileInputStream(file2), NbtAccounter.unlimitedHeap());
         } catch (Exception exception) {
             exception.printStackTrace();
         }

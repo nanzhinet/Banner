@@ -4,7 +4,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.util.PathConverter;
 import net.minecrell.terminalconsole.TerminalConsoleAppender;
-import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 
 import java.io.File;
 import java.io.IOException;

@@ -61,15 +61,15 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTicks;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_20_R2.block.CraftBlockStates;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftHumanEntity;
-import org.bukkit.craftbukkit.v1_20_R2.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_20_R2.generator.CustomChunkGenerator;
-import org.bukkit.craftbukkit.v1_20_R2.util.BlockStateListPopulator;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftNamespacedKey;
-import org.bukkit.craftbukkit.v1_20_R2.util.WorldUUID;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockStates;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R3.generator.CustomChunkGenerator;
+import org.bukkit.craftbukkit.v1_20_R3.util.BlockStateListPopulator;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_20_R3.util.WorldUUID;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.event.block.BlockFormEvent;
@@ -289,8 +289,8 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         return this.addFreshEntity(entity);
     }
 
-    @Inject(method = "tickIceAndSnow", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    public void banner$snowForm0(boolean bl, BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2, BlockPos blockPos3, Biome biome) {
+    @Inject(method = "tickPrecipitation", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm0(BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2, BlockPos blockPos3, Biome biome) {
 
         CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos2, 3);
         craftBlockState.setData(Blocks.ICE.defaultBlockState());
@@ -303,8 +303,8 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         }
     }
 
-    @Inject(method = "tickIceAndSnow", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    public void banner$snowForm1(boolean bl, BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2, BlockPos blockPos3, Biome biome, int i, BlockState blockState, int j, BlockState blockState2) {
+    @Inject(method = "tickPrecipitation", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 1, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm1(BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2, BlockPos blockPos3, Biome biome, int i, BlockState blockState, int j, BlockState blockState2) {
 
         CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos, 3);
         craftBlockState.setData(blockState2);
@@ -317,8 +317,8 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
         }
     }
 
-    @Inject(method = "tickIceAndSnow", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 2, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-    public void banner$snowForm2(boolean bl, BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2, BlockPos blockPos3, Biome biome) {
+    @Inject(method = "tickPrecipitation", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", ordinal = 2, shift = At.Shift.BEFORE, target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    public void banner$snowForm2(BlockPos blockPos, CallbackInfo ci, BlockPos blockPos2, BlockPos blockPos3, Biome biome) {
 
         CraftBlockState craftBlockState = CraftBlockStates.getBlockState((ServerLevel) (Object) this, blockPos, 3);
         craftBlockState.setData(Blocks.SNOW.defaultBlockState());

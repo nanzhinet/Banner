@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.math.BigDecimal;
 import java.net.Proxy;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RegistryLayer;
+import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.server.Services;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.WorldLoader;
@@ -62,6 +64,7 @@ import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.ModCheck;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
@@ -82,13 +85,15 @@ import net.minecraft.world.level.storage.WorldData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.craftbukkit.Main;
-import org.bukkit.craftbukkit.v1_20_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R2.scoreboard.CraftScoreboardManager;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.scoreboard.CraftScoreboardManager;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.jetbrains.annotations.Nullable;
+import org.joml.RoundingMode;
+import org.spigotmc.WatchdogThread;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -111,7 +116,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
 
     @Shadow public Map<ResourceKey<net.minecraft.world.level.Level>, ServerLevel> levels;
     @Shadow @Final public static org.slf4j.Logger LOGGER;
-    @Shadow private long nextTickTime;
     @Shadow public abstract boolean isSpawningMonsters();
     @Shadow public abstract boolean isSpawningAnimals();
     @Shadow private int tickCount;
@@ -179,8 +183,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     @Shadow @Final protected Services services;
 
     @Shadow public abstract void onServerExit();
-
-    @Shadow private float averageTickTime;
     @Shadow private volatile boolean isReady;
 
     @Shadow protected abstract void endMetricsRecordingTick();
@@ -188,8 +190,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     @Shadow private ProfilerFiller profiler;
 
     @Shadow protected abstract void waitUntilNextTick();
-
-    @Shadow private long delayedTasksMaxNextTickTime;
     @Shadow private boolean mayHaveDelayedTasks;
 
     @Shadow public abstract void tickServer(BooleanSupplier hasTimeLeft);
@@ -197,8 +197,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     @Shadow protected abstract boolean haveTime();
 
     @Shadow protected abstract void startMetricsRecordingTick();
-
-    @Shadow private long lastOverloadWarning;
     @Shadow private boolean debugCommandProfilerDelayStart;
     @Shadow @Nullable private MinecraftServer.TimeProfiler debugCommandProfiler;
     @Shadow @Final private LayeredRegistryAccess<RegistryLayer> registries;
@@ -221,9 +219,21 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
 
     @Shadow @Nullable public abstract ServerLevel getLevel(ResourceKey<net.minecraft.world.level.Level> dimension);
 
+    @Shadow private long nextTickTimeNanos;
+    @Shadow private long lastOverloadWarningNanos;
+    @Shadow private long delayedTasksMaxNextTickTimeNanos;
+
+    @Shadow public abstract boolean isPaused();
+
+    @Shadow public abstract ServerTickRateManager tickRateManager();
+
+    @Shadow @Final private ServerTickRateManager tickRateManager;
+    @Shadow @Final private static long OVERLOADED_THRESHOLD_NANOS;
+    @Shadow @Final private static long OVERLOADED_WARNING_INTERVAL_NANOS;
+    @Shadow private float smoothedTickTimeMillis;
     // CraftBukkit start
     public WorldLoader.DataLoadContext worldLoader;
-    public org.bukkit.craftbukkit.v1_20_R2.CraftServer server;
+    public org.bukkit.craftbukkit.v1_20_R3.CraftServer server;
     public OptionSet options;
     public org.bukkit.command.ConsoleCommandSender console;
     public ConsoleReader reader;
@@ -270,6 +280,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     private static final long MAX_CATCHUP_BUFFER = TICK_TIME * TPS * 60L;
     private long lastTick = 0;
     private long catchupTime = 0;
+    public final RollingAverage tps5s = new RollingAverage(5, TPS, SEC_IN_NANO); // Purpur
     public final RollingAverage tps1 = new RollingAverage(60, TPS, SEC_IN_NANO);
     public final RollingAverage tps5 = new RollingAverage(60 * 5, TPS, SEC_IN_NANO);
     public final RollingAverage tps15 = new RollingAverage(60 * 15, TPS, SEC_IN_NANO);
@@ -287,104 +298,107 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                 throw new IllegalStateException("Failed to initialize server");
             }
 
-            this.nextTickTime = Util.getMillis();
-            this.statusIcon = this.loadStatusIcon().orElse(null);
+            this.nextTickTimeNanos = Util.getNanos();
+            this.statusIcon = (ServerStatus.Favicon)this.loadStatusIcon().orElse(null);
             this.status = this.buildServerStatus();
 
             // Spigot start
             Arrays.fill( recentTps, 20 );
-            long start = System.nanoTime(), curTime, tickSection = start; // Paper - Further improve server tick loop
-            lastTick = start - TICK_TIME; // Paper
-            while (this.running) {
-                long i = ((curTime = System.nanoTime()) / (1000L * 1000L)) - this.nextTickTime; // Paper
-
-                if (i > 5000L && this.nextTickTime - this.lastOverloadWarning >= 30000L) { // CraftBukkit
-                    long j = i / 50L;
-
-                    if (server.getWarnOnOverload()) // CraftBukkit
-                        MinecraftServer.LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", i, j);
-                    this.nextTickTime += j * 50L;
-                    this.lastOverloadWarning = this.nextTickTime;
+            long tickSection = Util.getNanos(), curTime, tickCount = 1; // Paper
+            while(this.running) {
+                long l;
+                if (!this.isPaused() && this.tickRateManager.isSprinting() && this.tickRateManager.checkShouldSprintThisTick()) {
+                    l = 0L;
+                    this.nextTickTimeNanos = Util.getNanos();
+                    this.lastOverloadWarningNanos = this.nextTickTimeNanos;
+                } else {
+                    l = this.tickRateManager.nanosecondsPerTick();
+                    long m = Util.getNanos() - this.nextTickTimeNanos;
+                    if (m > OVERLOADED_THRESHOLD_NANOS + 20L * l && this.nextTickTimeNanos - this.lastOverloadWarningNanos >= OVERLOADED_WARNING_INTERVAL_NANOS + 100L * l) {
+                        long n = m / l;
+                        if (server.getWarnOnOverload()) // CraftBukkit
+                        LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", m / TimeUtil.NANOSECONDS_PER_MILLISECOND, n);
+                        this.nextTickTimeNanos += n * l;
+                        this.lastOverloadWarningNanos = this.nextTickTimeNanos;
+                    }
                 }
 
                 if ( ++currentTick % SAMPLE_INTERVAL == 0 )
                 {
+                    // Paper start
+                    curTime = Util.getNanos();
                     final long diff = curTime - tickSection;
-                    java.math.BigDecimal currentTps = TPS_BASE.divide(new java.math.BigDecimal(diff), 30, java.math.RoundingMode.HALF_UP);
+                    BigDecimal currentTps = TPS_BASE.divide(new BigDecimal(diff), 30, RoundingMode.HALF_UP);
+                    tps5s.add(currentTps, diff); // Purpur
                     tps1.add(currentTps, diff);
                     tps5.add(currentTps, diff);
                     tps15.add(currentTps, diff);
                     // Backwards compat with bad plugins
-                    this.recentTps[0] = tps1.getAverage();
-                    this.recentTps[1] = tps5.getAverage();
-                    this.recentTps[2] = tps15.getAverage();
+                    // Purpur start
+                    this.recentTps[0] = tps5s.getAverage();
+                    this.recentTps[1] = tps1.getAverage();
+                    this.recentTps[2] = tps5.getAverage();
+                    this.recentTps[3] = tps15.getAverage();
+                    // Purpur end
                     // Paper end
                     tickSection = curTime;
-                }
+                } else curTime = Util.getNanos(); // Paper
                 // Spigot end
-
+                boolean bl = l == 0L;
                 if (this.debugCommandProfilerDelayStart) {
                     this.debugCommandProfilerDelayStart = false;
                     this.debugCommandProfiler = new MinecraftServer.TimeProfiler(Util.getNanos(), this.tickCount);
                 }
 
-                // BukkitExtraConstants.currentTick = (int) (System.currentTimeMillis() / 50); // CraftBukkit  // Paper - don't overwrite current tick time
-                this.nextTickTime += 50L;
+                // MinecraftServer.currentTick = (int) (System.currentTimeMillis() / 50); // CraftBukkit // Paper - don't overwrite current tick time
+                lastTick = curTime; // Paper
+                this.nextTickTimeNanos += l;
                 this.startMetricsRecordingTick();
                 this.profiler.push("tick");
-                this.tickServer(this::haveTime);
+                this.tickServer(bl ? () -> {
+                    return false;
+                } : this::haveTime);
                 this.profiler.popPush("nextTickWait");
                 this.mayHaveDelayedTasks = true;
-                this.delayedTasksMaxNextTickTime = Math.max(Util.getMillis() + 50L, this.nextTickTime);
+                this.delayedTasksMaxNextTickTimeNanos = Math.max(Util.getNanos() + l, this.nextTickTimeNanos);
                 this.waitUntilNextTick();
+                if (bl) {
+                    this.tickRateManager.endTickWork();
+                }
+
                 this.profiler.pop();
                 this.endMetricsRecordingTick();
                 this.isReady = true;
-                JvmProfiler.INSTANCE.onServerTick(this.averageTickTime);
+                JvmProfiler.INSTANCE.onServerTick(this.smoothedTickTimeMillis);
             }
-        } catch (Throwable throwable) {
-            MinecraftServer.LOGGER.error("Encountered an unexpected exception", throwable);
-            // Spigot Start
-            if ( throwable.getCause() != null )
-            {
-                MinecraftServer.LOGGER.error( "\tCause of unexpected exception was", throwable.getCause() );
-            }
-            // Spigot End
-            CrashReport crashreport = constructOrExtractCrashReport(throwable);
-
-            this.fillSystemReport(crashreport.getSystemReport());
+        } catch (Throwable var46) {
+            LOGGER.error("Encountered an unexpected exception", var46);
+            CrashReport crashReport = constructOrExtractCrashReport(var46);
+            this.fillSystemReport(crashReport.getSystemReport());
             File file = new File(new File(this.getServerDirectory(), "crash-reports"), "crash-" + Util.getFilenameFormattedDateTime() + "-server.txt");
-
-            if (crashreport.saveToFile(file)) {
-                MinecraftServer.LOGGER.error("This crash report has been saved to: {}", file.getAbsolutePath());
+            if (crashReport.saveToFile(file)) {
+                LOGGER.error("This crash report has been saved to: {}", file.getAbsolutePath());
             } else {
-                MinecraftServer.LOGGER.error("We were unable to save this crash report to disk.");
+                LOGGER.error("We were unable to save this crash report to disk.");
             }
 
-            this.onServerCrash(crashreport);
+            this.onServerCrash(crashReport);
         } finally {
             try {
                 this.stopped = true;
                 this.stopServer();
-            } catch (Throwable throwable1) {
-                MinecraftServer.LOGGER.error("Exception stopping the server", throwable1);
+            } catch (Throwable var44) {
+                LOGGER.error("Exception stopping the server", var44);
             } finally {
                 if (this.services.profileCache() != null) {
                     this.services.profileCache().clearExecutor();
                 }
 
-                //org.spigotmc.WatchdogThread.doStop(); // Spigot // Banner - disabled
-                // CraftBukkit start - Restore terminal to original settings
-                try {
-                    reader.getTerminal().restore();
-                } catch (Exception ignored) {
-                }
-                // CraftBukkit end
+                WatchdogThread.doStop(); // Spigot
                 this.onServerExit();
             }
 
         }
-
     }
 
     private static double calcTps(double avg, double exp, double tps) {
@@ -612,7 +626,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         listener.updateSpawnPos(new ChunkPos(blockposition));
         ServerChunkCache chunkproviderserver = worldserver.getChunkSource();
 
-        this.nextTickTime = Util.getMillis();
+        this.nextTickTimeNanos = Util.getNanos();
         // CraftBukkit start
         if (worldserver.getWorld().getKeepSpawnInMemory()) {
             chunkproviderserver.addRegionTicket(TicketType.START, new ChunkPos(blockposition), 11, Unit.INSTANCE);
@@ -677,7 +691,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         listener.updateSpawnPos(new ChunkPos(blockposition));
         ServerChunkCache chunkproviderserver = worldserver.getChunkSource();
 
-        this.nextTickTime = Util.getMillis();
+        this.nextTickTimeNanos = Util.getNanos();
         // CraftBukkit start
         if (worldserver.getWorld().getKeepSpawnInMemory()) {
             chunkproviderserver.addRegionTicket(TicketType.START, new ChunkPos(blockposition), 11, Unit.INSTANCE);

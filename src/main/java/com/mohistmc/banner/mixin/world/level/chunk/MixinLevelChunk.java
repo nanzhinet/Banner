@@ -21,9 +21,9 @@ import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_20_R2.persistence.CraftPersistentDataContainer;
-import org.bukkit.craftbukkit.v1_20_R2.persistence.CraftPersistentDataTypeRegistry;
+import org.bukkit.craftbukkit.v1_20_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataContainer;
+import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataTypeRegistry;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -54,7 +54,7 @@ public abstract class MixinLevelChunk extends ChunkAccess implements InjectionLe
 
     public boolean mustNotSave;
     public boolean needsDecoration;
-    private static final CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.v1_20_R2.persistence.CraftPersistentDataTypeRegistry();
+    private static final CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataTypeRegistry();
     public CraftPersistentDataContainer persistentDataContainer = new CraftPersistentDataContainer( DATA_TYPE_REGISTRY );
     public AtomicBoolean banner$doPlace = new AtomicBoolean(true);
     public ServerLevel r;
@@ -69,7 +69,7 @@ public abstract class MixinLevelChunk extends ChunkAccess implements InjectionLe
         if (DistValidate.isValid(worldIn)) {
             this.r = ((ServerLevel) worldIn);
         }
-        if (p_196855_ != null) this.bukkitChunk = new org.bukkit.craftbukkit.v1_20_R2.CraftChunk((LevelChunk) (Object) this);
+        if (p_196855_ != null) this.bukkitChunk = new org.bukkit.craftbukkit.v1_20_R3.CraftChunk((LevelChunk) (Object) this);
     }
 
     @Inject(method = "<init>(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/chunk/ProtoChunk;Lnet/minecraft/world/level/chunk/LevelChunk$PostLoadProcessor;)V", at = @At("RETURN"))

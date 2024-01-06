@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -13,19 +12,17 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseRailBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.PoweredRailBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.util.CraftLocation;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
-import org.bukkit.event.vehicle.VehicleDamageEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.util.Vector;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,16 +34,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractMinecart.class)
-public abstract class MixinAbstractMinecart extends Entity implements InjectionAbstractMinecart {
+public abstract class MixinAbstractMinecart extends VehicleEntity implements InjectionAbstractMinecart {
+
+    public MixinAbstractMinecart(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
 
     // @formatter:off
-    @Shadow public abstract void setHurtDir(int rollingDirection);
-    @Shadow public abstract int getHurtDir();
-    @Shadow public abstract void setHurtTime(int rollingAmplitude);
-    @Shadow public abstract void setDamage(float damage);
-    @Shadow public abstract float getDamage();
-    @Shadow public abstract void destroy(DamageSource source);
-    @Shadow public abstract int getHurtTime();
     @Shadow protected abstract void moveAlongTrack(BlockPos pos, BlockState state);
     @Shadow public abstract void activateMinecart(int x, int y, int z, boolean receivingPower);
     @Shadow private boolean flipped;
@@ -69,11 +63,6 @@ public abstract class MixinAbstractMinecart extends Entity implements InjectionA
     private double flyingZ = 0.95;
     public double maxSpeed = 0.4D;
 
-    public MixinAbstractMinecart(EntityType<?> entityType, Level level) {
-        super(entityType, level);
-    }
-
-
     @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("RETURN"))
     private void banner$init(EntityType<?> type, Level worldIn, CallbackInfo ci) {
         slowWhenEmpty = true;
@@ -84,61 +73,6 @@ public abstract class MixinAbstractMinecart extends Entity implements InjectionA
         flyingY = 0.95;
         flyingZ = 0.95;
         maxSpeed = 0.4D;
-    }
-
-    /**
-     * @author wdog5
-     * @reason
-     */
-    @Overwrite
-    public boolean hurt(DamageSource damagesource, float f) {
-        if (!this.level().isClientSide && !this.isRemoved()) {
-            if (this.isInvulnerableTo(damagesource)) {
-                return false;
-            } else {
-                // CraftBukkit start - fire VehicleDamageEvent
-                Vehicle vehicle = (Vehicle) this.getBukkitEntity();
-                org.bukkit.entity.Entity passenger = (damagesource.getEntity() == null) ? null : damagesource.getEntity().getBukkitEntity();
-
-                VehicleDamageEvent event = new VehicleDamageEvent(vehicle, passenger, f);
-                this.level().getCraftServer().getPluginManager().callEvent(event);
-
-                if (event.isCancelled()) {
-                    return false;
-                }
-
-                f = (float) event.getDamage();
-                // CraftBukkit end
-                this.setHurtDir(-this.getHurtDir());
-                this.setHurtTime(10);
-                this.markHurt();
-                this.setDamage(this.getDamage() + f * 10.0F);
-                this.gameEvent(GameEvent.ENTITY_DAMAGE, damagesource.getEntity());
-                boolean flag = damagesource.getEntity() instanceof Player && ((Player) damagesource.getEntity()).getAbilities().instabuild;
-
-                if (flag || this.getDamage() > 40.0F) {
-                    // CraftBukkit start
-                    VehicleDestroyEvent destroyEvent = new VehicleDestroyEvent(vehicle, passenger);
-                    this.level().getCraftServer().getPluginManager().callEvent(destroyEvent);
-
-                    if (destroyEvent.isCancelled()) {
-                        this.setDamage(40); // Maximize damage so this doesn't get triggered again right away
-                        return true;
-                    }
-                    // CraftBukkit end
-                    this.ejectPassengers();
-                    if (flag && !this.hasCustomName()) {
-                        this.discard();
-                    } else {
-                        this.destroy(damagesource);
-                    }
-                }
-
-                return true;
-            }
-        } else {
-            return true;
-        }
     }
 
     // Banner start - fix mixin by Spelunkery mod

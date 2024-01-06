@@ -26,7 +26,7 @@ public class MixinClientboundSystemChatPacket {
     }
 
     @Inject(method = "<init>(Lnet/minecraft/network/chat/Component;Z)V", at = @At("RETURN"))
-    private void arclight$init(Component content, boolean overlay, CallbackInfo ci) {
+    private void banner$init(Component content, boolean overlay, CallbackInfo ci) {
         this.a = Component.Serializer.toJson(content);
     }
 

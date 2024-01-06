@@ -2,9 +2,9 @@ package com.mohistmc.banner.mixin.world.level.block.entity;
 
 import com.mohistmc.banner.bukkit.DistValidate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.Clearable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,9 +15,8 @@ import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.ticks.ContainerSingleItem;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(JukeboxBlockEntity.class)
 public abstract class MixinJukeboxBlockEntity extends BlockEntity implements Clearable, ContainerSingleItem {
 
-    @Shadow @Final private NonNullList<ItemStack> items;
+    @Shadow private ItemStack item;
     public List<HumanEntity> transaction = new ArrayList<>();
     private int maxStack = DEFAULT_DISTANCE_LIMIT;
     public boolean opened;
@@ -42,7 +41,7 @@ public abstract class MixinJukeboxBlockEntity extends BlockEntity implements Cle
 
     @Override
     public List<ItemStack> getContents() {
-        return this.items;
+        return Collections.singletonList(this.item);
     }
 
     @Override

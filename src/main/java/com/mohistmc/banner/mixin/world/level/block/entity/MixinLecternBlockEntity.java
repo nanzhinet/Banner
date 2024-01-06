@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R2.command.CraftBlockCommandSender;
+import org.bukkit.craftbukkit.v1_20_R3.command.CraftBlockCommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -45,7 +45,7 @@ public abstract class MixinLecternBlockEntity extends BlockEntity implements Cle
     }
     // @formatter:on
 
-    @Redirect(method = "createCommandSourceStack", at = @At(value = "NEW", target = "net/minecraft/commands/CommandSourceStack"))
+    @Redirect(method = "createCommandSourceStack", at = @At(value = "NEW", args = "class=net/minecraft/commands/CommandSourceStack"))
     private CommandSourceStack banner$source(CommandSource source, Vec3 vec3d, Vec2 vec2f, ServerLevel world, int i, String s, Component component, MinecraftServer server, @Nullable Entity entity) {
         return new CommandSourceStack(this, vec3d, vec2f, world, i, s, component, server, entity);
     }

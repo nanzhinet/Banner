@@ -19,9 +19,9 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerSynchronizer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftHumanEntity;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftInventory;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.event.Event;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -322,7 +322,7 @@ public abstract class MixinAbstractContainerMenu implements InjectionAbstractCon
                 }
                 // CraftBukkit end
             }
-        } else if (inventoryclicktype == ClickType.SWAP) {
+        } else if (inventoryclicktype == ClickType.SWAP && (j >= 0 && j < 9 || j == 40)) {
             Slot slot2 = this.slots.get(i);
             ItemStack itemstack1 = playerinventory.getItem(j);
             ItemStack itemstack = slot2.getItem();
