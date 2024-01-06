@@ -411,7 +411,6 @@ accessible field net/minecraft/world/entity/projectile/FishingHook currentState 
 accessible field net/minecraft/world/entity/projectile/FishingHook hookedIn Lnet/minecraft/world/entity/Entity;
 accessible field net/minecraft/world/entity/projectile/LargeFireball explosionPower I
 accessible field net/minecraft/world/entity/projectile/SpectralArrow duration I
-accessible field net/minecraft/world/entity/projectile/ThrownTrident tridentItem Lnet/minecraft/world/item/ItemStack;
 accessible field net/minecraft/world/entity/projectile/Arrow effects Ljava/util/Set;
 accessible field net/minecraft/world/entity/raid/Raids raidMap Ljava/util/Map;
 accessible field net/minecraft/world/entity/raid/Raid badOmenLevel I
