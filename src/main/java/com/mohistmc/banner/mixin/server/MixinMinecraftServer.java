@@ -302,9 +302,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
             this.statusIcon = (ServerStatus.Favicon)this.loadStatusIcon().orElse(null);
             this.status = this.buildServerStatus();
 
-            // Spigot start
-            Arrays.fill( recentTps, 20 );
-            long tickSection = Util.getNanos(), curTime, tickCount = 1; // Paper
             while(this.running) {
                 long l;
                 if (!this.isPaused() && this.tickRateManager.isSprinting() && this.tickRateManager.checkShouldSprintThisTick()) {
@@ -316,6 +313,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                     long m = Util.getNanos() - this.nextTickTimeNanos;
                     if (m > OVERLOADED_THRESHOLD_NANOS + 20L * l && this.nextTickTimeNanos - this.lastOverloadWarningNanos >= OVERLOADED_WARNING_INTERVAL_NANOS + 100L * l) {
                         long n = m / l;
+
                         if (server.getWarnOnOverload()) // CraftBukkit
                         LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", m / TimeUtil.NANOSECONDS_PER_MILLISECOND, n);
                         this.nextTickTimeNanos += n * l;
@@ -323,35 +321,13 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                     }
                 }
 
-                if ( ++currentTick % SAMPLE_INTERVAL == 0 )
-                {
-                    // Paper start
-                    curTime = Util.getNanos();
-                    final long diff = curTime - tickSection;
-                    BigDecimal currentTps = TPS_BASE.divide(new BigDecimal(diff), 30, RoundingMode.HALF_UP);
-                    tps5s.add(currentTps, diff); // Purpur
-                    tps1.add(currentTps, diff);
-                    tps5.add(currentTps, diff);
-                    tps15.add(currentTps, diff);
-                    // Backwards compat with bad plugins
-                    // Purpur start
-                    this.recentTps[0] = tps5s.getAverage();
-                    this.recentTps[1] = tps1.getAverage();
-                    this.recentTps[2] = tps5.getAverage();
-                    this.recentTps[3] = tps15.getAverage();
-                    // Purpur end
-                    // Paper end
-                    tickSection = curTime;
-                } else curTime = Util.getNanos(); // Paper
-                // Spigot end
                 boolean bl = l == 0L;
                 if (this.debugCommandProfilerDelayStart) {
                     this.debugCommandProfilerDelayStart = false;
                     this.debugCommandProfiler = new MinecraftServer.TimeProfiler(Util.getNanos(), this.tickCount);
                 }
 
-                // MinecraftServer.currentTick = (int) (System.currentTimeMillis() / 50); // CraftBukkit // Paper - don't overwrite current tick time
-                lastTick = curTime; // Paper
+                currentTick = (int) (System.currentTimeMillis() / 50); // CraftBukkit
                 this.nextTickTimeNanos += l;
                 this.startMetricsRecordingTick();
                 this.profiler.push("tick");
@@ -394,7 +370,6 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                     this.services.profileCache().clearExecutor();
                 }
 
-                WatchdogThread.doStop(); // Spigot
                 this.onServerExit();
             }
 
