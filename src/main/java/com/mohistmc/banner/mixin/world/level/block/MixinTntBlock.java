@@ -50,8 +50,8 @@ public class MixinTntBlock {
     }
 
     @Inject(method = "playerWillDestroy", at = @At("HEAD"))
-    private void banner$getTntInfo(Level level, BlockPos pos, BlockState state, Player player, CallbackInfo ci) {
-        banner$originPos.set(pos);
+    private void banner$getTntInfo(Level level, BlockPos blockPos, BlockState blockState, Player player, CallbackInfoReturnable<BlockState> cir) {
+        banner$originPos.set(blockPos);
         banner$useTntPlayer.set(player);
     }
 
