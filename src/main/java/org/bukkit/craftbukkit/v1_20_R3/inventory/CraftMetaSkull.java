@@ -190,11 +190,11 @@ class CraftMetaSkull extends CraftMetaItem implements SkullMeta {
     @Override
     public OfflinePlayer getOwningPlayer() {
         if (hasOwner()) {
-            if (!profile.getId().equals(Util.NIL_UUID)) {
+            if (profile.getId() != null) {
                 return Bukkit.getOfflinePlayer(profile.getId());
             }
 
-            if (!profile.getName().isEmpty()) {
+            if (profile.getName() != null) {
                 return Bukkit.getOfflinePlayer(profile.getName());
             }
         }
