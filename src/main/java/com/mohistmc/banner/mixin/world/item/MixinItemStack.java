@@ -344,7 +344,7 @@ public abstract class MixinItemStack implements InjectionItemStack {
                                 record.setCount(1);
                             }
 
-                            tileentityjukebox.setFirstItem(record);
+                            tileentityjukebox.setTheItem(record);
                             world.gameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Context.of(player, world.getBlockState(blockPos)));
                         }
 

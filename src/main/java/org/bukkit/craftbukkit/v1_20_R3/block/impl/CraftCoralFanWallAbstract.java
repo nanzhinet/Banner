@@ -13,7 +13,7 @@ public final class CraftCoralFanWallAbstract extends org.bukkit.craftbukkit.v1_2
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.BaseCoralWallFanBlock.class, "facing");
 
@@ -32,7 +32,7 @@ public final class CraftCoralFanWallAbstract extends org.bukkit.craftbukkit.v1_2
         return getValues(FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.BaseCoralWallFanBlock.class, "waterlogged");
 

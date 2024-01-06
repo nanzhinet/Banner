@@ -3,6 +3,10 @@ package org.bukkit.craftbukkit.v1_20_R3.inventory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap.Builder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import org.bukkit.Color;
@@ -15,11 +19,6 @@ import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftMetaItem.ItemMetaKey.Speci
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftMetaItem.SerializableMeta;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.inventory.meta.FireworkMeta;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 @DelegateDeserialization(SerializableMeta.class)
 class CraftMetaFirework extends CraftMetaItem implements FireworkMeta {
@@ -199,7 +198,7 @@ class CraftMetaFirework extends CraftMetaItem implements FireworkMeta {
 
         List<FireworkEffect> effects = this.effects;
         if (effects == null) {
-            effects = this.effects = new ArrayList<FireworkEffect>();
+            effects = this.effects = new ArrayList<>();
         }
 
         for (Object obj : collection) {

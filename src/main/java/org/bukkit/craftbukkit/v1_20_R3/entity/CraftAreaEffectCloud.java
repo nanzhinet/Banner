@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.v1_20_R3.entity;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import org.bukkit.Color;
@@ -9,15 +10,16 @@ import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_20_R3.CraftParticle;
 import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionEffectType;
+import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionType;
 import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionUtil;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.bukkit.projectiles.ProjectileSource;
-
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud {
 
@@ -107,7 +109,7 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
 
     @Override
     public Particle getParticle() {
-        return CraftParticle.toBukkit(getHandle().getParticle());
+        return CraftParticle.minecraftToBukkit(getHandle().getParticle().getType());
     }
 
     @Override
@@ -117,7 +119,12 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
 
     @Override
     public <T> void setParticle(Particle particle, T data) {
-        getHandle().setParticle(CraftParticle.toNMS(particle, data));
+        particle = CraftParticle.convertLegacy(particle);
+        data = CraftParticle.convertLegacy(data);
+        if (data != null) {
+            Preconditions.checkArgument(particle.getDataType().isInstance(data), "data (%s) should be %s", data.getClass(), particle.getDataType());
+        }
+        getHandle().setParticle(CraftParticle.createParticleParam(particle, data));
     }
 
     @Override
@@ -146,14 +153,14 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
             getHandle().effects.remove(existing);
         }
         getHandle().addEffect(CraftPotionUtil.fromBukkit(effect));
-        getHandle().refreshEffects();
+        getHandle().updateColor();
         return true;
     }
 
     @Override
     public void clearCustomEffects() {
         getHandle().effects.clear();
-        getHandle().refreshEffects();
+        getHandle().updateColor();
     }
 
     @Override
@@ -193,19 +200,33 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
             return false;
         }
         getHandle().effects.remove(existing);
-        getHandle().refreshEffects();
+        getHandle().updateColor();
         return true;
     }
 
     @Override
     public void setBasePotionData(PotionData data) {
         Preconditions.checkArgument(data != null, "PotionData cannot be null");
-        getHandle().setPotionType(CraftPotionUtil.fromBukkit(data));
+        getHandle().setPotion(CraftPotionType.bukkitToMinecraft(CraftPotionUtil.fromBukkit(data)));
     }
 
     @Override
     public PotionData getBasePotionData() {
-        return CraftPotionUtil.toBukkit(getHandle().getPotionType());
+        return CraftPotionUtil.toBukkit(CraftPotionType.minecraftToBukkit(getHandle().getPotion()));
+    }
+
+    @Override
+    public void setBasePotionType(@NotNull PotionType potionType) {
+        // TODO: 10/6/23 Change PotionType.UNCRAFTABLE to PotionType.EMPTY in error message
+        Preconditions.checkArgument(potionType != null, "PotionType cannot be null use PotionType.UNCRAFTABLE to represent no effect instead.");
+
+        getHandle().setPotion(CraftPotionType.bukkitToMinecraft(potionType));
+    }
+
+    @NotNull
+    @Override
+    public PotionType getBasePotionType() {
+        return CraftPotionType.minecraftToBukkit(getHandle().getPotion());
     }
 
     @Override

@@ -13,7 +13,7 @@ public final class CraftRotatable extends org.bukkit.craftbukkit.v1_20_R3.block.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftOrientable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftOrientable
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> AXIS = getEnum(net.minecraft.world.level.block.RotatedPillarBlock.class, "axis");
 

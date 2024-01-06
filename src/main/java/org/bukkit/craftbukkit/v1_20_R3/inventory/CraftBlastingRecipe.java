@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R3.inventory;
 
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;

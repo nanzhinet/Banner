@@ -13,7 +13,7 @@ public final class CraftStem extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftAgeable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftAgeable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty AGE = getInteger(net.minecraft.world.level.block.StemBlock.class, "age");
 

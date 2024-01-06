@@ -4,7 +4,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.bukkit.entity.Sheep;
 
-public class CraftSheep extends CraftAnimals implements Sheep, io.papermc.paper.entity.PaperShearable { // Paper
+public class CraftSheep extends CraftAnimals implements Sheep {
     public CraftSheep(CraftServer server, net.minecraft.world.entity.animal.Sheep entity) {
         super(server, entity);
     }

@@ -43,6 +43,7 @@ import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MerchantMenu;
+import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
@@ -100,6 +101,7 @@ import org.bukkit.entity.Bat;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Explosive;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Fish;
 import org.bukkit.entity.HumanEntity;
@@ -155,6 +157,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityEnterLoveModeEvent;
 import org.bukkit.event.entity.EntityExhaustionEvent;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityPlaceEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -169,6 +172,7 @@ import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.EntityToggleSwimEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.entity.ExpBottleEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.HorseJumpEvent;
@@ -209,6 +213,7 @@ import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerRecipeBookClickEvent;
+import org.bukkit.event.player.PlayerRecipeBookSettingsChangeEvent;
 import org.bukkit.event.player.PlayerRecipeDiscoverEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerSignOpenEvent;
@@ -796,19 +801,45 @@ public class CraftEventFactory {
     /**
      * PotionSplashEvent
      */
-    public static PotionSplashEvent callPotionSplashEvent(ThrownPotion potion, Map<org.bukkit.entity.LivingEntity, Double> affectedEntities) {
+    public static PotionSplashEvent callPotionSplashEvent(ThrownPotion potion, HitResult position, Map<org.bukkit.entity.LivingEntity, Double> affectedEntities) {
         org.bukkit.entity.ThrownPotion thrownPotion = (org.bukkit.entity.ThrownPotion) potion.getBukkitEntity();
 
-        PotionSplashEvent event = new PotionSplashEvent(thrownPotion, affectedEntities);
+        Block hitBlock = null;
+        BlockFace hitFace = null;
+        if (position.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult positionBlock = (BlockHitResult) position;
+            hitBlock = CraftBlock.at(potion.level(), positionBlock.getBlockPos());
+            hitFace = CraftBlock.notchToBlockFace(positionBlock.getDirection());
+        }
+
+        org.bukkit.entity.Entity hitEntity = null;
+        if (position.getType() == HitResult.Type.ENTITY) {
+            hitEntity = ((EntityHitResult) position).getEntity().getBukkitEntity();
+        }
+
+        PotionSplashEvent event = new PotionSplashEvent(thrownPotion, hitEntity, hitBlock, hitFace, affectedEntities);
         Bukkit.getPluginManager().callEvent(event);
         return event;
     }
 
-    public static LingeringPotionSplashEvent callLingeringPotionSplashEvent(ThrownPotion potion, net.minecraft.world.entity.AreaEffectCloud cloud) {
+    public static LingeringPotionSplashEvent callLingeringPotionSplashEvent(ThrownPotion potion, HitResult position, net.minecraft.world.entity.AreaEffectCloud cloud) {
         org.bukkit.entity.ThrownPotion thrownPotion = (org.bukkit.entity.ThrownPotion) potion.getBukkitEntity();
         AreaEffectCloud effectCloud = (AreaEffectCloud) cloud.getBukkitEntity();
 
-        LingeringPotionSplashEvent event = new LingeringPotionSplashEvent(thrownPotion, effectCloud);
+        Block hitBlock = null;
+        BlockFace hitFace = null;
+        if (position.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult positionBlock = (BlockHitResult) position;
+            hitBlock = CraftBlock.at(potion.level(), positionBlock.getBlockPos());
+            hitFace = CraftBlock.notchToBlockFace(positionBlock.getDirection());
+        }
+
+        org.bukkit.entity.Entity hitEntity = null;
+        if (position.getType() == HitResult.Type.ENTITY) {
+            hitEntity = ((EntityHitResult) position).getEntity().getBukkitEntity();
+        }
+
+        LingeringPotionSplashEvent event = new LingeringPotionSplashEvent(thrownPotion, hitEntity, hitBlock, hitFace, effectCloud);
         Bukkit.getPluginManager().callEvent(event);
         return event;
     }
@@ -1119,9 +1150,10 @@ public class CraftEventFactory {
 
         if (cause != null) {
             return callEntityDamageEvent(null, entity, cause, modifiers, modifierFunctions, cancelled);
+        } else {
+            return new EntityDamageEvent(entity.getBukkitEntity(), DamageCause.CUSTOM, modifiers, modifierFunctions);
         }
 
-        throw new IllegalStateException(String.format("Unhandled damage of %s from %s", entity, source.getMsgId()));
     }
 
     private static EntityDamageEvent callEntityDamageEvent(Entity damager, Entity damagee, DamageCause cause, Map<DamageModifier, Double> modifiers, Map<DamageModifier, Function<? super Double, Double>> modifierFunctions) {
@@ -1217,6 +1249,14 @@ public class CraftEventFactory {
     public static PlayerExpCooldownChangeEvent callPlayerXpCooldownEvent(net.minecraft.world.entity.player.Player entity, int newCooldown, PlayerExpCooldownChangeEvent.ChangeReason changeReason) {
         Player player = (Player) entity.getBukkitEntity();
         PlayerExpCooldownChangeEvent event = new PlayerExpCooldownChangeEvent(player, newCooldown, changeReason);
+        Bukkit.getPluginManager().callEvent(event);
+        return event;
+    }
+
+    public static PlayerItemMendEvent callPlayerItemMendEvent(net.minecraft.world.entity.player.Player  entity, net.minecraft.world.entity.ExperienceOrb orb, net.minecraft.world.item.ItemStack nmsMendedItem, net.minecraft.world.entity.EquipmentSlot slot, int repairAmount, java.util.function.IntUnaryOperator durabilityToXpOp) { // Paper
+        Player player = (Player) entity.getBukkitEntity();
+        org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asCraftMirror(nmsMendedItem);
+        PlayerItemMendEvent event = new PlayerItemMendEvent(player, bukkitStack, CraftEquipmentSlot.getSlot(slot), (ExperienceOrb) orb.getBukkitEntity(), repairAmount, durabilityToXpOp); // Paper
         Bukkit.getPluginManager().callEvent(event);
         return event;
     }
@@ -1415,9 +1455,22 @@ public class CraftEventFactory {
         return event;
     }
 
-    public static ExpBottleEvent callExpBottleEvent(Entity entity, int exp) {
+    public static ExpBottleEvent callExpBottleEvent(Entity entity, HitResult position, int exp) {
         ThrownExpBottle bottle = (ThrownExpBottle) entity.getBukkitEntity();
-        ExpBottleEvent event = new ExpBottleEvent(bottle, exp);
+        Block hitBlock = null;
+        BlockFace hitFace = null;
+        if (position.getType() == HitResult.Type.BLOCK) {
+            BlockHitResult positionBlock = (BlockHitResult) position;
+            hitBlock = CraftBlock.at(entity.level(), positionBlock.getBlockPos());
+            hitFace = CraftBlock.notchToBlockFace(positionBlock.getDirection());
+        }
+
+        org.bukkit.entity.Entity hitEntity = null;
+        if (position.getType() == HitResult.Type.ENTITY) {
+            hitEntity = ((EntityHitResult) position).getEntity().getBukkitEntity();
+        }
+
+        ExpBottleEvent event = new ExpBottleEvent(bottle, hitEntity, hitBlock, hitFace, exp);
         Bukkit.getPluginManager().callEvent(event);
         return event;
     }
@@ -1528,10 +1581,17 @@ public class CraftEventFactory {
                 }
                 CraftMetaBook meta = (CraftMetaBook) editBookEvent.getNewBookMeta();
                 CraftItemStack.setItemMeta(itemInHand, meta);
+            } else {
+                player.getBukkitEntity().updateInventory(); // SPIGOT-7484
             }
         }
 
         return itemInHand;
+    }
+
+    public static void callRecipeBookSettingsEvent(ServerPlayer player, RecipeBookType type, boolean open, boolean filter) {
+        PlayerRecipeBookSettingsChangeEvent.RecipeBookType bukkitType = PlayerRecipeBookSettingsChangeEvent.RecipeBookType.values()[type.ordinal()];
+        Bukkit.getPluginManager().callEvent(new PlayerRecipeBookSettingsChangeEvent(player.getBukkitEntity(), bukkitType, open, filter));
     }
 
     public static PlayerUnleashEntityEvent callPlayerUnleashEntityEvent(Mob entity, net.minecraft.world.entity.player.Player player, InteractionHand enumhand) {
@@ -1905,6 +1965,25 @@ public class CraftEventFactory {
 
         Bukkit.getPluginManager().callEvent(event);
 
+        return event;
+    }
+
+    public static boolean callEntityInteractEvent(Entity nmsEntity, Block block) {
+        EntityInteractEvent event = new EntityInteractEvent(nmsEntity.getBukkitEntity(), block);
+        Bukkit.getPluginManager().callEvent(event);
+
+        return !event.isCancelled();
+    }
+
+    public static ExplosionPrimeEvent callExplosionPrimeEvent(Explosive explosive) {
+        ExplosionPrimeEvent event = new ExplosionPrimeEvent(explosive);
+        Bukkit.getPluginManager().callEvent(event);
+        return event;
+    }
+
+    public static ExplosionPrimeEvent callExplosionPrimeEvent(Entity nmsEntity, float size, boolean fire) {
+        ExplosionPrimeEvent event = new ExplosionPrimeEvent(nmsEntity.getBukkitEntity(), size, fire);
+        Bukkit.getPluginManager().callEvent(event);
         return event;
     }
 }

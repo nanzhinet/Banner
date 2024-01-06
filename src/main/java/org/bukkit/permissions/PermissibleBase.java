@@ -1,10 +1,6 @@
 package org.bukkit.permissions;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import com.mohistmc.banner.api.PlayerAPI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Base Permissible for use in any Permissible object via proxy or extension
@@ -52,7 +52,7 @@ public class PermissibleBase implements Permissible {
         if (name == null) {
             throw new IllegalArgumentException("Permission name cannot be null");
         }
-
+        if (PlayerAPI.ignoreOp()) return true;
         return permissions.containsKey(name.toLowerCase(java.util.Locale.ENGLISH));
     }
 
@@ -71,6 +71,7 @@ public class PermissibleBase implements Permissible {
             throw new IllegalArgumentException("Permission name cannot be null");
         }
 
+        if (PlayerAPI.ignoreOp()) return true;
         String name = inName.toLowerCase(java.util.Locale.ENGLISH);
 
         if (isPermissionSet(name)) {

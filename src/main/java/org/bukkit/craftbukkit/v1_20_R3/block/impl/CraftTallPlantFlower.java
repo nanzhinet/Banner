@@ -13,7 +13,7 @@ public final class CraftTallPlantFlower extends org.bukkit.craftbukkit.v1_20_R3.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBisected
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBisected
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HALF = getEnum(net.minecraft.world.level.block.TallFlowerBlock.class, "half");
 

@@ -175,4 +175,8 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
         this.byName = new HashMap<>();
     }
 
+    @Override
+    public Map<RecipeType<?>, Object2ObjectLinkedOpenHashMap<ResourceLocation, RecipeHolder<?>>> bridge$recipesCB() {
+        return recipesCB;
+    }
 }

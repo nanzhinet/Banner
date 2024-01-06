@@ -13,7 +13,7 @@ public final class CraftNote extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftNoteBlock
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftNoteBlock
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> INSTRUMENT = getEnum(net.minecraft.world.level.block.NoteBlock.class, "instrument");
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty NOTE = getInteger(net.minecraft.world.level.block.NoteBlock.class, "note");
@@ -38,7 +38,7 @@ public final class CraftNote extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         set(NOTE, (int) note.getId());
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.NoteBlock.class, "powered");
 

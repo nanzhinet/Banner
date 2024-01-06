@@ -1,6 +1,13 @@
 package org.bukkit.craftbukkit.v1_20_R3.generator;
 
 import com.google.common.base.Preconditions;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -24,14 +31,6 @@ import org.bukkit.generator.LimitedRegion;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class CraftLimitedRegion extends CraftRegionAccessor implements LimitedRegion {
 
@@ -116,11 +115,11 @@ public class CraftLimitedRegion extends CraftRegionAccessor implements LimitedRe
             if (entity.isAlive()) {
                 // check if entity is still in region or if it got teleported outside it
                 Preconditions.checkState(region.contains(entity.getX(), entity.getY(), entity.getZ()), "Entity %s is not in the region", entity);
-                access.addFreshEntity(entity);
+                access.addFreshEntityWithPassengers(entity);
             }
         }
         for (net.minecraft.world.entity.Entity entity : outsideEntities) {
-            access.addFreshEntity(entity);
+            access.addFreshEntityWithPassengers(entity);
         }
     }
 
@@ -227,13 +226,13 @@ public class CraftLimitedRegion extends CraftRegionAccessor implements LimitedRe
     }
 
     @Override
-    public boolean generateTree(Location location, Random random, TreeType treeType, Consumer<BlockState> consumer) {
+    public boolean generateTree(Location location, Random random, TreeType treeType, Consumer<? super BlockState> consumer) {
         Preconditions.checkArgument(isInRegion(location), "Coordinates %s, %s, %s are not in the region", location.getBlockX(), location.getBlockY(), location.getBlockZ());
         return super.generateTree(location, random, treeType, consumer);
     }
 
     @Override
-    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType type, @Nullable Predicate<BlockState> statePredicate) {
+    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType type, @Nullable Predicate<? super BlockState> statePredicate) {
         return false;
     }
 
@@ -245,13 +244,18 @@ public class CraftLimitedRegion extends CraftRegionAccessor implements LimitedRe
     }
 
     @Override
-    public <T extends Entity> T spawn(Location location, Class<T> clazz, Consumer<T> function, CreatureSpawnEvent.SpawnReason reason) throws IllegalArgumentException {
+    public <T extends Entity> T spawn(Location location, Class<T> clazz, Consumer<? super T> function, CreatureSpawnEvent.SpawnReason reason) throws IllegalArgumentException {
         Preconditions.checkArgument(isInRegion(location), "Coordinates %s, %s, %s are not in the region", location.getBlockX(), location.getBlockY(), location.getBlockZ());
         return super.spawn(location, clazz, function, reason);
     }
 
     @Override
     public void addEntityToWorld(net.minecraft.world.entity.Entity entity, CreatureSpawnEvent.SpawnReason reason) {
+        entities.add(entity);
+    }
+
+    @Override
+    public void addEntityWithPassengers(net.minecraft.world.entity.Entity entity, CreatureSpawnEvent.SpawnReason reason) {
         entities.add(entity);
     }
 }

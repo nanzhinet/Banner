@@ -13,7 +13,7 @@ public final class CraftGlazedTerracotta extends org.bukkit.craftbukkit.v1_20_R3
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.GlazedTerracottaBlock.class, "facing");
 

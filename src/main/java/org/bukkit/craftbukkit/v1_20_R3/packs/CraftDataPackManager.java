@@ -1,22 +1,21 @@
 package org.bukkit.craftbukkit.v1_20_R3.packs;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockType;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntityType;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemType;
 import org.bukkit.entity.EntityType;
 import org.bukkit.packs.DataPack;
 import org.bukkit.packs.DataPackManager;
-
-import java.util.Collection;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class CraftDataPackManager implements DataPackManager {
 
@@ -82,9 +81,9 @@ public class CraftDataPackManager implements DataPackManager {
 
         CraftWorld craftWorld = ((CraftWorld) world);
         if (material.isItem()) {
-            return CraftMagicNumbers.getItem(material).isEnabled(craftWorld.getHandle().enabledFeatures());
+            return CraftItemType.bukkitToMinecraft(material).isEnabled(craftWorld.getHandle().enabledFeatures());
         } else if (material.isBlock()) {
-            return CraftMagicNumbers.getBlock(material).isEnabled(craftWorld.getHandle().enabledFeatures());
+            return CraftBlockType.bukkitToMinecraft(material).isEnabled(craftWorld.getHandle().enabledFeatures());
         }
         return false;
     }
@@ -96,7 +95,7 @@ public class CraftDataPackManager implements DataPackManager {
         Preconditions.checkArgument(entityType != EntityType.UNKNOWN, "EntityType.UNKNOWN its not allowed here");
 
         CraftWorld craftWorld = ((CraftWorld) world);
-        net.minecraft.world.entity.EntityType<?> nmsEntity = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(entityType.getKey().getKey()));
+        net.minecraft.world.entity.EntityType<?> nmsEntity = CraftEntityType.bukkitToMinecraft(entityType);
         return nmsEntity.isEnabled(craftWorld.getHandle().enabledFeatures());
     }
 }

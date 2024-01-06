@@ -1,11 +1,15 @@
 package org.bukkit.craftbukkit.v1_20_R3;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
@@ -21,11 +25,6 @@ import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
 
 public class CraftLootTable implements org.bukkit.loot.LootTable {
 
@@ -44,7 +43,7 @@ public class CraftLootTable implements org.bukkit.loot.LootTable {
     @Override
     public Collection<ItemStack> populateLoot(Random random, LootContext context) {
         Preconditions.checkArgument(context != null, "LootContext cannot be null");
-        LootParams nmsContext = convertContext(context, random);
+        net.minecraft.world.level.storage.loot.LootParams nmsContext = convertContext(context, random);
         List<net.minecraft.world.item.ItemStack> nmsItems = handle.getRandomItems(nmsContext);
         Collection<ItemStack> bukkit = new ArrayList<>(nmsItems.size());
 
@@ -67,7 +66,7 @@ public class CraftLootTable implements org.bukkit.loot.LootTable {
         Container handle = craftInventory.getInventory();
 
         // TODO: When events are added, call event here w/ custom reason?
-        getHandle().fillInventory(handle, nmsContext, random.nextLong(), true);
+        getHandle().fillInventory(handle, nmsContext,random.nextLong(), true);
     }
 
     @Override
@@ -80,9 +79,10 @@ public class CraftLootTable implements org.bukkit.loot.LootTable {
         Location loc = context.getLocation();
         Preconditions.checkArgument(loc.getWorld() != null, "LootContext.getLocation#getWorld cannot be null");
         ServerLevel handle = ((CraftWorld) loc.getWorld()).getHandle();
+
         net.minecraft.world.level.storage.loot.LootParams.Builder builder = new net.minecraft.world.level.storage.loot.LootParams.Builder(handle);
         if (random != null) {
-           // builder = builder.withRandom(new RandomSourceWrapper(random)); // Banner TODO
+            // builder = builder.withRandom(new RandomSourceWrapper(random));
         }
         setMaybe(builder, LootContextParams.ORIGIN, CraftLocation.toVec3D(loc));
         if (getHandle() != LootTable.EMPTY) {

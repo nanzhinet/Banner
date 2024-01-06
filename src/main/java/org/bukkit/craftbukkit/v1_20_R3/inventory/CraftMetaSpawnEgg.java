@@ -1,19 +1,21 @@
 package org.bukkit.craftbukkit.v1_20_R3.inventory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntitySnapshot;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftLegacy;
+import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 import org.bukkit.material.MaterialData;
-
-import java.util.Map;
-import java.util.Set;
 
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
 public class CraftMetaSpawnEgg extends CraftMetaItem implements SpawnEggMeta {
@@ -24,6 +26,7 @@ public class CraftMetaSpawnEgg extends CraftMetaItem implements SpawnEggMeta {
             Material.BAT_SPAWN_EGG,
             Material.BEE_SPAWN_EGG,
             Material.BLAZE_SPAWN_EGG,
+            Material.BREEZE_SPAWN_EGG,
             Material.CAT_SPAWN_EGG,
             Material.CAMEL_SPAWN_EGG,
             Material.CAVE_SPIDER_SPAWN_EGG,
@@ -215,6 +218,16 @@ public class CraftMetaSpawnEgg extends CraftMetaItem implements SpawnEggMeta {
     @Override
     public void setSpawnedType(EntityType type) {
         throw new UnsupportedOperationException("Must change item type to set spawned type");
+    }
+
+    @Override
+    public EntitySnapshot getSpawnedEntity() {
+        return CraftEntitySnapshot.create(this.entityTag);
+    }
+    @Override
+    public void setSpawnedEntity(EntitySnapshot snapshot) {
+        Preconditions.checkArgument(snapshot.getEntityType().isSpawnable(), "Entity is not spawnable");
+        this.entityTag = ((CraftEntitySnapshot) snapshot).getData();
     }
 
     @Override

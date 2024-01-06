@@ -1,15 +1,13 @@
 package org.bukkit.craftbukkit.v1_20_R3.command;
 
-import com.mohistmc.banner.bukkit.BukkitExtraConstants;
-import jline.console.completer.Completer;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.util.Waitable;
-import org.bukkit.event.server.TabCompleteEvent;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import jline.console.completer.Completer;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.util.Waitable;
+import org.bukkit.event.server.TabCompleteEvent;
 
 public class ConsoleCommandCompleter implements Completer {
     private final CraftServer server;
@@ -31,7 +29,7 @@ public class ConsoleCommandCompleter implements Completer {
                 return tabEvent.isCancelled() ? Collections.EMPTY_LIST : tabEvent.getCompletions();
             }
         };
-        BukkitExtraConstants.bridge$processQueue.add(waitable);
+        this.server.getServer().bridge$processQueue().add(waitable);
         try {
             List<String> offers = waitable.get();
             if (offers == null) {

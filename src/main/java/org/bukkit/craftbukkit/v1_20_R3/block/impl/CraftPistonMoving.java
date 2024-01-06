@@ -13,7 +13,7 @@ public final class CraftPistonMoving extends org.bukkit.craftbukkit.v1_20_R3.blo
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftTechnicalPiston
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftTechnicalPiston
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> TYPE = getEnum(net.minecraft.world.level.block.piston.MovingPistonBlock.class, "type");
 
@@ -27,7 +27,7 @@ public final class CraftPistonMoving extends org.bukkit.craftbukkit.v1_20_R3.blo
         set(TYPE, type);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.piston.MovingPistonBlock.class, "facing");
 

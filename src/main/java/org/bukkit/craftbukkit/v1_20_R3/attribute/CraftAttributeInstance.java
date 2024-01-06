@@ -1,14 +1,14 @@
 package org.bukkit.craftbukkit.v1_20_R3.attribute;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlot;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 public class CraftAttributeInstance implements AttributeInstance {
 
@@ -51,14 +51,6 @@ public class CraftAttributeInstance implements AttributeInstance {
         handle.addPermanentModifier(convert(modifier));
     }
 
-    // Paper start - Transient modifier API
-    @Override
-    public void addTransientModifier(AttributeModifier modifier) {
-        Preconditions.checkArgument(modifier != null, "modifier");
-        this.handle.addTransientModifier(CraftAttributeInstance.convert(modifier));
-    }
-    // Paper end
-
     @Override
     public void removeModifier(AttributeModifier modifier) {
         Preconditions.checkArgument(modifier != null, "modifier");
@@ -80,10 +72,18 @@ public class CraftAttributeInstance implements AttributeInstance {
     }
 
     public static AttributeModifier convert(net.minecraft.world.entity.ai.attributes.AttributeModifier nms) {
-        return new AttributeModifier(nms.getId(), nms.getName(), nms.getAmount(), AttributeModifier.Operation.values()[nms.getOperation().ordinal()]);
+        return new AttributeModifier(nms.getId(), nms.name, nms.getAmount(), AttributeModifier.Operation.values()[nms.getOperation().ordinal()]);
     }
 
     public static AttributeModifier convert(net.minecraft.world.entity.ai.attributes.AttributeModifier nms, EquipmentSlot slot) {
-        return new AttributeModifier(nms.getId(), nms.getName(), nms.getAmount(), AttributeModifier.Operation.values()[nms.getOperation().ordinal()], slot);
+        return new AttributeModifier(nms.getId(), nms.name, nms.getAmount(), AttributeModifier.Operation.values()[nms.getOperation().ordinal()], slot);
     }
+
+    // Paper start - Transient modifier API
+    @Override
+    public void addTransientModifier(AttributeModifier modifier) {
+        Preconditions.checkArgument(modifier != null, "modifier");
+        this.handle.addTransientModifier(CraftAttributeInstance.convert(modifier));
+    }
+    // Paper end
 }

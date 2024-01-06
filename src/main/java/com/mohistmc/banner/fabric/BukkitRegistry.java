@@ -5,7 +5,6 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.mohistmc.banner.BannerServer;
 import com.mohistmc.banner.api.ServerAPI;
-import com.mohistmc.banner.bukkit.type.BannerPotionEffect;
 import com.mohistmc.banner.util.I18n;
 import com.mohistmc.dynamicenum.MohistDynamEnum;
 
@@ -17,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -44,6 +44,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 import org.bukkit.Art;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -87,6 +88,8 @@ public class BukkitRegistry {
     public static Map<org.bukkit.attribute.Attribute, ResourceLocation> attributemap = new HashMap<>();
     public static Map<StatType<?>, Statistic> statisticMap = new HashMap<>();
     public static Map<net.minecraft.world.level.biome.Biome, Biome> biomeBiomeMap = new HashMap<>();
+    public static Map<NamespacedKey, EntityType> entityTypeMap = new HashMap<>();
+    public static Map<NamespacedKey, Particle> particleMap = new HashMap<>();
 
     public static void registerAll(DedicatedServer console) {
         loadItems();
@@ -102,6 +105,7 @@ public class BukkitRegistry {
         loadEndDragonPhase();
         loadCookingBookCategory();
         loadFluids();
+        loadParticles();
     }
 
     public static void loadItems() {
@@ -246,6 +250,23 @@ public class BukkitRegistry {
         }
     }
 
+    public static void loadParticles() {
+        var registry = BuiltInRegistries.PARTICLE_TYPE;
+        for (ParticleType<?> particleType : BuiltInRegistries.PARTICLE_TYPE) {
+            ResourceLocation resourceLocation = registry.getKey(particleType);
+            String name = normalizeName(resourceLocation.toString());
+            if (!resourceLocation.getNamespace().equals(NamespacedKey.MINECRAFT)) {
+                NamespacedKey namespacedKey = CraftNamespacedKey.fromMinecraft(resourceLocation);
+                Particle particle = MohistDynamEnum.addEnum(Particle.class, name, List.of(String.class), List.of(namespacedKey.toString()));
+                if (particle != null) {
+                    particle.key = namespacedKey;
+                    particleMap.put(namespacedKey, particle);
+                    BannerServer.LOGGER.debug("Save-ParticleType:" + name + " - " + particle.name());
+                }
+            }
+        }
+    }
+
     private static void loadBiomes(DedicatedServer console) {
         List<String> map = new ArrayList<>();
         var registry = console.registryAccess().registryOrThrow(Registries.BIOME);
@@ -302,6 +323,7 @@ public class BukkitRegistry {
                 int typeId = entityType.hashCode();
                 EntityType bukkitType = MohistDynamEnum.addEnum(EntityType.class, entityType, List.of(String.class, Class.class, Integer.TYPE, Boolean.TYPE), List.of(entityType.toLowerCase(), Entity.class, typeId, false));
                 bukkitType.key = key;
+                entityTypeMap.put(key, bukkitType);
                 EntityType.NAME_MAP.put(entityType.toLowerCase(), bukkitType);
                 EntityType.ID_MAP.put((short) typeId, bukkitType);
                 ServerAPI.entityTypeMap.put(entity, entityType);
@@ -313,17 +335,20 @@ public class BukkitRegistry {
     }
 
     private static void loadEnchantments() {
+        /*
         for (net.minecraft.world.item.enchantment.Enchantment enc : BuiltInRegistries.ENCHANTMENT) {
             try {
-                Enchantment.registerEnchantment(new CraftEnchantment(enc));
+                Enchantment.getByKey(new CraftEnchantment(enc));
             } catch (Exception e) {
                 BannerServer.LOGGER.error("Failed to register enchantment {}: {}", enc, e);
             }
         }
         Enchantment.stopAcceptingRegistrations();
+        */
     }
 
     private static void loadPotions() {
+        /*
         for (MobEffect eff : BuiltInRegistries.MOB_EFFECT) {
             try {
                 var location = BuiltInRegistries.MOB_EFFECT.getKey(eff);
@@ -347,7 +372,7 @@ public class BukkitRegistry {
                     BannerServer.LOGGER.debug("Registered {} as potion type {}", location, potionType);
                 }
             }
-        }
+        }*/
     }
 
     public static String normalizeName(String name) {

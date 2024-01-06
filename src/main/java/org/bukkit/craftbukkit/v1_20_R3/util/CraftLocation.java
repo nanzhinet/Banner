@@ -22,20 +22,19 @@ public final class CraftLocation {
         return new Location(world, vec3D.x(), vec3D.y(), vec3D.z(), yaw, pitch);
     }
 
-    public static Location toBukkit(BlockPos BlockPos) {
-        return toBukkit(BlockPos,  (World) null);
+    public static Location toBukkit(BlockPos blockPosition) {
+        return toBukkit(blockPosition, (World) null);
     }
-
     public static Location toBukkit(BlockPos blockPosition, net.minecraft.world.level.Level world) {
         return toBukkit(blockPosition, world.getWorld(), 0.0F, 0.0F);
     }
 
-    public static Location toBukkit(BlockPos BlockPos, World world) {
-        return toBukkit(BlockPos, world, 0.0F, 0.0F);
+    public static Location toBukkit(BlockPos blockPosition, World world) {
+        return toBukkit(blockPosition, world, 0.0F, 0.0F);
     }
 
-    public static Location toBukkit(BlockPos BlockPos, World world, float yaw, float pitch) {
-        return new Location(world, BlockPos.getX(), BlockPos.getY(), BlockPos.getZ(), yaw, pitch);
+    public static Location toBukkit(BlockPos blockPosition, World world, float yaw, float pitch) {
+        return new Location(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), yaw, pitch);
     }
 
     public static BlockPos toBlockPosition(Location location) {

@@ -37,12 +37,12 @@ public final class CraftPitcherCrop extends org.bukkit.craftbukkit.v1_20_R3.bloc
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HALF = getEnum(net.minecraft.world.level.block.PitcherCropBlock.class, "half");
 
     @Override
-    public org.bukkit.block.data.Bisected.Half getHalf() {
-        return get(HALF, org.bukkit.block.data.Bisected.Half.class);
+    public Half getHalf() {
+        return get(HALF, Half.class);
     }
 
     @Override
-    public void setHalf(org.bukkit.block.data.Bisected.Half half) {
+    public void setHalf(Half half) {
         set(HALF, half);
     }
 }

@@ -1,9 +1,8 @@
 package org.bukkit.craftbukkit.v1_20_R3.util;
 
+import java.util.Arrays;
 import org.bukkit.Material;
 import org.bukkit.material.MaterialData;
-
-import java.util.Arrays;
 
 /**
  * @deprecated legacy use only
@@ -44,7 +43,6 @@ public final class CraftLegacy {
             modern_values();
         }
         if (material.isLegacy()) {
-            // SPIGOT-4002: Fix for eclipse compiler manually compiling in default statements to lookupswitch
             throw new NoSuchFieldError("Legacy field ordinal: " + material);
         } else {
             int ordinal = material.ordinal();

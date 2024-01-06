@@ -24,7 +24,8 @@ public class CraftMerchantRecipe extends MerchantRecipe {
 
     public CraftMerchantRecipe(ItemStack result, int uses, int maxUses, boolean experienceReward, int experience, float priceMultiplier, int demand, int specialPrice) {
         super(result, uses, maxUses, experienceReward, experience, priceMultiplier, demand, specialPrice);
-        /**
+        // Banner TODO fixme
+        /*
         this.handle = new net.minecraft.world.item.trading.MerchantOffer(
                 net.minecraft.world.item.ItemStack.EMPTY,
                 net.minecraft.world.item.ItemStack.EMPTY,

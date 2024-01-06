@@ -1,16 +1,19 @@
 package org.bukkit.craftbukkit.v1_20_R3.inventory;
 
+import java.util.Map;
+import java.util.Optional;
+
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
-
-import java.util.Map;
 
 public class CraftShapedRecipe extends ShapedRecipe implements CraftRecipe {
     // TODO: Could eventually use this to add a matches() method or some such
@@ -58,6 +61,6 @@ public class CraftShapedRecipe extends ShapedRecipe implements CraftRecipe {
             }
         }
 
-        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(new RecipeHolder<>(CraftNamespacedKey.toMinecraft(this.getKey()), new net.minecraft.world.item.crafting.ShapedRecipe(this.getGroup(), CraftRecipe.getCategory(this.getCategory()), width, shape.length, data, CraftItemStack.asNMSCopy(this.getResult()))));
+        BukkitExtraConstants.getServer().getRecipeManager().addRecipe(new RecipeHolder<>(CraftNamespacedKey.toMinecraft(this.getKey()), new net.minecraft.world.item.crafting.ShapedRecipe(this.getGroup(), CraftRecipe.getCategory(this.getCategory()), new ShapedRecipePattern(width, shape.length, data, Optional.empty()), CraftItemStack.asNMSCopy(this.getResult()))));
     }
 }

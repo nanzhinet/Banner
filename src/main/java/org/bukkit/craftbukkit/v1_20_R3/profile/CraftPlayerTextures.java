@@ -5,15 +5,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.properties.Property;
-import org.bukkit.craftbukkit.v1_20_R3.util.JsonHelper;
-import org.bukkit.profile.PlayerTextures;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Objects;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.bukkit.craftbukkit.v1_20_R3.util.JsonHelper;
+import org.bukkit.profile.PlayerTextures;
 
 final class CraftPlayerTextures implements PlayerTextures {
 
@@ -252,7 +251,7 @@ final class CraftPlayerTextures implements PlayerTextures {
         // This produces a new textures property that does not contain any attributes that are specific to official
         // GameProfiles (such as the property signature, timestamp, profileId, playerName, etc.).
         // Information on the format of the textures property:
-        // * https://minecraft.fandom.com/wiki/Head#Item_data
+        // * https://minecraft.wiki/w/Head#Item_data
         // * https://wiki.vg/Mojang_API#UUID_to_Profile_and_Skin.2FCape
         // The order of Json object elements is important.
         JsonObject propertyData = new JsonObject();

@@ -13,7 +13,7 @@ public final class CraftTripwireHook extends org.bukkit.craftbukkit.v1_20_R3.blo
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftAttachable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftAttachable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty ATTACHED = getBoolean(net.minecraft.world.level.block.TripWireHookBlock.class, "attached");
 
@@ -27,7 +27,7 @@ public final class CraftTripwireHook extends org.bukkit.craftbukkit.v1_20_R3.blo
         set(ATTACHED, attached);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.TripWireHookBlock.class, "facing");
 
@@ -46,7 +46,7 @@ public final class CraftTripwireHook extends org.bukkit.craftbukkit.v1_20_R3.blo
         return getValues(FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.TripWireHookBlock.class, "powered");
 

@@ -13,7 +13,7 @@ public final class CraftPistonExtension extends org.bukkit.craftbukkit.v1_20_R3.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftPistonHead
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftPistonHead
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty SHORT = getBoolean(net.minecraft.world.level.block.piston.PistonHeadBlock.class, "short");
 
@@ -27,7 +27,7 @@ public final class CraftPistonExtension extends org.bukkit.craftbukkit.v1_20_R3.
         set(SHORT, _short);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftTechnicalPiston
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftTechnicalPiston
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> TYPE = getEnum(net.minecraft.world.level.block.piston.PistonHeadBlock.class, "type");
 
@@ -41,7 +41,7 @@ public final class CraftPistonExtension extends org.bukkit.craftbukkit.v1_20_R3.
         set(TYPE, type);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.piston.PistonHeadBlock.class, "facing");
 

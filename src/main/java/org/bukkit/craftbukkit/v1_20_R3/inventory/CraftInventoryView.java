@@ -1,7 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R3.inventory;
 
 import com.google.common.base.Preconditions;
-import com.mohistmc.banner.bukkit.BukkitContainer;
+import com.mohistmc.banner.bukkit.inventory.MohistModsInventory;
 import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,11 +30,9 @@ public class CraftInventoryView extends InventoryView {
         this.container = container;
         this.originalTitle = CraftChatMessage.fromComponent(container.getTitle());
         this.title = originalTitle;
-        // Banner - fix NPE
         if (container.slots.size() > this.countSlots()) {
-            this.viewing = BukkitContainer.createInv(((CraftHumanEntity) player).getHandle(), container);
+            this.viewing = new CraftInventory(new MohistModsInventory(container, ((CraftHumanEntity) player).getHandle()));
         }
-        // Banner - end
     }
 
     @Override
@@ -95,24 +93,23 @@ public class CraftInventoryView extends InventoryView {
         this.title = title;
     }
 
-    public static void sendInventoryTitleChange(InventoryView view, String title) {
-        Preconditions.checkArgument(view != null, "InventoryView cannot be null");
-        Preconditions.checkArgument(title != null, "Title cannot be null");
-        Preconditions.checkArgument(view.getPlayer() instanceof Player, "NPCs are not currently supported for this function");
-        Preconditions.checkArgument(view.getTopInventory().getType().isCreatable(), "Only creatable inventories can have their title changed");
-
-        final ServerPlayer entityPlayer = (ServerPlayer) ((CraftHumanEntity) view.getPlayer()).getHandle();
-        final int containerId = entityPlayer.containerMenu.containerId;
-        final MenuType<?> windowType = CraftContainer.getNotchInventoryType(view.getTopInventory());
-        entityPlayer.connection.send(new ClientboundOpenScreenPacket(containerId, windowType, CraftChatMessage.fromString(title)[0]));
-        ((Player) view.getPlayer()).updateInventory();
-    }
-
     public boolean isInTop(int rawSlot) {
         return rawSlot < viewing.getSize();
     }
 
     public AbstractContainerMenu getHandle() {
         return container;
+    }
+
+    public static void sendInventoryTitleChange(InventoryView view, String title) {
+        Preconditions.checkArgument(view != null, "InventoryView cannot be null");
+        Preconditions.checkArgument(title != null, "Title cannot be null");
+        Preconditions.checkArgument(view.getPlayer() instanceof Player, "NPCs are not currently supported for this function");
+
+        final ServerPlayer entityPlayer = (ServerPlayer) ((CraftHumanEntity) view.getPlayer()).getHandle();
+        final int containerId = entityPlayer.containerMenu.containerId;
+        final MenuType<?> windowType = CraftContainer.getNotchInventoryType(view.getTopInventory());
+        entityPlayer.connection.send(new ClientboundOpenScreenPacket(containerId, windowType, CraftChatMessage.fromString(title)[0]));
+        ((Player) view.getPlayer()).updateInventory();
     }
 }

@@ -13,7 +13,7 @@ public final class CraftCaveVines extends org.bukkit.craftbukkit.v1_20_R3.block.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftAgeable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftAgeable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty AGE = getInteger(net.minecraft.world.level.block.CaveVinesBlock.class, "age");
 
@@ -32,7 +32,7 @@ public final class CraftCaveVines extends org.bukkit.craftbukkit.v1_20_R3.block.
         return getMax(AGE);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftCaveVinesPlant
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftCaveVinesPlant
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty BERRIES = getBoolean(net.minecraft.world.level.block.CaveVinesBlock.class, "berries");
 

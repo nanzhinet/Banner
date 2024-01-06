@@ -11,11 +11,15 @@ accessible method net/minecraft/world/level/LevelAccessor createTick (Lnet/minec
 accessible method net/minecraft/world/level/LevelAccessor createTick (Lnet/minecraft/core/BlockPos;Ljava/lang/Object;I)Lnet/minecraft/world/ticks/ScheduledTick;
 accessible method net/minecraft/world/entity/ExperienceOrb xpToDurability (I)I
 accessible method net/minecraft/world/entity/ExperienceOrb durabilityToXp (I)I
+accessible method net/minecraft/world/entity/AreaEffectCloud updateColor ()V
+accessible field net/minecraft/world/entity/Display DATA_POS_ROT_INTERPOLATION_DURATION_ID Lnet/minecraft/network/syncher/EntityDataAccessor;
+accessible field net/minecraft/world/entity/projectile/EvokerFangs warmupDelayTicks I
+accessible method net/minecraft/world/entity/projectile/Arrow updateColor ()V
+accessible field net/minecraft/world/entity/projectile/Arrow potion Lnet/minecraft/world/item/alchemy/Potion;
 
 # 1.20.2
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl latency I
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl connection Lnet/minecraft/network/Connection;
-accessible method net/minecraft/world/level/block/entity/SkullBlockEntity fillProfileTextures (Lcom/mojang/authlib/GameProfile;)Ljava/util/concurrent/CompletableFuture;
 accessible method net/minecraft/world/item/crafting/SmithingTrimRecipe <init> (Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/crafting/Ingredient;Lnet/minecraft/world/item/crafting/Ingredient;)V
 accessible field net/minecraft/server/ServerAdvancementManager advancements Ljava/util/Map;
 

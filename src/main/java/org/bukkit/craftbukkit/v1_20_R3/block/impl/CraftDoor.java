@@ -13,7 +13,7 @@ public final class CraftDoor extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftDoor
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftDoor
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HINGE = getEnum(net.minecraft.world.level.block.DoorBlock.class, "hinge");
 
@@ -27,7 +27,7 @@ public final class CraftDoor extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         set(HINGE, hinge);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBisected
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBisected
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HALF = getEnum(net.minecraft.world.level.block.DoorBlock.class, "half");
 
@@ -41,7 +41,7 @@ public final class CraftDoor extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         set(HALF, half);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.DoorBlock.class, "facing");
 
@@ -60,7 +60,7 @@ public final class CraftDoor extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         return getValues(FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftOpenable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftOpenable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty OPEN = getBoolean(net.minecraft.world.level.block.DoorBlock.class, "open");
 
@@ -74,7 +74,7 @@ public final class CraftDoor extends org.bukkit.craftbukkit.v1_20_R3.block.data.
         set(OPEN, open);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.DoorBlock.class, "powered");
 

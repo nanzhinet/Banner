@@ -1,9 +1,20 @@
 package org.bukkit.entity;
 
 import com.google.common.base.Preconditions;
+import com.mohistmc.banner.bukkit.entity.MohistModsAbstractHorse;
+import com.mohistmc.banner.bukkit.entity.MohistModsAnimals;
+import com.mohistmc.banner.bukkit.entity.MohistModsChestHorse;
+import com.mohistmc.banner.bukkit.entity.MohistModsMinecartContainer;
+import com.mohistmc.banner.bukkit.entity.MohistModsMonster;
+import com.mohistmc.banner.bukkit.entity.MohistModsProjectileEntity;
+import com.mohistmc.banner.bukkit.entity.MohistModsTameableEntity;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
+import org.bukkit.MinecraftExperimental;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Translatable;
 import org.bukkit.World;
@@ -16,12 +27,10 @@ import org.bukkit.entity.minecart.SpawnerMinecart;
 import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public enum EntityType implements Keyed, Translatable {
 
@@ -279,12 +288,20 @@ public enum EntityType implements Keyed, Translatable {
     FROG("frog", Frog.class, -1),
     TADPOLE("tadpole", Tadpole.class, -1),
     WARDEN("warden", Warden.class, -1),
+
     CAMEL("camel", Camel.class, -1),
     BLOCK_DISPLAY("block_display", BlockDisplay.class, -1),
     INTERACTION("interaction", Interaction.class, -1),
     ITEM_DISPLAY("item_display", ItemDisplay.class, -1),
+
     SNIFFER("sniffer", Sniffer.class, -1),
     TEXT_DISPLAY("text_display", TextDisplay.class, -1),
+    @MinecraftExperimental
+    @ApiStatus.Experimental
+    BREEZE("breeze", Breeze.class, -1),
+    @MinecraftExperimental
+    @ApiStatus.Experimental
+    WIND_CHARGE("wind_charge", WindCharge.class, -1),
     /**
      * A fishing line and bobber.
      */
@@ -299,7 +316,14 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * An unknown entity without an Entity Class
      */
-    UNKNOWN(null, null, -1, false);
+    UNKNOWN(null, null, -1, false),
+    FORGE_MOD_PROJECTILE("forge_mod_projectile", MohistModsProjectileEntity.class, -1, false),
+    FORGE_MOD_CHEST_HORSE("forge_mod_chest_horse", MohistModsChestHorse.class, -1, false),
+    FORGE_MOD_MINECART_CONTAINER("forge_mod_minecart_container", MohistModsMinecartContainer.class, -1, false),
+    FORGE_MOD_HORSE("forge_mod_horse", MohistModsAbstractHorse.class, -1, false),
+    FORGE_MOD_TAMEABLE_ANIMALS("forge_mod_tameable_animal", MohistModsTameableEntity.class, -1, false ),
+    FORGE_MOD_ANIMAL("forge_mod_animal", MohistModsAnimals.class, -1, false ),
+    FORGE_MOD_MONSTER("forge_mod_monster", MohistModsMonster.class, -1, false);
 
     private final String name;
     private final Class<? extends Entity> clazz;
@@ -358,13 +382,13 @@ public enum EntityType implements Keyed, Translatable {
     @Deprecated
     @Nullable
     public String getName() {
-        return name == null ? name() : name; // Banner
+        return name == null ? name() : name; // Mohist
     }
 
     @NotNull
     @Override
     public NamespacedKey getKey() {
-        Preconditions.checkArgument(key != null, "EntityType doesn't have key! Is it UNKNOWN?");
+        Preconditions.checkArgument(key != null, "EntityType doesn't have key! Is it: %s".formatted(name()) );
 
         return key;
     }
@@ -399,7 +423,7 @@ public enum EntityType implements Keyed, Translatable {
         if (name == null) {
             return null;
         }
-        return NAME_MAP.get(name.toLowerCase(java.util.Locale.ENGLISH));
+        return Objects.requireNonNullElse(NAME_MAP.get(name.toLowerCase(java.util.Locale.ENGLISH)), EntityType.UNKNOWN);
     }
 
     /**

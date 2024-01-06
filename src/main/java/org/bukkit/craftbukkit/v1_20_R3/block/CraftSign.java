@@ -27,23 +27,31 @@ public class CraftSign<T extends SignBlockEntity> extends CraftBlockEntityState<
         this.back = new CraftSignSide(this.getSnapshot().getBackText());
     }
 
+    protected CraftSign(CraftSign<T> state) {
+        super(state);
+        this.front = new CraftSignSide(this.getSnapshot().getFrontText());
+        this.back = new CraftSignSide(this.getSnapshot().getBackText());
+    }
+
+    @Override
+    public CraftSign<T> copy() {
+        return new CraftSign<T>(this);
+    }
+
     public static void openSign(Sign sign, Player player, Side side) {
         Preconditions.checkArgument(sign != null, "sign == null");
+        Preconditions.checkArgument(side != null, "side == null");
         Preconditions.checkArgument(sign.isPlaced(), "Sign must be placed");
         Preconditions.checkArgument(sign.getWorld() == player.getWorld(), "Sign must be in same world as Player");
 
-        // Paper start
-        io.papermc.paper.event.player.PlayerOpenSignEvent event = new io.papermc.paper.event.player.PlayerOpenSignEvent((Player) player, sign, side, io.papermc.paper.event.player.PlayerOpenSignEvent.Cause.PLUGIN);
-
-        if (!CraftEventFactory.callPlayerSignOpenEvent(player, sign, side, PlayerSignOpenEvent.Cause.PLUGIN) || !event.callEvent()) {
+        if (!CraftEventFactory.callPlayerSignOpenEvent(player, sign, side, PlayerSignOpenEvent.Cause.PLUGIN)) {
             return;
         }
-        // Paper end
 
         SignBlockEntity handle = ((CraftSign<?>) sign).getTileEntity();
         handle.setAllowedPlayerEditor(player.getUniqueId());
 
-        ((CraftPlayer) player).getHandle().openTextEdit(handle,Side.FRONT == side);
+        ((CraftPlayer) player).getHandle().openTextEdit(handle, Side.FRONT == side);
     }
 
     @Override
@@ -71,17 +79,15 @@ public class CraftSign<T extends SignBlockEntity> extends CraftBlockEntityState<
         this.setWaxed(!editable);
     }
 
-    // Paper start
     @Override
     public boolean isWaxed() {
-        return this.getSnapshot().isWaxed();
+        return getSnapshot().isWaxed();
     }
 
     @Override
-    public void setWaxed(final boolean waxed) {
-        this.getSnapshot().setWaxed(waxed);
+    public void setWaxed(boolean waxed) {
+        getSnapshot().setWaxed(waxed);
     }
-    // Paper end
 
     @Override
     public boolean isGlowingText() {

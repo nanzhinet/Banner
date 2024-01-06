@@ -9,10 +9,25 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
@@ -29,7 +44,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.Ticket;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.SortedArraySet;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.LightningBolt;
@@ -39,12 +53,14 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -54,8 +70,10 @@ import org.bukkit.Effect;
 import org.bukkit.FeatureFlag;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameRule;
+import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Note;
 import org.bukkit.Particle;
 import org.bukkit.Raid;
 import org.bukkit.Sound;
@@ -67,18 +85,20 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.boss.DragonBattle;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBiome;
 import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockType;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R3.boss.CraftDragonBattle;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.generator.strucutre.CraftStructure;
+import org.bukkit.craftbukkit.v1_20_R3.generator.structure.CraftStructure;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R3.metadata.BlockMetadataStore;
 import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.v1_20_R3.persistence.CraftPersistentDataTypeRegistry;
-import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionUtil;
+import org.bukkit.craftbukkit.v1_20_R3.util.CraftBiomeSearchResult;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
@@ -112,31 +132,13 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
+import org.bukkit.util.BiomeSearchResult;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.StructureSearchResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class CraftWorld extends CraftRegionAccessor implements World {
     public static final int CUSTOM_DIMENSION_OFFSET = 10;
@@ -165,7 +167,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public Block getBlockAt(int x, int y, int z) {
-        return CraftBlock.at(world, BlockPos.containing(x, y, z));
+        return CraftBlock.at(world, new BlockPos(x, y, z));
     }
 
     @Override
@@ -478,9 +480,10 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
-    public org.bukkit.entity.Item dropItem(Location loc, ItemStack item, Consumer<Item> function) {
+    public org.bukkit.entity.Item dropItem(Location loc, ItemStack item, Consumer<? super org.bukkit.entity.Item> function) {
         Preconditions.checkArgument(loc != null, "Location cannot be null");
         Preconditions.checkArgument(item != null, "ItemStack cannot be null");
+
         ItemEntity entity = new ItemEntity(world, loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(item));
         org.bukkit.entity.Item itemEntity = (org.bukkit.entity.Item) entity.getBukkitEntity();
         entity.pickupDelay = 10;
@@ -497,14 +500,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
-    public org.bukkit.entity.Item dropItemNaturally(Location loc, ItemStack item, Consumer<org.bukkit.entity.Item> function) {
+    public org.bukkit.entity.Item dropItemNaturally(Location loc, ItemStack item, Consumer<? super Item> function) {
         Preconditions.checkArgument(loc != null, "Location cannot be null");
         Preconditions.checkArgument(item != null, "ItemStack cannot be null");
 
         double xs = (world.random.nextFloat() * 0.5F) + 0.25D;
         double ys = (world.random.nextFloat() * 0.5F) + 0.25D;
         double zs = (world.random.nextFloat() * 0.5F) + 0.25D;
-        loc = loc.clone();
         loc = loc.clone().add(xs, ys, zs);
         return dropItem(loc, item, function);
     }
@@ -523,7 +525,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
         net.minecraft.world.entity.projectile.AbstractArrow arrow;
         if (TippedArrow.class.isAssignableFrom(clazz)) {
             arrow = net.minecraft.world.entity.EntityType.ARROW.create(world);
-            ((net.minecraft.world.entity.projectile.Arrow) arrow).setPotionType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
+            ((Arrow) arrow.getBukkitEntity()).setBasePotionType(PotionType.WATER);
         } else if (SpectralArrow.class.isAssignableFrom(clazz)) {
             arrow = net.minecraft.world.entity.EntityType.SPECTRAL_ARROW.create(world);
         } else if (Trident.class.isAssignableFrom(clazz)) {
@@ -545,6 +547,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public LightningStrike strikeLightningEffect(Location loc) {
+
         return strikeLightning0(loc, true);
     }
 
@@ -735,8 +738,9 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
-    public int getHighestBlockYAt(Location location, org.bukkit.HeightMap heightMap) {
-        return getHighestBlockYAt(location.getBlockX(), location.getBlockZ(), heightMap);
+    public int getHighestBlockYAt(int x, int z, org.bukkit.HeightMap heightMap) {
+        // Transient load for this tick
+        return world.getChunk(x >> 4, z >> 4).getHeight(CraftHeightMap.toNMS(heightMap), x, z);
     }
 
     @Override
@@ -814,12 +818,17 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
+    public void addEntityWithPassengers(net.minecraft.world.entity.Entity entity, SpawnReason reason) {
+        getHandle().tryAddFreshEntityWithPassengers(entity, reason);
+    }
+
+    @Override
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
         return this.getNearbyEntities(location, x, y, z, null);
     }
 
     @Override
-    public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z, Predicate<Entity> filter) {
+    public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z, Predicate<? super Entity> filter) {
         Preconditions.checkArgument(location != null, "Location cannot be null");
         Preconditions.checkArgument(this.equals(location.getWorld()), "Location cannot be in a different world");
 
@@ -833,7 +842,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
-    public Collection<Entity> getNearbyEntities(BoundingBox boundingBox, Predicate<Entity> filter) {
+    public Collection<Entity> getNearbyEntities(BoundingBox boundingBox, Predicate<? super Entity> filter) {
         Preconditions.checkArgument(boundingBox != null, "BoundingBox cannot be null");
 
         AABB bb = new AABB(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
@@ -861,12 +870,12 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
-    public RayTraceResult rayTraceEntities(Location start, Vector direction, double maxDistance, Predicate<Entity> filter) {
+    public RayTraceResult rayTraceEntities(Location start, Vector direction, double maxDistance, Predicate<? super Entity> filter) {
         return this.rayTraceEntities(start, direction, maxDistance, 0.0D, filter);
     }
 
     @Override
-    public RayTraceResult rayTraceEntities(Location start, Vector direction, double maxDistance, double raySize, Predicate<Entity> filter) {
+    public RayTraceResult rayTraceEntities(Location start, Vector direction, double maxDistance, double raySize, Predicate<? super Entity> filter) {
         Preconditions.checkArgument(start != null, "Location start cannot be null");
         Preconditions.checkArgument(this.equals(start.getWorld()), "Location start cannot be in a different world");
         start.checkFinite();
@@ -936,13 +945,13 @@ public class CraftWorld extends CraftRegionAccessor implements World {
         Vector dir = direction.clone().normalize().multiply(maxDistance);
         Vec3 startPos = CraftLocation.toVec3D(start);
         Vec3 endPos = startPos.add(dir.getX(), dir.getY(), dir.getZ());
-        HitResult nmsHitResult = this.getHandle().clip(new ClipContext(startPos, endPos, ignorePassableBlocks ? ClipContext.Block.COLLIDER : ClipContext.Block.OUTLINE, CraftFluidCollisionMode.toNMS(fluidCollisionMode), null));
+        HitResult nmsHitResult = this.getHandle().clip(new ClipContext(startPos, endPos, ignorePassableBlocks ? ClipContext.Block.COLLIDER : ClipContext.Block.OUTLINE, CraftFluidCollisionMode.toNMS(fluidCollisionMode), CollisionContext.empty()));
 
         return CraftRayTraceResult.fromNMS(this, nmsHitResult);
     }
 
     @Override
-    public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode, boolean ignorePassableBlocks, double raySize, Predicate<Entity> filter) {
+    public RayTraceResult rayTrace(Location start, Vector direction, double maxDistance, FluidCollisionMode fluidCollisionMode, boolean ignorePassableBlocks, double raySize, Predicate<? super Entity> filter) {
         RayTraceResult blockHit = this.rayTraceBlocks(start, direction, maxDistance, fluidCollisionMode, ignorePassableBlocks);
         Vector startVec = null;
         double blockHitDistance = maxDistance;
@@ -986,6 +995,15 @@ public class CraftWorld extends CraftRegionAccessor implements World {
         return list;
     }
 
+    // Paper start - getEntity by UUID API
+    @Override
+    public Entity getEntity(UUID uuid) {
+        Preconditions.checkArgument(uuid != null, "UUID cannot be null");
+        net.minecraft.world.entity.Entity entity = world.getEntity(uuid);
+        return entity == null ? null : entity.getBukkitEntity();
+    }
+    // Paper end
+
     @Override
     public void save() {
         this.server.checkSaveState();
@@ -1016,6 +1034,18 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     public Difficulty getDifficulty() {
         return Difficulty.getByValue(this.getHandle().getDifficulty().ordinal());
     }
+
+    // Spigot start
+    @Override
+    public int getViewDistance() {
+        return world.bridge$spigotConfig().viewDistance;
+    }
+
+    @Override
+    public int getSimulationDistance() {
+        return world.bridge$spigotConfig().simulationDistance;
+    }
+    // Spigot end
 
     public BlockMetadataStore getBlockMetadata() {
         return blockMetadata;
@@ -1532,6 +1562,11 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     }
 
     @Override
+    public void playNote(@NotNull Location loc, @NotNull Instrument instrument, @NotNull Note note) {
+        playSound(loc, instrument.getSound(), org.bukkit.SoundCategory.RECORDS, 3f, note.getPitch());
+    }
+
+    @Override
     public void playSound(Location loc, Sound sound, float volume, float pitch) {
         playSound(loc, sound, org.bukkit.SoundCategory.MASTER, volume, pitch);
     }
@@ -1543,17 +1578,27 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public void playSound(Location loc, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+        playSound(loc, sound, category, volume, pitch, getHandle().random.nextLong());;
+    }
+
+    @Override
+    public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+        playSound(loc, sound, category, volume, pitch, getHandle().random.nextLong());
+    }
+
+    @Override
+    public void playSound(Location loc, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
         if (loc == null || sound == null || category == null) return;
 
         double x = loc.getX();
         double y = loc.getY();
         double z = loc.getZ();
 
-        getHandle().playSound(null, x, y, z, CraftSound.getSoundEffect(sound), SoundSource.valueOf(category.name()), volume, pitch);
+        getHandle().playSeededSound(null, x, y, z, CraftSound.bukkitToMinecraft(sound), net.minecraft.sounds.SoundSource.valueOf(category.name()), volume, pitch, seed);
     }
 
     @Override
-    public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+    public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
         if (loc == null || sound == null || category == null) return;
 
         double x = loc.getX();
@@ -1576,21 +1621,31 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public void playSound(Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+        playSound(entity, sound, category, volume, pitch, getHandle().random.nextLong());
+    }
+
+    @Override
+    public void playSound(Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+        playSound(entity, sound, category, volume, pitch, getHandle().random.nextLong());
+    }
+
+    @Override
+    public void playSound(Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
         if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
 
-        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect(sound)), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, getHandle().getRandom().nextLong());
-        ChunkMap.TrackedEntity entityTracker = getHandle().getChunkSource().chunkMap.entityMap.get(entity.getEntityId());
+        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(CraftSound.bukkitToMinecraftHolder(sound), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, seed);
+        ChunkMap.TrackedEntity  entityTracker = getHandle().getChunkSource().chunkMap.entityMap.get(entity.getEntityId());
         if (entityTracker != null) {
             entityTracker.broadcastAndSend(packet);
         }
     }
 
     @Override
-    public void playSound(Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
+    public void playSound(Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch, long seed) {
         if (!(entity instanceof CraftEntity craftEntity) || entity.getWorld() != this || sound == null || category == null) return;
 
-        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, getHandle().getRandom().nextLong());
-        ChunkMap.TrackedEntity entityTracker = getHandle().getChunkSource().chunkMap.entityMap.get(entity.getEntityId());
+        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, seed);
+        ChunkMap.TrackedEntity  entityTracker = getHandle().getChunkSource().chunkMap.entityMap.get(entity.getEntityId());
         if (entityTracker != null) {
             entityTracker.broadcastAndSend(packet);
         }
@@ -1682,6 +1737,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     public <T> boolean setGameRule(GameRule<T> rule, T newValue) {
         Preconditions.checkArgument(rule != null, "GameRule cannot be null");
         Preconditions.checkArgument(newValue != null, "GameRule value cannot be null");
+
 
         if (!isGameRule(rule.getName())) return false;
 
@@ -1781,11 +1837,14 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, T data, boolean force) {
+        particle = CraftParticle.convertLegacy(particle);
+        data = CraftParticle.convertLegacy(data);
         if (data != null) {
             Preconditions.checkArgument(particle.getDataType().isInstance(data), "data (%s) should be %s", data.getClass(), particle.getDataType());
         }
+        // Mohist  TODO
         getHandle().sendParticles(
-                CraftParticle.toNMS(particle, data), // Particle
+                CraftParticle.createParticleParam(particle, data), // Particle
                 x, y, z, // Position
                 count,  // Count
                 offsetX, offsetY, offsetZ, // Random offset
@@ -1858,18 +1917,6 @@ public class CraftWorld extends CraftRegionAccessor implements World {
         return locateNearestStructure(origin, List.of(structure), radius, findUnexplored);
     }
 
-    // Spigot start
-    @Override
-    public int getViewDistance() {
-        return world.bridge$spigotConfig().viewDistance;
-    }
-
-    @Override
-    public int getSimulationDistance() {
-        return world.bridge$spigotConfig().simulationDistance;
-    }
-    // Spigot end
-
     public StructureSearchResult locateNearestStructure(Location origin, List<Structure> structures, int radius, boolean findUnexplored) {
         BlockPos originPos = BlockPos.containing(origin.getX(), origin.getY(), origin.getZ());
         List<Holder<net.minecraft.world.level.levelgen.structure.Structure>> holders = new ArrayList<>();
@@ -1883,22 +1930,61 @@ public class CraftWorld extends CraftRegionAccessor implements World {
             return null;
         }
 
-        return new CraftStructureSearchResult(CraftStructure.minecraftToBukkit(found.getSecond().value(), getHandle().registryAccess()), CraftLocation.toBukkit(found.getFirst(), this));
-    }
-
-    /**
-    // Spigot start
-    @Override
-    public int getViewDistance() {
-        return world.bridge$spigotConfig().viewDistance;
+        return new CraftStructureSearchResult(CraftStructure.minecraftToBukkit(found.getSecond().value()), CraftLocation.toBukkit(found.getFirst(), this));
     }
 
     @Override
-    public int getSimulationDistance() {
-        return world.bridge$spigotConfig().simulationDistance;
+    public BiomeSearchResult locateNearestBiome(Location origin, int radius, Biome... biomes) {
+        return locateNearestBiome(origin, radius, 32, 64, biomes);
     }
-    // Spigot end
-    */
+
+    @Override
+    public BiomeSearchResult locateNearestBiome(Location origin, int radius, int horizontalInterval, int verticalInterval, Biome... biomes) {
+        BlockPos originPos = BlockPos.containing(origin.getX(), origin.getY(), origin.getZ());
+        Set<Holder<net.minecraft.world.level.biome.Biome>> holders = new HashSet<>();
+
+        for (Biome biome : biomes) {
+            holders.add(CraftBiome.bukkitToMinecraftHolder(biome));
+        }
+
+        Climate.Sampler sampler = getHandle().getChunkSource().randomState().sampler();
+        // The given predicate is evaluated once at the start of the search, so performance isn't a large concern.
+        Pair<BlockPos, Holder<net.minecraft.world.level.biome.Biome>> found = getHandle().getChunkSource().getGenerator().getBiomeSource().findClosestBiome3d(originPos, radius, horizontalInterval, verticalInterval, holders::contains, sampler, getHandle());
+        if (found == null) {
+            return null;
+        }
+
+        return new CraftBiomeSearchResult(CraftBiome.minecraftHolderToBukkit(found.getSecond()), new Location(this, found.getFirst().getX(), found.getFirst().getY(), found.getFirst().getZ()));
+    }
+
+    // Mohist start
+    private boolean isbukkit = false;
+    @Override
+    public boolean isBukkit() {
+        return isbukkit;
+    }
+
+    @Override
+    public void setBukkit(boolean b) {
+        isbukkit = b;
+    }
+
+    @Override
+    public boolean isMods() {
+        String path = getWorldFolder().getAbsolutePath().replaceAll("\\\\", "/");
+        return !isBukkit() && path.contains("/world/dimensions/");
+    }
+
+    @Override
+    public String getModid() {
+        String path = getWorldFolder().getAbsolutePath().replaceAll("\\\\", "/");
+        String modName = "";
+        if(path.contains("/world/dimensions/")) {
+            modName = path.split("/world/dimensions/")[1].split("/")[0];
+        }
+        return modName;
+    }
+    // Mohist end
 
     // Spigot start
     private final Spigot spigot = new Spigot() {
@@ -1970,11 +2056,5 @@ public class CraftWorld extends CraftRegionAccessor implements World {
         if (c instanceof CompoundTag) {
             this.persistentDataContainer.putAll((CompoundTag) c);
         }
-    }
-
-
-    @Override
-    public boolean generateTree(@NotNull Location location, @NotNull Random random, @NotNull TreeType type, @Nullable Predicate<BlockState> statePredicate) {
-        return false;
     }
 }

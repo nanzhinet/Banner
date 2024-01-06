@@ -13,7 +13,7 @@ public final class CraftWeatheringCopperStair extends org.bukkit.craftbukkit.v1_
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftStairs
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftStairs
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> SHAPE = getEnum(net.minecraft.world.level.block.WeatheringCopperStairBlock.class, "shape");
 
@@ -27,7 +27,7 @@ public final class CraftWeatheringCopperStair extends org.bukkit.craftbukkit.v1_
         set(SHAPE, shape);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBisected
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBisected
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HALF = getEnum(net.minecraft.world.level.block.WeatheringCopperStairBlock.class, "half");
 
@@ -41,7 +41,7 @@ public final class CraftWeatheringCopperStair extends org.bukkit.craftbukkit.v1_
         set(HALF, half);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.WeatheringCopperStairBlock.class, "facing");
 
@@ -60,7 +60,7 @@ public final class CraftWeatheringCopperStair extends org.bukkit.craftbukkit.v1_
         return getValues(FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.WeatheringCopperStairBlock.class, "waterlogged");
 

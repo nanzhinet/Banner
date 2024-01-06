@@ -1,6 +1,9 @@
 package org.bukkit.craftbukkit.v1_20_R3.block;
 
 import com.google.common.base.Preconditions;
+import java.lang.ref.WeakReference;
+import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,10 +21,6 @@ import org.bukkit.material.Attachable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-
-import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.List;
 
 public class CraftBlockState implements org.bukkit.block.BlockState {
     protected final CraftWorld world;
@@ -47,6 +46,15 @@ public class CraftBlockState implements org.bukkit.block.BlockState {
         this.world = (CraftWorld) world;
         position = blockPosition;
         data = blockData;
+    }
+
+    // Creates a unplaced copy (world == null copy)
+    protected CraftBlockState(CraftBlockState state) {
+        this.world = null;
+        this.position = state.getPosition().immutable();
+        this.data = state.data;
+        this.flag = state.flag;
+        setWorldHandle(state.getWorldHandle());
     }
 
     public void setWorldHandle(LevelAccessor generatorAccess) {
@@ -155,13 +163,13 @@ public class CraftBlockState implements org.bukkit.block.BlockState {
         Preconditions.checkArgument(type.isBlock(), "Material must be a block!");
 
         if (this.getType() != type) {
-            this.data = CraftMagicNumbers.getBlock(type).defaultBlockState();
+            this.data = CraftBlockType.bukkitToMinecraft(type).defaultBlockState();
         }
     }
 
     @Override
     public Material getType() {
-        return CraftMagicNumbers.getMaterial(data.getBlock());
+        return CraftBlockType.minecraftToBukkit(data.getBlock());
     }
 
     public void setFlag(int flag) {
@@ -318,10 +326,8 @@ public class CraftBlockState implements org.bukkit.block.BlockState {
         Preconditions.checkState(isPlaced(), "The blockState must be placed to call this method");
     }
 
-    // Banner start
     @Override
-    public String toString() {
-        return this.data.toString();
+    public CraftBlockState copy() {
+        return new CraftBlockState(this);
     }
-    // Banner end
 }

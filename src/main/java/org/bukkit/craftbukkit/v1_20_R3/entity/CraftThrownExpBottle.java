@@ -17,5 +17,4 @@ public class CraftThrownExpBottle extends CraftThrowableProjectile implements Th
     public String toString() {
         return "net.minecraft.world.entity.projectile.ThrownExperienceBottle";
     }
-
 }

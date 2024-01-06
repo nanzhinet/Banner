@@ -11,13 +11,17 @@ import org.bukkit.block.Jukebox;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftInventoryJukebox;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemType;
 import org.bukkit.inventory.JukeboxInventory;
 
 public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> implements Jukebox {
 
     public CraftJukebox(World world, JukeboxBlockEntity te) {
         super(world, te);
+    }
+
+    protected CraftJukebox(CraftJukebox state) {
+        super(state);
     }
     @Override
     public JukeboxInventory getSnapshotInventory() {
@@ -63,7 +67,7 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
 
     @Override
     public void setPlaying(Material record) {
-        if (record == null || CraftMagicNumbers.getItem(record) == null) {
+        if (record == null || CraftItemType.bukkitToMinecraft(record) == null) {
             record = Material.AIR;
         }
 
@@ -77,7 +81,7 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
 
     @Override
     public org.bukkit.inventory.ItemStack getRecord() {
-        ItemStack record = this.getSnapshot().getFirstItem();
+        ItemStack record = this.getSnapshot().getTheItem();
         return CraftItemStack.asBukkitCopy(record);
     }
 
@@ -110,14 +114,14 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
             return false;
         }
 
-        ItemStack record = jukebox.getFirstItem();
+        ItemStack record = jukebox.getTheItem();
         if (record.isEmpty() || isPlaying()) {
             return false;
         }
 
         jukebox.isPlaying = true;
         jukebox.recordStartedTick = jukebox.tickCount;
-        getWorld().playEffect(getLocation(), Effect.RECORD_PLAY, CraftMagicNumbers.getMaterial(record.getItem()));
+        getWorld().playEffect(getLocation(), Effect.RECORD_PLAY, CraftItemType.minecraftToBukkit(record.getItem()));
         return true;
     }
 
@@ -142,8 +146,13 @@ public class CraftJukebox extends CraftBlockEntityState<JukeboxBlockEntity> impl
         if (!(tileEntity instanceof JukeboxBlockEntity)) return false;
 
         JukeboxBlockEntity jukebox = (JukeboxBlockEntity) tileEntity;
-        boolean result = !jukebox.getFirstItem().isEmpty();
+        boolean result = !jukebox.getTheItem().isEmpty();
         jukebox.popOutRecord();
         return result;
+    }
+
+    @Override
+    public CraftJukebox copy() {
+        return new CraftJukebox(this);
     }
 }

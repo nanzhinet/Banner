@@ -13,7 +13,7 @@ public final class CraftTrapdoor extends org.bukkit.craftbukkit.v1_20_R3.block.d
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBisected
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftBisected
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HALF = getEnum(net.minecraft.world.level.block.TrapDoorBlock.class, "half");
 
@@ -27,7 +27,7 @@ public final class CraftTrapdoor extends org.bukkit.craftbukkit.v1_20_R3.block.d
         set(HALF, half);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.TrapDoorBlock.class, "facing");
 
@@ -46,7 +46,7 @@ public final class CraftTrapdoor extends org.bukkit.craftbukkit.v1_20_R3.block.d
         return getValues(FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftOpenable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftOpenable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty OPEN = getBoolean(net.minecraft.world.level.block.TrapDoorBlock.class, "open");
 
@@ -60,7 +60,7 @@ public final class CraftTrapdoor extends org.bukkit.craftbukkit.v1_20_R3.block.d
         set(OPEN, open);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.TrapDoorBlock.class, "powered");
 
@@ -74,7 +74,7 @@ public final class CraftTrapdoor extends org.bukkit.craftbukkit.v1_20_R3.block.d
         set(POWERED, powered);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.TrapDoorBlock.class, "waterlogged");
 

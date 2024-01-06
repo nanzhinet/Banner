@@ -3,20 +3,16 @@ package org.bukkit.craftbukkit.v1_20_R3.ban;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.InetAddresses;
-import net.minecraft.server.players.IpBanList;
-import net.minecraft.server.players.IpBanListEntry;
-import org.bukkit.BanEntry;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.net.InetAddress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Set;
+import net.minecraft.server.players.IpBanList;
+import net.minecraft.server.players.IpBanListEntry;
+import org.bukkit.BanEntry;
 
 public class CraftIpBanList implements org.bukkit.ban.IpBanList {
-
     private final IpBanList list;
 
     public CraftIpBanList(IpBanList list) {
@@ -54,7 +50,7 @@ public class CraftIpBanList implements org.bukkit.ban.IpBanList {
     }
 
     @Override
-    public @Nullable BanEntry<InetAddress> addBan(@NotNull InetAddress target, @Nullable String reason, @Nullable Date expires, @Nullable String source) {
+    public BanEntry<InetAddress> addBan(InetAddress target, String reason, Date expires, String source) {
         return this.addBan(this.getIpFromAddress(target), reason, expires, source);
     }
 
@@ -112,15 +108,14 @@ public class CraftIpBanList implements org.bukkit.ban.IpBanList {
     }
 
     @Override
-    public void pardon(InetAddress  target) {
+    public void pardon(InetAddress target) {
         this.pardon(getIpFromAddress(target));
     }
 
-    private String getIpFromAddress(InetAddress  address) {
+    private String getIpFromAddress(InetAddress address) {
         if (address == null) {
             return null;
         }
-
         return InetAddresses.toAddrString(address);
     }
 }

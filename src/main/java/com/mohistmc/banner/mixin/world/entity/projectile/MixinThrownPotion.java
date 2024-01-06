@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
@@ -30,6 +31,7 @@ import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -39,18 +41,28 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(ThrownPotion.class)
 public abstract class MixinThrownPotion extends ThrowableItemProjectile {
 
+
+    @Unique
+    private transient HitResult arclight$hitResult;
+
     public MixinThrownPotion(EntityType<? extends ThrowableItemProjectile> entityType, Level level) {
         super(entityType, level);
     }
 
     @Redirect(method = "onHit", at = @At(value = "INVOKE", remap = false, ordinal = 1, target = "Ljava/util/List;isEmpty()Z"))
-    private boolean banner$callEvent(List list) {
+    private boolean banner$callEvent(List list, HitResult hitResult) {
+        arclight$hitResult = hitResult;
         return false;
+    }
+
+    @Inject(method = "onHit", at = @At("RETURN"))
+    private void banner$resetResult(HitResult p_37543_, CallbackInfo ci) {
+        arclight$hitResult = null;
     }
 
     /**
      * @author wdog5
-     * @reason
+     * @reason bukkit
      */
     @Overwrite
     private void applySplash(List<MobEffectInstance> list, @Nullable Entity entity) {
@@ -68,11 +80,11 @@ public abstract class MixinThrownPotion extends ThrowableItemProjectile {
                     if (entityliving == entity) {
                         d2 = 1.0;
                     }
-                    affected.put((org.bukkit.entity.LivingEntity) (entityliving).getBukkitEntity(), d2);
+                    affected.put((org.bukkit.entity.LivingEntity) entityliving.getBukkitEntity(), d2);
                 }
             }
         }
-        PotionSplashEvent event = CraftEventFactory.callPotionSplashEvent((ThrownPotion) (Object) this, affected);
+        PotionSplashEvent event = CraftEventFactory.callPotionSplashEvent((ThrownPotion) (Object) this, arclight$hitResult, affected);
         if (!event.isCancelled() && list != null && !list.isEmpty()) {
             for (org.bukkit.entity.LivingEntity victim : event.getAffectedEntities()) {
                 if (!(victim instanceof CraftLivingEntity)) {
@@ -105,7 +117,7 @@ public abstract class MixinThrownPotion extends ThrowableItemProjectile {
 
     @Inject(method = "makeAreaOfEffectCloud", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     private void banner$makeCloud(ItemStack p_190542_1_, Potion p_190542_2_, CallbackInfo ci, AreaEffectCloud entity) {
-        LingeringPotionSplashEvent event = CraftEventFactory.callLingeringPotionSplashEvent((ThrownPotion) (Object) this, entity);
+        LingeringPotionSplashEvent event = CraftEventFactory.callLingeringPotionSplashEvent((ThrownPotion) (Object) this, arclight$hitResult, entity);
         if (event.isCancelled() || entity.isRemoved()) {
             ci.cancel();
             entity.discard();

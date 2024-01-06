@@ -13,7 +13,7 @@ public final class CraftBubbleColumn extends org.bukkit.craftbukkit.v1_20_R3.blo
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftBubbleColumn
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftBubbleColumn
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty DRAG = getBoolean(net.minecraft.world.level.block.BubbleColumnBlock.class, "drag");
 

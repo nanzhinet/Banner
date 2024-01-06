@@ -2,19 +2,20 @@ package org.bukkit.craftbukkit.v1_20_R3.inventory;
 
 import com.google.common.base.Preconditions;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import java.util.Iterator;
+import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.bukkit.inventory.Recipe;
 
-import java.util.Iterator;
-import java.util.Map;
-
 public class RecipeIterator implements Iterator<Recipe> {
-    private final Iterator<Map.Entry<RecipeType<?>, Map<ResourceLocation, net.minecraft.world.item.crafting.RecipeHolder<?>>>> recipes;
+    private final Iterator<Map.Entry<RecipeType<?>, Object2ObjectLinkedOpenHashMap<ResourceLocation, net.minecraft.world.item.crafting.RecipeHolder<?>>>> recipes;
     private Iterator<net.minecraft.world.item.crafting.RecipeHolder<?>> current;
 
     public RecipeIterator() {
-        this.recipes = BukkitExtraConstants.getServer().getRecipeManager().recipes.entrySet().iterator();
+        this.recipes = BukkitExtraConstants.getServer().getRecipeManager().bridge$recipesCB().entrySet().iterator();
     }
 
     @Override
@@ -37,20 +38,18 @@ public class RecipeIterator implements Iterator<Recipe> {
             current = recipes.next().getValue().values().iterator();
             return next();
         }
-        // Banner start - get more info about recipe
+
         net.minecraft.world.item.crafting.RecipeHolder<?> recipe = current.next();
         try {
-            return  recipe.toBukkitRecipe();
+            return recipe.toBukkitRecipe();
         } catch (Throwable e) {
             throw new RuntimeException("Error converting recipe " + recipe.id(), e);
         }
-        // Banner end
     }
 
     @Override
     public void remove() {
         Preconditions.checkState(current != null, "next() not yet called");
-
         current.remove();
     }
 }

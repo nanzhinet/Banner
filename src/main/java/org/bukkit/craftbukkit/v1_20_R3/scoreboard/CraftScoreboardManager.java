@@ -1,25 +1,24 @@
 package org.bukkit.craftbukkit.v1_20_R3.scoreboard;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
-import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerScoreboard;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.util.WeakCollection;
-import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.ScoreboardManager;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Consumer;
+import net.minecraft.network.protocol.game.ClientboundSetObjectivePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerScoreboard;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.ScoreHolder;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R3.util.WeakCollection;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 public final class CraftScoreboardManager implements ScoreboardManager {
     private final CraftScoreboard mainScoreboard;
@@ -92,15 +91,15 @@ public final class CraftScoreboardManager implements ScoreboardManager {
     }
 
     // CraftBukkit method
-    public void removePlayer(Player player) {
+    public void removePlayer(CraftPlayer  player) {
         playerBoards.remove(player);
     }
 
     // CraftBukkit method
-    public void getScoreboardScores(ObjectiveCriteria criteria, String name, Consumer<net.minecraft.world.scores.Score> consumer) {
+    public void forAllObjectives(ObjectiveCriteria criteria, ScoreHolder holder, Consumer<net.minecraft.world.scores.ScoreAccess> consumer) {
         for (CraftScoreboard scoreboard : scoreboards) {
             Scoreboard board = scoreboard.board;
-            board.forAllObjectives(criteria, name, score -> consumer.accept(score));
+            board.forAllObjectives(criteria, holder, score -> consumer.accept(score));
         }
     }
 }

@@ -37,12 +37,12 @@ public final class CraftCalibratedSculkSensor extends org.bukkit.craftbukkit.v1_
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> PHASE = getEnum(net.minecraft.world.level.block.CalibratedSculkSensorBlock.class, "sculk_sensor_phase");
 
     @Override
-    public org.bukkit.block.data.type.SculkSensor.Phase getPhase() {
-        return get(PHASE, org.bukkit.block.data.type.SculkSensor.Phase.class);
+    public Phase getPhase() {
+        return get(PHASE, Phase.class);
     }
 
     @Override
-    public void setPhase(org.bukkit.block.data.type.SculkSensor.Phase phase) {
+    public void setPhase(Phase phase) {
         set(PHASE, phase);
     }
 

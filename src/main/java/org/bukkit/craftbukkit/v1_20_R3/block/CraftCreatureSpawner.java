@@ -1,20 +1,34 @@
 package org.bukkit.craftbukkit.v1_20_R3.block;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.InclusiveRange;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.level.SpawnData;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import org.bukkit.World;
 import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.spawner.SpawnRule;
+import org.bukkit.block.spawner.SpawnerEntry;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntitySnapshot;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntityType;
+import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.EntityType;
-
-import java.util.Optional;
 
 public class CraftCreatureSpawner extends CraftBlockEntityState<SpawnerBlockEntity> implements CreatureSpawner {
 
-    public CraftCreatureSpawner(World world, SpawnerBlockEntity tileEntity) {
-        super(world, tileEntity);
+    public CraftCreatureSpawner(World world, SpawnerBlockEntity te) {
+        super(world, te);
+    }
+
+    protected CraftCreatureSpawner(CraftCreatureSpawner state) {
+        super(state);
     }
 
     @Override
@@ -25,7 +39,7 @@ public class CraftCreatureSpawner extends CraftBlockEntityState<SpawnerBlockEnti
         }
 
         Optional<net.minecraft.world.entity.EntityType<?>> type = net.minecraft.world.entity.EntityType.by(spawnData.getEntityToSpawn());
-        return type.map(entityTypes -> EntityType.fromName(net.minecraft.world.entity.EntityType.getKey(entityTypes).getPath())).orElse(null);
+        return type.map(CraftEntityType::minecraftToBukkit).orElse(null);
     }
 
     @Override
@@ -38,7 +52,67 @@ public class CraftCreatureSpawner extends CraftBlockEntityState<SpawnerBlockEnti
         Preconditions.checkArgument(entityType != EntityType.UNKNOWN, "Can't spawn EntityType %s from mob spawners!", entityType);
 
         RandomSource rand = (this.isPlaced()) ? this.getWorldHandle().getRandom() : RandomSource.create();
-        this.getSnapshot().setEntityId(net.minecraft.world.entity.EntityType.byString(entityType.getName()).get(), rand);
+        this.getSnapshot().setEntityId(CraftEntityType.bukkitToMinecraft(entityType), rand);
+    }
+
+
+    @Override
+    public EntitySnapshot getSpawnedEntity() {
+        SpawnData spawnData = this.getSnapshot().getSpawner().nextSpawnData;
+        if (spawnData == null) {
+            return null;
+        }
+        return CraftEntitySnapshot.create(spawnData.getEntityToSpawn());
+    }
+    @Override
+    public void setSpawnedEntity(EntitySnapshot snapshot) {
+        CompoundTag compoundTag = ((CraftEntitySnapshot) snapshot).getData();
+        this.getSnapshot().getSpawner().spawnPotentials = SimpleWeightedRandomList.empty();
+        this.getSnapshot().getSpawner().nextSpawnData = new SpawnData(compoundTag, Optional.empty());
+    }
+    @Override
+    public void addPotentialSpawn(EntitySnapshot snapshot, int weight, SpawnRule spawnRule) {
+        CompoundTag compoundTag = ((CraftEntitySnapshot) snapshot).getData();
+        SimpleWeightedRandomList.Builder<SpawnData> builder = SimpleWeightedRandomList.builder(); // PAIL rename Builder
+        this.getSnapshot().getSpawner().spawnPotentials.unwrap().forEach(entry -> builder.add(entry.getData(), entry.getWeight().asInt()));
+        builder.add(new SpawnData(compoundTag, Optional.ofNullable(toMinecraftRule(spawnRule))), weight);
+        this.getSnapshot().getSpawner().spawnPotentials = builder.build();
+    }
+    @Override
+    public void addPotentialSpawn(SpawnerEntry spawnerEntry) {
+        addPotentialSpawn(spawnerEntry.getSnapshot(), spawnerEntry.getSpawnWeight(), spawnerEntry.getSpawnRule());
+    }
+    @Override
+    public void setPotentialSpawns(Collection<SpawnerEntry> entries) {
+        SimpleWeightedRandomList.Builder<SpawnData> builder = SimpleWeightedRandomList.builder();
+        for (SpawnerEntry spawnerEntry : entries) {
+            CompoundTag compoundTag = ((CraftEntitySnapshot) spawnerEntry.getSnapshot()).getData();
+            builder.add(new SpawnData(compoundTag, Optional.ofNullable(toMinecraftRule(spawnerEntry.getSpawnRule()))), spawnerEntry.getSpawnWeight());
+        }
+        this.getSnapshot().getSpawner().spawnPotentials = builder.build();
+    }
+    @Override
+    public List<SpawnerEntry> getPotentialSpawns() {
+        List<SpawnerEntry> entries = new ArrayList<>();
+        for (WeightedEntry.Wrapper<SpawnData> entry : this.getSnapshot().getSpawner().spawnPotentials.unwrap()) { // PAIL rename Wrapper
+            CraftEntitySnapshot snapshot = CraftEntitySnapshot.create(entry.getData().getEntityToSpawn());
+            if (snapshot != null) {
+                SpawnRule rule = entry.getData().customSpawnRules().map(this::fromMinecraftRule).orElse(null);
+                entries.add(new SpawnerEntry(snapshot, entry.getWeight().asInt(), rule));
+            }
+        }
+        return entries;
+    }
+    private SpawnData.CustomSpawnRules toMinecraftRule(SpawnRule rule) { // PAIL rename CustomSpawnRules
+        if (rule == null) {
+            return null;
+        }
+        return new SpawnData.CustomSpawnRules(new InclusiveRange<>(rule.getMinBlockLight(), rule.getMaxBlockLight()), new InclusiveRange<>(rule.getMinSkyLight(), rule.getMaxSkyLight()));
+    }
+    private SpawnRule fromMinecraftRule(SpawnData.CustomSpawnRules rule) {
+        InclusiveRange<Integer> blockLight = rule.blockLightLimit();
+        InclusiveRange<Integer> skyLight = rule.skyLightLimit();
+        return new SpawnRule(blockLight.maxInclusive(), blockLight.maxInclusive(), skyLight.minInclusive(), skyLight.maxInclusive());
     }
 
     @Override
@@ -134,5 +208,10 @@ public class CraftCreatureSpawner extends CraftBlockEntityState<SpawnerBlockEnti
     @Override
     public void setSpawnRange(int spawnRange) {
         this.getSnapshot().getSpawner().spawnRange = spawnRange;
+    }
+
+    @Override
+    public CraftCreatureSpawner copy() {
+        return new CraftCreatureSpawner(this);
     }
 }

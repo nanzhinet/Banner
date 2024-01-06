@@ -13,7 +13,7 @@ public final class CraftLeaves extends org.bukkit.craftbukkit.v1_20_R3.block.dat
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftLeaves
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftLeaves
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty DISTANCE = getInteger(net.minecraft.world.level.block.LeavesBlock.class, "distance");
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty PERSISTENT = getBoolean(net.minecraft.world.level.block.LeavesBlock.class, "persistent");

@@ -13,7 +13,7 @@ public final class CraftSkullPlayer extends org.bukkit.craftbukkit.v1_20_R3.bloc
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftRotatable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftRotatable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty ROTATION = getInteger(net.minecraft.world.level.block.PlayerHeadBlock.class, "rotation");
 

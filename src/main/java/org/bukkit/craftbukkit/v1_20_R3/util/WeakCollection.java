@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_20_R3.util;
 
 import com.google.common.base.Preconditions;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +12,7 @@ public final class WeakCollection<T> implements Collection<T> {
     private final Collection<WeakReference<T>> collection;
 
     public WeakCollection() {
-        collection = new ArrayList<>();
+        collection = new ArrayList<WeakReference<T>>();
     }
 
     @Override
@@ -104,9 +103,7 @@ public final class WeakCollection<T> implements Collection<T> {
 
             @Override
             public void remove() throws IllegalStateException {
-                if (value != NO_VALUE) {
-                    throw new IllegalStateException("No last element");
-                }
+                Preconditions.checkState(value == NO_VALUE, "No last element");
 
                 value = null;
                 it.remove();

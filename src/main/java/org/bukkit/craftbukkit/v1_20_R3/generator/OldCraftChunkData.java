@@ -1,18 +1,18 @@
 package org.bukkit.craftbukkit.v1_20_R3.generator;
 
+import java.util.HashSet;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockType;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Data to be used for the block types and data in a newly generated chunk.
@@ -80,7 +80,7 @@ public final class OldCraftChunkData implements ChunkGenerator.ChunkData {
 
     @Override
     public Material getType(int x, int y, int z) {
-        return CraftMagicNumbers.getMaterial(getTypeId(x, y, z).getBlock());
+        return CraftBlockType.minecraftToBukkit(getTypeId(x, y, z).getBlock());
     }
 
     @Override

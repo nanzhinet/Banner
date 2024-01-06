@@ -2,28 +2,37 @@ package org.bukkit.craftbukkit.v1_20_R3.util;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.JsonOps;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.critereon.DeserializationContext;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerAdvancementManager;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.item.Item;
@@ -32,10 +41,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.LevelResource;
 import org.bukkit.Bukkit;
 import org.bukkit.FeatureFlag;
-import org.bukkit.Fluid;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.UnsafeValues;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.attribute.Attribute;
@@ -43,11 +50,13 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_20_R3.CraftEquipmentSlot;
 import org.bukkit.craftbukkit.v1_20_R3.CraftFeatureFlag;
+import org.bukkit.craftbukkit.v1_20_R3.CraftRegistry;
+import org.bukkit.craftbukkit.v1_20_R3.attribute.CraftAttribute;
 import org.bukkit.craftbukkit.v1_20_R3.attribute.CraftAttributeInstance;
-import org.bukkit.craftbukkit.v1_20_R3.attribute.CraftAttributeMap;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R3.legacy.CraftLegacy;
+import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionType;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.CreativeCategory;
 import org.bukkit.inventory.EquipmentSlot;
@@ -55,17 +64,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.bukkit.potion.PotionType;
 
 @SuppressWarnings("deprecation")
 public final class CraftMagicNumbers implements UnsafeValues {
@@ -100,7 +99,6 @@ public final class CraftMagicNumbers implements UnsafeValues {
     // ========================================================================
     public static final Map<Block, Material> BLOCK_MATERIAL = new HashMap<>();
     public static final Map<Item, Material> ITEM_MATERIAL = new HashMap<>();
-    public static final BiMap<net.minecraft.world.level.material.Fluid, Fluid> FLUIDTYPE_FLUID = HashBiMap.create();
     public static final Map<Material, Item> MATERIAL_ITEM = new HashMap<>();
     public static final Map<Material, Block> MATERIAL_BLOCK = new HashMap<>();
 
@@ -111,15 +109,6 @@ public final class CraftMagicNumbers implements UnsafeValues {
 
         for (Item item : BuiltInRegistries.ITEM) {
             ITEM_MATERIAL.put(item, Material.getMaterial(BuiltInRegistries.ITEM.getKey(item).getPath().toUpperCase(Locale.ROOT)));
-        }
-
-        for (net.minecraft.world.level.material.Fluid fluidType : BuiltInRegistries.FLUID) {
-            if (BuiltInRegistries.FLUID.getKey(fluidType).getNamespace().equals(NamespacedKey.MINECRAFT)) {
-                Fluid fluid = Registry.FLUID.get(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.FLUID.getKey(fluidType)));
-                if (fluid != null) {
-                    FLUIDTYPE_FLUID.put(fluidType, fluid);
-                }
-            }
         }
 
         for (Material material : Material.values()) {
@@ -145,10 +134,6 @@ public final class CraftMagicNumbers implements UnsafeValues {
         return ITEM_MATERIAL.getOrDefault(item, Material.AIR);
     }
 
-    public static Fluid getFluid(net.minecraft.world.level.material.Fluid fluid) {
-        return FLUIDTYPE_FLUID.get(fluid);
-    }
-
     public static Item getItem(Material material) {
         if (material != null && material.isLegacy()) {
             material = CraftLegacy.fromLegacy(material);
@@ -163,10 +148,6 @@ public final class CraftMagicNumbers implements UnsafeValues {
         }
 
         return MATERIAL_BLOCK.get(material);
-    }
-
-    public static net.minecraft.world.level.material.Fluid getFluid(Fluid fluid) {
-        return FLUIDTYPE_FLUID.inverse().get(fluid);
     }
 
     public static ResourceLocation key(Material mat) {
@@ -239,7 +220,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
      * @return string
      */
     public String getMappingsVersion() {
-        return "3478a65bfd04b15b431fe107b3617dfc";
+        return "60a2bb6bf2684dc61c56b90d7c41bddc";
     }
 
     @Override
@@ -263,7 +244,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
     }
 
     private static File getBukkitDataPackFolder() {
-        return new File(Objects.requireNonNull(BukkitExtraConstants.getServer()).getWorldPath(LevelResource.DATAPACK_DIR).toFile(), "bukkit");
+        return new File(BukkitExtraConstants.getServer().getWorldPath(LevelResource.DATAPACK_DIR).toFile(), "bukkit");
     }
 
     @Override
@@ -272,8 +253,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
         ResourceLocation minecraftkey = CraftNamespacedKey.toMinecraft(key);
 
         JsonElement jsonelement = ServerAdvancementManager.GSON.fromJson(advancement, JsonElement.class);
-        JsonObject jsonobject = GsonHelper.convertToJsonObject(jsonelement, "advancement");
-        net.minecraft.advancements.Advancement nms = net.minecraft.advancements.Advancement.fromJson(jsonobject, new DeserializationContext(minecraftkey, BukkitExtraConstants.getServer().getLootData()));
+        net.minecraft.advancements.Advancement nms = Util.getOrThrow(net.minecraft.advancements.Advancement.CODEC.parse(JsonOps.INSTANCE, jsonelement), JsonParseException::new);
         if (nms != null) {
             BukkitExtraConstants.getServer().getAdvancements().advancements.put(minecraftkey, new AdvancementHolder(minecraftkey, nms));
             Advancement bukkit = Bukkit.getAdvancement(key);
@@ -351,7 +331,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
 
         Multimap<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> nmsDefaultAttributes = getItem(material).getDefaultAttributeModifiers(CraftEquipmentSlot.getNMS(slot));
         for (Map.Entry<net.minecraft.world.entity.ai.attributes.Attribute, net.minecraft.world.entity.ai.attributes.AttributeModifier> mapEntry : nmsDefaultAttributes.entries()) {
-            Attribute attribute = CraftAttributeMap.fromMinecraft(BuiltInRegistries.ATTRIBUTE.getKey(mapEntry.getKey()).toString());
+            Attribute attribute = CraftAttribute.minecraftToBukkit(mapEntry.getKey());
             defaultAttributes.put(attribute, CraftAttributeInstance.convert(mapEntry.getValue(), slot));
         }
 
@@ -391,6 +371,14 @@ public final class CraftMagicNumbers implements UnsafeValues {
     public FeatureFlag getFeatureFlag(NamespacedKey namespacedKey) {
         Preconditions.checkArgument(namespacedKey != null, "NamespaceKey cannot be null");
         return CraftFeatureFlag.getFromNMS(namespacedKey);
+    }
+
+    @Override
+    public PotionType.InternalPotionData getInternalPotionData(NamespacedKey namespacedKey) {
+        net.minecraft.world.item.alchemy.Potion potionRegistry = CraftRegistry.getMinecraftRegistry(Registries.POTION)
+                .getOptional(CraftNamespacedKey.toMinecraft(namespacedKey)).orElseThrow();
+
+        return new CraftPotionType(namespacedKey, potionRegistry);
     }
 
     /**

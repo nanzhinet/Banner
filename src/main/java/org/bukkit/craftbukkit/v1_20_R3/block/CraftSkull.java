@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -16,7 +17,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Rotatable;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_20_R3.profile.CraftGameProfile;
 import org.bukkit.craftbukkit.v1_20_R3.profile.CraftPlayerProfile;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.profile.PlayerProfile;
@@ -29,6 +29,10 @@ public class CraftSkull extends CraftBlockEntityState<SkullBlockEntity> implemen
 
     public CraftSkull(World world, final SkullBlockEntity te) {
         super(world, te);
+    }
+
+    protected CraftSkull(CraftSkull state) {
+        super(state);
     }
 
     @Override
@@ -103,7 +107,7 @@ public class CraftSkull extends CraftBlockEntityState<SkullBlockEntity> implemen
         if (player instanceof CraftPlayer) {
             this.profile = ((CraftPlayer) player).getProfile();
         } else {
-            this.profile = new CraftGameProfile(player.getUniqueId(), player.getName());
+            this.profile = new GameProfile(player.getUniqueId(), player.getName());
         }
     }
 
@@ -198,5 +202,10 @@ public class CraftSkull extends CraftBlockEntityState<SkullBlockEntity> implemen
         if (getSkullType() == SkullType.PLAYER) {
             skull.setOwner(profile);
         }
+    }
+
+    @Override
+    public CraftSkull copy() {
+        return new CraftSkull(this);
     }
 }

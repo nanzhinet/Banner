@@ -1,12 +1,11 @@
 package org.bukkit.craftbukkit.v1_20_R3.entity;
 
 import com.google.common.base.Preconditions;
+import java.util.Optional;
+import java.util.UUID;
 import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Fox;
-
-import java.util.Optional;
-import java.util.UUID;
 
 public class CraftFox extends CraftAnimals implements Fox {
 
@@ -81,7 +80,6 @@ public class CraftFox extends CraftAnimals implements Fox {
         if (player == null) {
             Preconditions.checkState(getHandle().getEntityData().get(net.minecraft.world.entity.animal.Fox.DATA_TRUSTED_ID_1).isEmpty(), "Must remove second trusted player first");
         }
-
         getHandle().getEntityData().set(net.minecraft.world.entity.animal.Fox.DATA_TRUSTED_ID_0, player == null ? Optional.empty() : Optional.of(player.getUniqueId()));
     }
 
@@ -102,10 +100,9 @@ public class CraftFox extends CraftAnimals implements Fox {
 
     @Override
     public void setSecondTrustedPlayer(AnimalTamer player) {
-        if (player != null && !getHandle().getEntityData().get(net.minecraft.world.entity.animal.Fox.DATA_TRUSTED_ID_0).isPresent()) {
-            throw new IllegalStateException("Must add first trusted player first");
+        if (player != null) {
+            Preconditions.checkState(getHandle().getEntityData().get(net.minecraft.world.entity.animal.Fox.DATA_TRUSTED_ID_0).isPresent(), "Must add first trusted player first");
         }
-
         getHandle().getEntityData().set(net.minecraft.world.entity.animal.Fox.DATA_TRUSTED_ID_1, player == null ? Optional.empty() : Optional.of(player.getUniqueId()));
     }
     @Override

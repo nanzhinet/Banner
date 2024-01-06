@@ -63,6 +63,7 @@ public class CraftWither extends CraftMonster implements Wither {
     @Override
     public void setInvulnerabilityTicks(int ticks) {
         Preconditions.checkArgument(ticks >= 0, "ticks must be >=0");
+
         getHandle().setInvulnerableTicks(ticks);
     }
 }

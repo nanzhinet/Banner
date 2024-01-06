@@ -26,11 +26,11 @@ public class MixinResetProfession {
     private static void banner$careerChangeHook(ServerLevel serverLevel, Villager villager,
                                                 long l, CallbackInfoReturnable<Boolean> cir) {
         // CraftBukkit start
-        VillagerCareerChangeEvent event = CraftEventFactory.callVillagerCareerChangeEvent(villager, CraftVillager.nmsToBukkitProfession(VillagerProfession.NONE), VillagerCareerChangeEvent.ChangeReason.LOSING_JOB);
+        VillagerCareerChangeEvent event = CraftEventFactory.callVillagerCareerChangeEvent(villager, CraftVillager.CraftProfession.minecraftToBukkit(VillagerProfession.NONE), VillagerCareerChangeEvent.ChangeReason.LOSING_JOB);
         if (event.isCancelled()) {
             cir.setReturnValue(false);
         }
-        villager.setVillagerData(villager.getVillagerData().setProfession(CraftVillager.bukkitToNmsProfession(event.getProfession())));
+        villager.setVillagerData(villager.getVillagerData().setProfession(CraftVillager.CraftProfession.bukkitToMinecraft(event.getProfession())));
         // CraftBukkit end
     }
 }

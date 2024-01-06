@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.BlastFurnaceMenu;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.CartographyTableMenu;
 import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.CrafterMenu;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.DispenserMenu;
 import net.minecraft.world.inventory.EnchantmentMenu;
@@ -47,6 +48,7 @@ public class CraftContainer extends AbstractContainerMenu {
 
     public CraftContainer(final Inventory inventory, final net.minecraft.world.entity.player.Player player, int id) {
         this(new InventoryView() {
+
             private final String originalTitle = (inventory instanceof CraftInventoryCustom) ? ((CraftInventoryCustom.MinecraftInventory) ((CraftInventory) inventory).getInventory()).getTitle() : inventory.getType().getDefaultTitle();
             private String title = originalTitle;
             @Override
@@ -156,6 +158,8 @@ public class CraftContainer extends AbstractContainerMenu {
             case CRAFTING:
             case MERCHANT:
                 throw new IllegalArgumentException("Can't open a " + inventory.getType() + " inventory!");
+            case CRAFTER:
+                return MenuType.CRAFTER_3x3;
             default:
                 // TODO: If it reaches the default case, should we throw an error?
                 return MenuType.GENERIC_9x3;
@@ -194,7 +198,6 @@ public class CraftContainer extends AbstractContainerMenu {
                 delegate = new HopperMenu(windowId, bottom, top);
                 break;
             case ANVIL:
-            case SMITHING:
                 setupAnvil(top, bottom); // SPIGOT-6783 - manually set up slots so we can use the delegated inventory and not the automatically created one
                 break;
             case BEACON:
@@ -227,8 +230,12 @@ public class CraftContainer extends AbstractContainerMenu {
             case MERCHANT:
                 delegate = new MerchantMenu(windowId, bottom);
                 break;
+            case SMITHING:
             case SMITHING_NEW:
                 setupSmithing(top, bottom); // SPIGOT-6783 - manually set up slots so we can use the delegated inventory and not the automatically created one
+                break;
+            case CRAFTER:
+                delegate = new CrafterMenu(windowId, bottom);
                 break;
         }
 

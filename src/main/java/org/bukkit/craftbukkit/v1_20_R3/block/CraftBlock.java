@@ -1,18 +1,19 @@
 package org.bukkit.craftbukkit.v1_20_R3.block;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
-import com.mohistmc.banner.bukkit.CraftCustomContainer;
-import com.mohistmc.banner.fabric.BukkitRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
@@ -20,18 +21,18 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedStoneWireBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Registry;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
@@ -48,7 +49,6 @@ import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftRayTraceResult;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftVoxelShape;
 import org.bukkit.entity.Entity;
@@ -63,12 +63,6 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CraftBlock implements Block {
     private final net.minecraft.world.level.LevelAccessor world;
@@ -229,7 +223,7 @@ public class CraftBlock implements Block {
 
     @Override
     public Material getType() {
-        return CraftMagicNumbers.getMaterial(world.getBlockState(position).getBlock());
+        return CraftBlockType.minecraftToBukkit(world.getBlockState(position).getBlock());
     }
 
     @Override
@@ -334,18 +328,7 @@ public class CraftBlock implements Block {
 
     @Override
     public org.bukkit.block.BlockState getState() {
-        Material material = getType();
-        // Banner start - handle mod BlockEntities
-        if (material == null) {
-            BlockEntity blockEntity = ((CraftWorld) this.getWorld()).getHandle().getBlockEntity(new BlockPos(this.getX(), this.getY(), this.getZ()));
-            if (blockEntity != null && blockEntity instanceof Container) {
-                // In order to allow plugins to properly grab the container location, we must pass a class that extends CraftBlockState and implements InventoryHolder.
-                // Note: This will be returned when BlockEntity.bridge$getOwner() is called
-                return new CraftCustomContainer(this);
-            }
-        }
-        return CraftBlockStates.getBlockState(this);// Banner - pass default state
-        // Banner end
+        return CraftBlockStates.getBlockState(this);
     }
 
     @Override
@@ -356,26 +339,6 @@ public class CraftBlock implements Block {
     @Override
     public void setBiome(Biome bio) {
         getWorld().setBiome(getX(), getY(), getZ(), bio);
-    }
-
-    public static Biome biomeBaseToBiome(net.minecraft.core.Registry<net.minecraft.world.level.biome.Biome> registry, Holder<net.minecraft.world.level.biome.Biome> base) {
-        return biomeBaseToBiome(registry, base.value());
-    }
-
-    public static Biome biomeBaseToBiome(net.minecraft.core.Registry<net.minecraft.world.level.biome.Biome> registry, net.minecraft.world.level.biome.Biome base) {
-        if (base == null) {
-            return null;
-        }
-
-        return BukkitRegistry.biomeBiomeMap.getOrDefault(base, Registry.BIOME.get(CraftNamespacedKey.fromMinecraft(registry.getKey(base))));
-    }
-
-    public static Holder<net.minecraft.world.level.biome.Biome> biomeToBiomeBase(net.minecraft.core.Registry<net.minecraft.world.level.biome.Biome> registry, Biome bio) {
-        if (bio == null || bio == Biome.CUSTOM) {
-            return null;
-        }
-
-        return registry.getHolderOrThrow(ResourceKey.create(Registries.BIOME, CraftNamespacedKey.toMinecraft(bio.getKey())));
     }
 
     @Override
@@ -465,21 +428,32 @@ public class CraftBlock implements Block {
 
     @Override
     public boolean isEmpty() {
-        // Banner start - support custom air blocks
-        if (getNMS().isAir()) {
-            return true;
-        }
-        if (!(getWorld() instanceof CraftWorld)) {
-            return false;
-        }
-        return ((CraftWorld) getWorld()).getHandle().isEmptyBlock(new BlockPos(getX(), getY(), getZ()));
-        // Banner end
+        return getNMS().isAir();
     }
 
     @Override
     public boolean isLiquid() {
         return getNMS().liquid();
     }
+
+    // Paper start
+    @Override
+    public boolean isBuildable() {
+        return this.getNMS().isSolid(); // This is in fact isSolid, despite the fact that isSolid below returns blocksMotion
+    }
+    @Override
+    public boolean isBurnable() {
+        return this.getNMS().ignitedByLava();
+    }
+    @Override
+    public boolean isReplaceable() {
+        return this.getNMS().canBeReplaced();
+    }
+    @Override
+    public boolean isSolid() {
+        return this.getNMS().blocksMotion();
+    }
+    // Paper end
 
     @Override
     public PistonMoveReaction getPistonMoveReaction() {
@@ -627,7 +601,7 @@ public class CraftBlock implements Block {
         Vec3 startPos = CraftLocation.toVec3D(start);
         Vec3 endPos = startPos.add(dir.getX(), dir.getY(), dir.getZ());
 
-        HitResult nmsHitResult = world.clip(new ClipContext(startPos, endPos, ClipContext.Block.OUTLINE, CraftFluidCollisionMode.toNMS(fluidCollisionMode), null), position);
+        HitResult nmsHitResult = world.clip(new ClipContext(startPos, endPos, ClipContext.Block.OUTLINE, CraftFluidCollisionMode.toNMS(fluidCollisionMode), CollisionContext.empty()), position);
         return CraftRayTraceResult.fromNMS(this.getWorld(), nmsHitResult);
     }
 

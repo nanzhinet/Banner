@@ -1,6 +1,8 @@
 package org.bukkit.craftbukkit.v1_20_R3.block;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
@@ -11,13 +13,14 @@ import org.bukkit.craftbukkit.v1_20_R3.entity.CraftBee;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.entity.Bee;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CraftBeehive extends CraftBlockEntityState<BeehiveBlockEntity> implements Beehive {
 
     public CraftBeehive(World world, final BeehiveBlockEntity te) {
         super(world, te);
+    }
+
+    protected CraftBeehive(CraftBeehive state) {
+        super(state);
     }
 
     @Override
@@ -80,5 +83,10 @@ public class CraftBeehive extends CraftBlockEntityState<BeehiveBlockEntity> impl
         Preconditions.checkArgument(entity != null, "Entity must not be null");
 
         getSnapshot().addOccupant(((CraftBee) entity).getHandle(), false);
+    }
+
+    @Override
+    public CraftBeehive copy() {
+        return new CraftBeehive(this);
     }
 }

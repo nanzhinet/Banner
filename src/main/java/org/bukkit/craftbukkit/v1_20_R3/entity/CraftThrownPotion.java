@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.v1_20_R3.entity;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.util.Collection;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import org.bukkit.Material;
@@ -11,8 +12,6 @@ import org.bukkit.craftbukkit.v1_20_R3.potion.CraftPotionUtil;
 import org.bukkit.entity.ThrownPotion;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-
-import java.util.Collection;
 
 public class CraftThrownPotion extends CraftThrowableProjectile implements ThrownPotion {
     public CraftThrownPotion(CraftServer server, net.minecraft.world.entity.projectile.ThrownPotion entity) {
@@ -37,7 +36,6 @@ public class CraftThrownPotion extends CraftThrowableProjectile implements Throw
     public void setItem(ItemStack item) {
         Preconditions.checkArgument(item != null, "ItemStack cannot be null");
         Preconditions.checkArgument(item.getType() == Material.LINGERING_POTION || item.getType() == Material.SPLASH_POTION, "ItemStack material must be Material.LINGERING_POTION or Material.SPLASH_POTION but was Material.%s", item.getType());
-
         getHandle().setItem(CraftItemStack.asNMSCopy(item));
     }
 

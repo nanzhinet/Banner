@@ -1,5 +1,11 @@
 package org.bukkit.entity;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import com.mohistmc.banner.paper.addon.entity.AddonLivingEntity;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,15 +24,10 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
 /**
  * Represents a living entity, such as a monster or player
  */
-public interface LivingEntity extends Attributable, Damageable, ProjectileSource {
+public interface LivingEntity extends Attributable, Damageable, ProjectileSource, AddonLivingEntity {
 
     /**
      * Gets the height of the living entity's eyes above its Location.
@@ -83,6 +84,26 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      */
     @NotNull
     public Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance);
+
+    /**
+     * Gets information about the entity being targeted
+     *
+     * @param maxDistance this is the maximum distance to scan
+     * @return entity being targeted, or null if no entity is targeted
+     */
+    @Nullable
+    public default Entity getTargetEntity(int maxDistance) {
+        return getTargetEntity(maxDistance, false);
+    }
+    /**
+     * Gets information about the entity being targeted
+     *
+     * @param maxDistance this is the maximum distance to scan
+     * @param ignoreBlocks true to scan through blocks
+     * @return entity being targeted, or null if no entity is targeted
+     */
+    @Nullable
+    public Entity getTargetEntity(int maxDistance, boolean ignoreBlocks);
 
     /**
      * Gets the last two blocks along the living entity's line of sight.
@@ -365,31 +386,6 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      */
     public void removePotionEffect(@NotNull PotionEffectType type);
 
-    // Paper start - LivingEntity#clearActivePotionEffects();
-    /**
-     * Removes all active potion effects for this entity.
-     *
-     * @return true if any were removed
-     */
-    boolean clearActivePotionEffects();
-
-    /**
-     * Gets entity body yaw
-     *
-     * @return entity body yaw
-     * @see Location#getYaw()
-     */
-    float getBodyYaw();
-
-    /**
-     * Sets entity body yaw
-     *
-     * @param bodyYaw new entity body yaw
-     * @see Location#setYaw(float)
-     */
-    void setBodyYaw(float bodyYaw);
-    // Paper end
-
     /**
      * Returns all currently active {@link PotionEffect}s on the living
      * entity.
@@ -573,7 +569,6 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      */
     public void swingOffHand();
 
-
     /**
      * Makes this entity flash red as if they were damaged.
      *
@@ -750,7 +745,6 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      */
     public boolean isInvisible();
 
-    // Banner - add to fix ItemsAdder bugs in adventure mode
     public default Block getTargetBlock(int maxDistance) {
         return getTargetBlockExact(maxDistance);
     }

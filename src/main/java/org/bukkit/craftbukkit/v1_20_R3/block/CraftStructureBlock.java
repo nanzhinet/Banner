@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.properties.StructureMode;
-import org.apache.commons.lang3.Validate;
 import org.bukkit.World;
 import org.bukkit.block.Structure;
 import org.bukkit.block.structure.Mirror;
@@ -21,6 +20,10 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     public CraftStructureBlock(World world, StructureBlockEntity structure) {
         super(world, structure);
+    }
+
+    protected CraftStructureBlock(CraftStructureBlock state) {
+        super(state);
     }
 
     @Override
@@ -59,9 +62,9 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setRelativePosition(BlockVector vector) {
-        Validate.isTrue(isBetween(vector.getBlockX(), -MAX_SIZE, MAX_SIZE), "Structure Size (X) must be between -" + MAX_SIZE + " and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockY(), -MAX_SIZE, MAX_SIZE), "Structure Size (Y) must be between -" + MAX_SIZE + " and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockZ(), -MAX_SIZE, MAX_SIZE), "Structure Size (Z) must be between -" + MAX_SIZE + " and " + MAX_SIZE);
+        Preconditions.checkArgument(isBetween(vector.getBlockX(), -MAX_SIZE, MAX_SIZE), "Structure Size (X) must be between -%s and %s but got %s", MAX_SIZE, MAX_SIZE, vector.getBlockX());
+        Preconditions.checkArgument(isBetween(vector.getBlockY(), -MAX_SIZE, MAX_SIZE), "Structure Size (Y) must be between -%s and %s but got %s", MAX_SIZE, MAX_SIZE, vector.getBlockY());
+        Preconditions.checkArgument(isBetween(vector.getBlockZ(), -MAX_SIZE, MAX_SIZE), "Structure Size (Z) must be between -%s and %s but got %s", MAX_SIZE, MAX_SIZE, vector.getBlockZ());
         getSnapshot().structurePos = CraftBlockVector.toBlockPosition(vector);
     }
 
@@ -72,14 +75,15 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setStructureSize(BlockVector vector) {
-        Validate.isTrue(isBetween(vector.getBlockX(), 0, MAX_SIZE), "Structure Size (X) must be between 0 and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockY(), 0, MAX_SIZE), "Structure Size (Y) must be between 0 and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockZ(), 0, MAX_SIZE), "Structure Size (Z) must be between 0 and " + MAX_SIZE);
+        Preconditions.checkArgument(isBetween(vector.getBlockX(), 0, MAX_SIZE), "Structure Size (X) must be between %s and %s but got %s", 0, MAX_SIZE, vector.getBlockX());
+        Preconditions.checkArgument(isBetween(vector.getBlockY(), 0, MAX_SIZE), "Structure Size (Y) must be between %s and %s but got %s", 0, MAX_SIZE, vector.getBlockY());
+        Preconditions.checkArgument(isBetween(vector.getBlockZ(), 0, MAX_SIZE), "Structure Size (Z) must be between %s and %s but got %s", 0, MAX_SIZE, vector.getBlockZ());
         getSnapshot().structureSize = CraftBlockVector.toBlockPosition(vector);
     }
 
     @Override
     public void setMirror(Mirror mirror) {
+        Preconditions.checkArgument(mirror != null, "Mirror cannot be null");
         getSnapshot().mirror = net.minecraft.world.level.block.Mirror.valueOf(mirror.name());
     }
 
@@ -90,6 +94,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setRotation(StructureRotation rotation) {
+        Preconditions.checkArgument(rotation != null, "StructureRotation cannot be null");
         getSnapshot().rotation = Rotation.valueOf(rotation.name());
     }
 
@@ -100,6 +105,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setUsageMode(UsageMode mode) {
+        Preconditions.checkArgument(mode != null, "UsageMode cannot be null");
         getSnapshot().mode = StructureMode.valueOf(mode.name());
     }
 
@@ -140,7 +146,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setIntegrity(float integrity) {
-        Validate.isTrue(isBetween(integrity, 0.0f, 1.0f), "Integrity must be between 0.0f and 1.0f");
+        Preconditions.checkArgument(isBetween(integrity, 0.0f, 1.0f), "Integrity must be between 0.0f and 1.0f but got %s", integrity);
         getSnapshot().integrity = integrity;
     }
 
@@ -161,7 +167,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setMetadata(String metadata) {
-        Validate.notNull(metadata, "Structure metadata cannot be null");
+        Preconditions.checkArgument(metadata != null, "Structure metadata cannot be null");
         if (getUsageMode() == UsageMode.DATA) {
             getSnapshot().metaData = metadata;
         }
@@ -188,6 +194,11 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
                 access.setBlock(this.getPosition(), data.setValue(net.minecraft.world.level.block.StructureBlock.MODE, tileEntity.getMode()), 2);
             }
         }
+    }
+
+    @Override
+    public CraftStructureBlock copy() {
+        return new CraftStructureBlock(this);
     }
 
     private static boolean isBetween(int num, int min, int max) {

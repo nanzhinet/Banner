@@ -1,17 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R3.scheduler;
 
-import com.destroystokyo.paper.ServerSchedulerReportingWrapper;
-import com.destroystokyo.paper.event.server.ServerExceptionEvent;
-import com.destroystokyo.paper.exception.ServerSchedulerException;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.bukkit.plugin.IllegalPluginAccessException;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scheduler.BukkitWorker;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -27,6 +17,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.IntUnaryOperator;
 import java.util.logging.Level;
+import org.bukkit.plugin.IllegalPluginAccessException;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scheduler.BukkitWorker;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The fundamental concepts for this implementation:
@@ -126,7 +123,7 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
     @Override
-    public void runTask(Plugin plugin, Consumer<BukkitTask> task) throws IllegalArgumentException {
+    public void runTask(@NotNull Plugin plugin, @NotNull Consumer<? super BukkitTask> task) throws IllegalArgumentException {
         runTaskLater(plugin, task, 0L);
     }
 
@@ -142,7 +139,7 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
     @Override
-    public void runTaskAsynchronously(Plugin plugin, Consumer<BukkitTask> task) throws IllegalArgumentException {
+    public void runTaskAsynchronously(Plugin plugin, Consumer<? super BukkitTask> task) throws IllegalArgumentException {
         runTaskLaterAsynchronously(plugin, task, 0L);
     }
 
@@ -157,7 +154,7 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
     @Override
-    public void runTaskLater(Plugin plugin, Consumer<BukkitTask> task, long delay) throws IllegalArgumentException {
+    public void runTaskLater(Plugin plugin, Consumer<? super BukkitTask> task, long delay) throws IllegalArgumentException {
         runTaskTimer(plugin, task, delay, CraftTask.NO_REPEATING);
     }
 
@@ -173,12 +170,12 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
     @Override
-    public void runTaskLaterAsynchronously(Plugin plugin, Consumer<BukkitTask> task, long delay) throws IllegalArgumentException {
+    public void runTaskLaterAsynchronously(Plugin plugin, Consumer<? super BukkitTask> task, long delay) throws IllegalArgumentException {
         runTaskTimerAsynchronously(plugin, task, delay, CraftTask.NO_REPEATING);
     }
 
     @Override
-    public void runTaskTimerAsynchronously(Plugin plugin, Consumer<BukkitTask> task, long delay, long period) throws IllegalArgumentException {
+    public void runTaskTimerAsynchronously(Plugin plugin, Consumer<? super BukkitTask> task, long delay, long period) throws IllegalArgumentException {
         runTaskTimerAsynchronously(plugin, (Object) task, delay, CraftTask.NO_REPEATING);
     }
 
@@ -193,7 +190,7 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
     @Override
-    public void runTaskTimer(Plugin plugin, Consumer<BukkitTask> task, long delay, long period) throws IllegalArgumentException {
+    public void runTaskTimer(Plugin plugin, Consumer<? super BukkitTask> task, long delay, long period) throws IllegalArgumentException {
         runTaskTimer(plugin, (Object) task, delay, period);
     }
 
@@ -418,24 +415,20 @@ public class CraftScheduler implements BukkitScheduler {
                 try {
                     task.run();
                 } catch (final Throwable throwable) {
-                    String msg = String.format(
-                            "Task #%s for %s generated an exception",
-                            task.getTaskId(),
-                            task.getOwner().getDescription().getFullName());
-
                     task.getOwner().getLogger().log(
                             Level.WARNING,
-                            msg,
+                            String.format(
+                                "Task #%s for %s generated an exception",
+                                task.getTaskId(),
+                                task.getOwner().getDescription().getFullName()),
                             throwable);
-                    org.bukkit.Bukkit.getServer().getPluginManager().callEvent(
-                            new ServerExceptionEvent(new ServerSchedulerException(msg, throwable, task)));
                 } finally {
                     currentTask = null;
                 }
                 parsePending();
             } else {
                 debugTail = debugTail.setNext(new CraftAsyncDebugger(currentTick + RECENT_TICKS, task.getOwner(), task.getTaskClass()));
-                this.executor.execute(new ServerSchedulerReportingWrapper(task)); // Paper
+                executor.execute(task);
                 // We don't need to parse pending
                 // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
             }

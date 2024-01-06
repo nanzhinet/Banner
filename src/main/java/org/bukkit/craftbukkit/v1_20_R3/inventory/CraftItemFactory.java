@@ -6,14 +6,19 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntityType;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftLegacy;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +27,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public final class CraftItemFactory implements ItemFactory {
     static final Color DEFAULT_LEATHER_COLOR = Color.fromRGB(0xA06540);
     private static final CraftItemFactory instance;
+    private static final RandomSource randomSource = RandomSource.create();
 
     static {
         instance = new CraftItemFactory();
@@ -159,6 +165,7 @@ public final class CraftItemFactory implements ItemFactory {
         case BAT_SPAWN_EGG:
         case BEE_SPAWN_EGG:
         case BLAZE_SPAWN_EGG:
+        case BREEZE_SPAWN_EGG:
         case CAT_SPAWN_EGG:
         case CAMEL_SPAWN_EGG:
         case CAVE_SPIDER_SPAWN_EGG:
@@ -334,6 +341,8 @@ public final class CraftItemFactory implements ItemFactory {
         case DECORATED_POT:
         case SUSPICIOUS_SAND:
         case SUSPICIOUS_GRAVEL:
+        case CRAFTER:
+        case TRIAL_SPAWNER:
             return new CraftMetaBlockState(meta, material);
         case TROPICAL_FISH_BUCKET:
             return meta instanceof CraftMetaTropicalFishBucket ? meta : new CraftMetaTropicalFishBucket(meta);
@@ -407,9 +416,6 @@ public final class CraftItemFactory implements ItemFactory {
     public ItemMeta asMetaFor(ItemMeta meta, Material material) {
         Preconditions.checkArgument(material != null, "Material cannot be null");
         Preconditions.checkArgument(meta instanceof CraftMetaItem, "ItemMeta of %s not created by %s", (meta != null ? meta.getClass().toString() : "null"), CraftItemFactory.class.getName());
-        if (!(meta instanceof CraftMetaItem)) {
-            throw new IllegalArgumentException("Meta of " + (meta != null ? meta.getClass().toString() : "null") + " not created by " + CraftItemFactory.class.getName());
-        }
         return getItemMeta(material, (CraftMetaItem) meta);
     }
 
@@ -442,19 +448,43 @@ public final class CraftItemFactory implements ItemFactory {
         return ((CraftMetaItem) meta).updateMaterial(material);
     }
 
-
     @Override
     public Material getSpawnEgg(EntityType type) {
         if (type == EntityType.UNKNOWN) {
             return null;
         }
-        net.minecraft.world.entity.EntityType<?> nmsType = BuiltInRegistries.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(type.getKey()));
+        net.minecraft.world.entity.EntityType<?> nmsType = CraftEntityType.bukkitToMinecraft(type);
         Item nmsItem = SpawnEggItem.byId(nmsType);
 
         if (nmsItem == null) {
             return null;
         }
 
-        return CraftMagicNumbers.getMaterial(nmsItem);
+        return CraftItemType.minecraftToBukkit(nmsItem);
+    }
+
+    @Override
+    public ItemStack enchantItem(Entity entity, ItemStack itemStack, int level, boolean allowTreasures) {
+        Preconditions.checkArgument(entity != null, "The entity must not be null");
+        return enchantItem(((CraftEntity) entity).getHandle().level().getRandom(), itemStack, level, allowTreasures);
+    }
+    @Override
+    public ItemStack enchantItem(final World world, final ItemStack itemStack, final int level, final boolean allowTreasures) {
+        Preconditions.checkArgument(world != null, "The world must not be null");
+        return enchantItem(((CraftWorld) world).getHandle().random, itemStack, level, allowTreasures);
+    }
+    @Override
+    public ItemStack enchantItem(final ItemStack itemStack, final int level, final boolean allowTreasures) {
+        return enchantItem(randomSource, itemStack, level, allowTreasures);
+    }
+    private static ItemStack enchantItem(RandomSource source, ItemStack itemStack, int level, boolean allowTreasures) {
+        Preconditions.checkArgument(itemStack != null, "ItemStack must not be null");
+        Preconditions.checkArgument(!itemStack.getType().isAir(), "ItemStack must not be air");
+        if (!(itemStack instanceof CraftItemStack)) {
+            itemStack = CraftItemStack.asCraftCopy(itemStack);
+        }
+        CraftItemStack craft = (CraftItemStack) itemStack;
+        EnchantmentHelper.enchantItem(source, craft.handle, level, allowTreasures);
+        return craft;
     }
 }

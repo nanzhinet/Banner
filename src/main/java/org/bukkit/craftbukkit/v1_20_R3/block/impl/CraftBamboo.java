@@ -13,7 +13,7 @@ public final class CraftBamboo extends org.bukkit.craftbukkit.v1_20_R3.block.dat
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftBamboo
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftBamboo
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> LEAVES = getEnum(net.minecraft.world.level.block.BambooStalkBlock.class, "leaves");
 
@@ -27,7 +27,7 @@ public final class CraftBamboo extends org.bukkit.craftbukkit.v1_20_R3.block.dat
         set(LEAVES, leaves);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftAgeable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftAgeable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty AGE = getInteger(net.minecraft.world.level.block.BambooStalkBlock.class, "age");
 
@@ -46,7 +46,7 @@ public final class CraftBamboo extends org.bukkit.craftbukkit.v1_20_R3.block.dat
         return getMax(AGE);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftSapling
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftSapling
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty STAGE = getInteger(net.minecraft.world.level.block.BambooStalkBlock.class, "stage");
 

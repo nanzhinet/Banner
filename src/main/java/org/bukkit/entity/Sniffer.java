@@ -1,19 +1,25 @@
 package org.bukkit.entity;
 
+import java.util.Collection;
 import org.bukkit.Location;
+import org.bukkit.MinecraftExperimental;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-
 /**
  * Represents a Sniffer.
+ *
+ * @apiNote This entity is part of an experimental feature of Minecraft and
+ * hence subject to change.
  */
+@MinecraftExperimental
+@ApiStatus.Experimental
 public interface Sniffer extends Animals {
 
     /**
      * Gets the locations explored by the sniffer.
-     * <br>
+     *
      * <b>Note:</b> the returned locations use sniffer's current world.
      *
      * @return a collection of locations
@@ -23,9 +29,10 @@ public interface Sniffer extends Animals {
 
     /**
      * Remove a location of the explored locations.
-     * <br>
+     *
      * <b>Note:</b> the location must be in the sniffer's current world for this
      * method to have any effect.
+     *
      *
      * @param location the location to remove
      * @see #getExploredLocations()
@@ -34,9 +41,10 @@ public interface Sniffer extends Animals {
 
     /**
      * Add a location to the explored locations.
-     * <br>
+     *
      * <b>Note:</b> the location must be in the sniffer's current world for this
      * method to have any effect.
+     *
      *
      * @param location the location to add
      * @see #getExploredLocations()
@@ -88,4 +96,5 @@ public interface Sniffer extends Animals {
         DIGGING,
         RISING;
     }
+
 }

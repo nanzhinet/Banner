@@ -1,11 +1,10 @@
 package org.bukkit.craftbukkit.v1_20_R3.inventory.util;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public final class CraftInventoryCreator {
 
@@ -39,6 +38,7 @@ public final class CraftInventoryCreator {
         converterMap.put(InventoryType.GRINDSTONE, DEFAULT_CONVERTER);
         converterMap.put(InventoryType.STONECUTTER, DEFAULT_CONVERTER);
         converterMap.put(InventoryType.SMITHING_NEW, DEFAULT_CONVERTER);
+        converterMap.put(InventoryType.CRAFTER, new CraftTileInventoryConverter.Crafter());
     }
 
     public Inventory createInventory(InventoryHolder holder, InventoryType type) {

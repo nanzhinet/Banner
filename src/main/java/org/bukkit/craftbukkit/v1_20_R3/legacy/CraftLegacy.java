@@ -4,6 +4,12 @@ import com.google.common.base.Preconditions;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.fabric.BukkitRegistry;
 import com.mojang.serialization.Dynamic;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +17,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.BlockStateData;
 import net.minecraft.util.datafix.fixes.ItemIdFix;
@@ -22,16 +29,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockType;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.material.MaterialData;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * This class may seem unnecessarily slow and complicated/repetitive however it
@@ -72,7 +73,7 @@ public final class CraftLegacy {
         MaterialData mappedData;
 
         if (material.isBlock()) {
-            Block block = CraftMagicNumbers.getBlock(material);
+            Block block = CraftBlockType.bukkitToMinecraft(material);
             BlockState blockData = block.defaultBlockState();
 
             // Try exact match first
@@ -283,7 +284,7 @@ public final class CraftLegacy {
     }
 
     public static String name(Material material) {
-        if (material.isFabricBlock || material.isFabricItem) {
+        if (BukkitRegistry.isMods(material.getKey())) {
             return material.name();
         } else {
             return material.name().substring(Material.LEGACY_PREFIX.length());

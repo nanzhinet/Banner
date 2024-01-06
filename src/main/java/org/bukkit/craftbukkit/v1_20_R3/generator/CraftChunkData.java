@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_20_R3.generator;
 
 import com.google.common.base.Preconditions;
+import java.lang.ref.WeakReference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -10,13 +11,12 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBiome;
+import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockType;
 import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftMagicNumbers;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Data to be used for the block types and data in a newly generated chunk.
@@ -60,7 +60,7 @@ public final class CraftChunkData implements ChunkGenerator.ChunkData {
 
     @Override
     public Biome getBiome(int x, int y, int z) {
-        return CraftBlock.biomeBaseToBiome(getHandle().bridge$biomeRegistry(), getHandle().getNoiseBiome(x >> 2, y >> 2, z >> 2));
+        return CraftBiome.minecraftHolderToBukkit(getHandle().getNoiseBiome(x >> 2, y >> 2, z >> 2));
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class CraftChunkData implements ChunkGenerator.ChunkData {
 
     @Override
     public Material getType(int x, int y, int z) {
-        return CraftMagicNumbers.getMaterial(getTypeId(x, y, z).getBlock());
+        return CraftBlockType.minecraftToBukkit(getTypeId(x, y, z).getBlock());
     }
 
     @Override

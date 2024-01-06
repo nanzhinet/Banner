@@ -13,7 +13,7 @@ public final class CraftButtonAbstract extends org.bukkit.craftbukkit.v1_20_R3.b
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftSwitch
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftSwitch
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACE = getEnum(net.minecraft.world.level.block.ButtonBlock.class, "face");
 
@@ -27,7 +27,7 @@ public final class CraftButtonAbstract extends org.bukkit.craftbukkit.v1_20_R3.b
         set(FACE, face);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.ButtonBlock.class, "facing");
 
@@ -46,7 +46,7 @@ public final class CraftButtonAbstract extends org.bukkit.craftbukkit.v1_20_R3.b
         return getValues(FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftFaceAttachable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftFaceAttachable
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> ATTACH_FACE = getEnum(net.minecraft.world.level.block.ButtonBlock.class, "face");
 
@@ -60,7 +60,7 @@ public final class CraftButtonAbstract extends org.bukkit.craftbukkit.v1_20_R3.b
         set(ATTACH_FACE, face);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.ButtonBlock.class, "powered");
 

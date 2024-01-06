@@ -1,9 +1,6 @@
 package org.bukkit.craftbukkit.v1_20_R3.entity;
 
-import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.level.Level;
 import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.entity.Rabbit;
 
 public class CraftRabbit extends CraftAnimals implements Rabbit {
@@ -29,17 +26,7 @@ public class CraftRabbit extends CraftAnimals implements Rabbit {
 
     @Override
     public void setRabbitType(Type type) {
-        net.minecraft.world.entity.animal.Rabbit entity = getHandle();
-        if (getRabbitType() == Type.THE_KILLER_BUNNY) {
-            // Reset goals and target finders.
-            Level world = ((CraftWorld) this.getWorld()).getHandle();
-            entity.goalSelector = new GoalSelector(world.getProfilerSupplier());
-            entity.targetSelector = new GoalSelector(world.getProfilerSupplier());
-            entity.registerGoals();
-            entity.setSpeedModifier(0.0D);
-        }
-
-        entity.setVariant(net.minecraft.world.entity.animal.Rabbit.Variant.values()[type.ordinal()]);
+        getHandle().setVariant(net.minecraft.world.entity.animal.Rabbit.Variant.values()[type.ordinal()]);
     }
 
     private static class CraftMagicMapping {

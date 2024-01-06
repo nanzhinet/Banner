@@ -13,7 +13,7 @@ public final class CraftCommand extends org.bukkit.craftbukkit.v1_20_R3.block.da
         super(state);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.type.CraftCommandBlock
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.type.CraftCommandBlock
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty CONDITIONAL = getBoolean(net.minecraft.world.level.block.CommandBlock.class, "conditional");
 
@@ -27,7 +27,7 @@ public final class CraftCommand extends org.bukkit.craftbukkit.v1_20_R3.block.da
         set(CONDITIONAL, conditional);
     }
 
-    // org.bukkit.craftbukkit.v1_19_R3.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R2.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.CommandBlock.class, "facing");
 

@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.v1_20_R3.scoreboard;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import net.minecraft.world.scores.PlayerTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,8 +10,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftChatMessage;
 import org.bukkit.scoreboard.NameTagVisibility;
 import org.bukkit.scoreboard.Team;
-
-import java.util.Set;
 
 final class CraftTeam extends CraftScoreboardComponent implements Team {
     private final PlayerTeam team;
@@ -37,8 +36,6 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     @Override
     public void setDisplayName(String displayName) {
         Preconditions.checkArgument(displayName != null, "Display name cannot be null");
-        int lengthStripedDisplayName = ChatColor.stripColor(displayName).length();
-        Preconditions.checkArgument(lengthStripedDisplayName <= 128, "Display name '%s' is longer than the limit of 128 characters (%s)", displayName, lengthStripedDisplayName);
         checkState();
 
         team.setDisplayName(CraftChatMessage.fromString(displayName)[0]); // SPIGOT-4112: not nullable
@@ -54,8 +51,6 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     @Override
     public void setPrefix(String prefix) {
         Preconditions.checkArgument(prefix != null, "Prefix cannot be null");
-        int lengthStripedPrefix = ChatColor.stripColor(prefix).length();
-        Preconditions.checkArgument(lengthStripedPrefix <= 64, "Prefix '%s' is longer than the limit of 64 characters (%s)", prefix, lengthStripedPrefix);
         checkState();
 
         team.setPlayerPrefix(CraftChatMessage.fromStringOrNull(prefix));
@@ -71,8 +66,7 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     @Override
     public void setSuffix(String suffix) {
         Preconditions.checkArgument(suffix != null, "Suffix cannot be null");
-        int lengthStripedSuffix = ChatColor.stripColor(suffix).length();
-        Preconditions.checkArgument(lengthStripedSuffix <= 64, "Suffix '%s' is longer than the limit of 64 characters (%s)", suffix, lengthStripedSuffix);
+        checkState();
 
         team.setPlayerSuffix(CraftChatMessage.fromStringOrNull(suffix));
     }
@@ -121,14 +115,14 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     }
 
     @Override
-    public NameTagVisibility getNameTagVisibility() {
+    public NameTagVisibility getNameTagVisibility() throws IllegalArgumentException {
         checkState();
 
         return notchToBukkit(team.getNameTagVisibility());
     }
 
     @Override
-    public void setNameTagVisibility(NameTagVisibility visibility) {
+    public void setNameTagVisibility(NameTagVisibility visibility) throws IllegalArgumentException {
         checkState();
 
         team.setNameTagVisibility(bukkitToNotch(visibility));
@@ -197,13 +191,13 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     }
 
     @Override
-    public boolean hasPlayer(OfflinePlayer player) {
+    public boolean hasPlayer(OfflinePlayer player) throws IllegalArgumentException, IllegalStateException {
         Preconditions.checkArgument(player != null, "OfflinePlayer cannot be null");
         return hasEntry(player.getName());
     }
 
     @Override
-    public boolean hasEntry(String entry) {
+    public boolean hasEntry(String entry) throws IllegalArgumentException, IllegalStateException {
         Preconditions.checkArgument(entry != null, "Entry cannot be null");
         checkState();
 
@@ -283,7 +277,7 @@ final class CraftTeam extends CraftScoreboardComponent implements Team {
     }
 
     @Override
-    CraftScoreboard checkState() throws IllegalStateException {
+    CraftScoreboard checkState() {
         Preconditions.checkState(getScoreboard().board.getPlayerTeam(team.getName()) != null, "Unregistered scoreboard component");
 
         return getScoreboard();

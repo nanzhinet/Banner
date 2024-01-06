@@ -1,15 +1,15 @@
 package org.bukkit.craftbukkit.v1_20_R3.ban;
 
 import com.mojang.authlib.GameProfile;
+import java.time.Instant;
+import java.util.Date;
 import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
+import org.bukkit.BanEntry;
 import org.bukkit.craftbukkit.v1_20_R3.profile.CraftPlayerProfile;
 import org.bukkit.profile.PlayerProfile;
 
-import java.time.Instant;
-import java.util.Date;
-
-public final class CraftProfileBanEntry implements org.bukkit.BanEntry<PlayerProfile> {
+public final class CraftProfileBanEntry implements BanEntry<PlayerProfile> {
     private static final Date minorDate = Date.from(Instant.parse("1899-12-31T04:00:00Z"));
     private final UserBanList list;
     private final GameProfile profile;

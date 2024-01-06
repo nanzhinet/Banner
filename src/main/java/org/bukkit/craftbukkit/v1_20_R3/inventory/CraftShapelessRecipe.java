@@ -1,7 +1,10 @@
 package org.bukkit.craftbukkit.v1_20_R3.inventory;
 
+import java.util.List;
+
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.NonNullList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.bukkit.NamespacedKey;
@@ -9,8 +12,6 @@ import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapelessRecipe;
-
-import java.util.List;
 
 public class CraftShapelessRecipe extends ShapelessRecipe implements CraftRecipe {
     // TODO: Could eventually use this to add a matches() method or some such

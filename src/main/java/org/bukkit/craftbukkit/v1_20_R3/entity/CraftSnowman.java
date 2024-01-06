@@ -3,7 +3,7 @@ package org.bukkit.craftbukkit.v1_20_R3.entity;
 import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.bukkit.entity.Snowman;
 
-public class CraftSnowman extends CraftGolem implements Snowman, io.papermc.paper.entity.PaperShearable { // Paper
+public class CraftSnowman extends CraftGolem implements Snowman {
     public CraftSnowman(CraftServer server, net.minecraft.world.entity.animal.SnowGolem entity) {
         super(server, entity);
     }
