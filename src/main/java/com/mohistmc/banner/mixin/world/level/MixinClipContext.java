@@ -16,9 +16,9 @@ public class MixinClipContext {
     @Mutable
     @Shadow @Final private CollisionContext collisionContext;
 
-    @Redirect(method = "<init>", at = @At(value = "INVOKE",
+    @Redirect(method = "<init>(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/level/ClipContext$Block;Lnet/minecraft/world/level/ClipContext$Fluid;Lnet/minecraft/world/entity/Entity;)V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/phys/shapes/CollisionContext;of(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/shapes/CollisionContext;"))
-    private CollisionContext banner$resetClipContext(Entity entity) {
+    private static CollisionContext banner$resetClipContext(Entity entity) {
         return (entity == null) ? CollisionContext.empty() : CollisionContext.of(entity); // CraftBukkit;
     }
 }
