@@ -175,7 +175,7 @@ public abstract class MixinServerCommonPacketListenerImpl implements InjectionSe
     private static final ResourceLocation CUSTOM_REGISTER = new ResourceLocation("register");
     private static final ResourceLocation CUSTOM_UNREGISTER = new ResourceLocation("unregister");
 
-    @Inject(method = "handleCustomPayload", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "handleCustomPayload", at = @At("HEAD"))
     private void banner$customPayload(ServerboundCustomPayloadPacket serverboundcustompayloadpacket, CallbackInfo ci) {
         /*
         if (!(serverboundcustompayloadpacket.payload() instanceof BannerServerboundCustomPayloadPacket.UnknownPayload)) {
