@@ -784,8 +784,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean isInWorld() {
-        //return getHandle().inWorld; // Banner TODO fix
-        return false;
+        return getHandle().bridge$inWorld();
     }
 
     @Override

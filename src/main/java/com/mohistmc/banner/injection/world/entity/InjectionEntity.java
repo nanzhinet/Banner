@@ -16,6 +16,14 @@ import org.jetbrains.annotations.Nullable;
 
 public interface InjectionEntity {
 
+    default boolean bridge$inWorld() {
+        return false;
+    }
+
+    default void banner$setInWorld(boolean inWorld) {
+
+    }
+
     default void banner$setBukkitEntity(CraftEntity bukkitEntity) {
 
     }

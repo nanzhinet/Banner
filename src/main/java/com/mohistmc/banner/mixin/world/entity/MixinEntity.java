@@ -21,6 +21,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
@@ -122,8 +124,6 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     @Shadow public int remainingFireTicks;
     @Shadow public boolean horizontalCollision;
 
-    @Shadow protected abstract Vec3 collide(Vec3 vec);
-
     @Shadow public abstract double getY();
 
     @Shadow public abstract float getYRot();
@@ -199,6 +199,7 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
             org.spigotmc.ActivationRange.initializeEntityActivationType((Entity) (Object) this);
     public boolean defaultActivationState;
     public long activatedTick = Integer.MIN_VALUE;
+    public boolean inWorld = false;
     public boolean generation;
     public boolean persist = true;
     public boolean visibleByDefault = true;
@@ -769,6 +770,13 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
         return this.teleportTo(worldserver, d0, d1, d2, set, f, f1);
     }
 
+    @Redirect(method = "teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;addDuringTeleport(Lnet/minecraft/world/entity/Entity;)V"))
+    private void banner$skipIfNotInWorld(ServerLevel instance, Entity entity) {
+        if (this.inWorld) {
+            instance.addDuringTeleport(entity);
+        }
+    }
+
     @Inject(method = "restoreFrom", at = @At("HEAD"))
     private void banner$forwardHandle(Entity entityIn, CallbackInfo ci) {
          entityIn.getBukkitEntity().setHandle((Entity) (Object) this);
@@ -956,5 +964,15 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     @Override
     public void banner$setBukkitEntity(CraftEntity bukkitEntity) {
         this.bukkitEntity = bukkitEntity;
+    }
+
+    @Override
+    public boolean bridge$inWorld() {
+        return inWorld;
+    }
+
+    @Override
+    public void banner$setInWorld(boolean inWorld) {
+        this.inWorld = inWorld;
     }
 }
