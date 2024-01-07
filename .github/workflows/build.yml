@@ -9,7 +9,7 @@ env:
   MINECRAFT_VERSION: 1.20.4
   VERSION: 1.20.4-snapshot
   MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
-  RELEASE_NAME: banner-1.20.4
+  RELEASE_NAME: banner-1.20.4-snapshot
 
 jobs:
   build:
