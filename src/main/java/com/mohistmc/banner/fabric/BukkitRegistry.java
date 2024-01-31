@@ -101,6 +101,7 @@ public class BukkitRegistry {
         loadVillagerProfessions();
         loadBiomes(console);
         loadPoses();
+        addPose();
         loadArts();
         loadStats();
         loadSpawnCategory();
@@ -242,6 +243,15 @@ public class BukkitRegistry {
             }
         }
         BannerServer.LOGGER.info("Registered {} new Poses", newTypes.size());
+    }
+
+    private static void addPose() {
+        for (Pose pose : Pose.values()) {
+            if (pose.ordinal() > 14) {
+                org.bukkit.entity.Pose bukkit = MohistDynamEnum.addEnum(org.bukkit.entity.Pose.class, pose.name());
+                BannerServer.LOGGER.debug("Registered mod Pose as Pose(Bukkit) {}", bukkit);
+            }
+        }
     }
 
     private static void loadArts() {
