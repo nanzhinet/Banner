@@ -14,6 +14,7 @@ import com.mohistmc.banner.injection.world.level.storage.InjectionLevelStorageAc
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
@@ -381,6 +382,24 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
             cir.setReturnValue(false);
         }
     }
+
+    // Banner start
+    public AtomicBoolean canaddFreshEntity = new AtomicBoolean(false);
+
+    @Override
+    public boolean canAddFreshEntity() {
+        return canaddFreshEntity.getAndSet(false);
+    }
+    // Banner end
+
+    // Banner - fix mixin
+    @Redirect(method = "addFreshEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;addEntity(Lnet/minecraft/world/entity/Entity;)Z"))
+    private boolean banner$fixAddFreshEntity(ServerLevel instance, Entity entity) {
+        boolean add = addFreshEntity(entity);
+        canaddFreshEntity.set(add);
+        return add;
+    }
+
 
     @Override
     public boolean addFreshEntity(Entity entity, CreatureSpawnEvent.SpawnReason reason) {
