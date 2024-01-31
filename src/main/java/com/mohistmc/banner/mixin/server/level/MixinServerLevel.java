@@ -126,6 +126,8 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
     @Shadow public abstract DimensionDataStorage getDataStorage();
     @Shadow public abstract ServerChunkCache getChunkSource();
 
+    @Shadow protected abstract boolean addEntity(Entity entity);
+
     public LevelStorageSource.LevelStorageAccess convertable;
     public UUID uuid;
     public PrimaryLevelData K;
@@ -395,7 +397,7 @@ public abstract class MixinServerLevel extends Level implements WorldGenLevel, I
     // Banner - fix mixin
     @Redirect(method = "addFreshEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;addEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     private boolean banner$fixAddFreshEntity(ServerLevel instance, Entity entity) {
-        boolean add = addFreshEntity(entity);
+        boolean add = addEntity(entity);
         canaddFreshEntity.set(add);
         return add;
     }
