@@ -477,9 +477,10 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
             return Component.literal(event.getKickMessage());
         }
         // Banner start - TODO
+        /*
         if (!LuckPerms.perCache.containsKey(player.getUniqueId())) {
             LuckPerms.perCache.put(player.getUniqueId(), ((CraftPlayer)player).perm);
-        }
+        }*/
         // Banner end
         return null;
     }

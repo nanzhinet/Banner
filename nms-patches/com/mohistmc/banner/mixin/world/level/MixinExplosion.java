@@ -371,7 +371,7 @@ public abstract class MixinExplosion implements InjectionExplosion {
         if (this.fire) {
             for (BlockPos blockpos2 : this.toBlow) {
                 if (this.random.nextInt(3) == 0 && this.level.getBlockState(blockpos2).isAir() && this.level.getBlockState(blockpos2.below()).isSolidRender(this.level, blockpos2.below())) {
-                    BlockIgniteEvent event = CraftEventFactory.callBlockIgniteEvent(this.level, blockpos2.getX(), blockpos2.getY(), blockpos2.getZ(), (Explosion) (Object) this);
+                    BlockIgniteEvent event = CraftEventFactory.callBlockIgniteEvent(this.level, blockpos2, (Explosion) (Object) this);
                     if (!event.isCancelled()) {
                         this.level.setBlockAndUpdate(blockpos2, BaseFireBlock.getState(this.level, blockpos2));
                     }
