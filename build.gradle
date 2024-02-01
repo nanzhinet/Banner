@@ -53,6 +53,9 @@ repositories {
 		name = "Adventure"
 		url = 'https://jd.advntr.dev/'
 	}
+	maven {
+		url = uri('./libs')
+	}
 	mavenCentral()
 }
 
@@ -152,7 +155,7 @@ dependencies {
 
 	// mohist lib
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
-	implementation(include(fileTree dir: "libs", "spigot-1.20.4-mapped.jar"))
+	implementation(include("org.spigotmc:spigot-mapped:1.20.4"))
 }
 
 loom {
