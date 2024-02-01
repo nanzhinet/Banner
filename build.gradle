@@ -20,6 +20,12 @@ apply plugin: 'com.mohistmc.banner'
 version = project.minecraft_version + "-" + ci_version()
 group = project.maven_group
 
+configurations {
+	extraLibs
+	removeLibs
+	metest
+}
+
 base {
 	archivesName = project.archives_base_name
 }
@@ -152,7 +158,10 @@ dependencies {
 
 	// mohist lib
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
-	implementation(include(fileTree dir: "libs", "spigot-1.20.4-mapped.jar"))
+
+	extraLibs fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
+	compileOnly fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
+	configurations.api.extendsFrom( (configurations.extraLibs) )
 }
 
 loom {
@@ -188,6 +197,9 @@ tasks.withType(JavaCompile).configureEach {
 
 jar {
 	from("LICENSE")
+	from {
+		(configurations.extraLibs - configurations.removeLibs).filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+	}
 	manifest {
 		attributes(
 				'Main-Class': 'com.mohistmc.banner.BannerGUI',
