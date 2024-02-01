@@ -2,6 +2,7 @@
 /src/main/java/com/mohistmc/banner/VersionInfo.java
 /**/VersionInfo.java
 /**/spigot-1.20.4-mapped.jar
+/**/spigot-api-1.20.4-mapped.jar
 # gradle
 
 .gradle/
