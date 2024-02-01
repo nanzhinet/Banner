@@ -181,7 +181,7 @@ loom {
 	serverOnlyMinecraftJar()
 }
 
-processResources {dl
+processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
