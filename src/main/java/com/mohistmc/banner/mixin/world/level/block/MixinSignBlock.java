@@ -44,13 +44,13 @@ public abstract class MixinSignBlock implements InjectionSignBlock {
         org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) player.getBukkitEntity();
         org.bukkit.block.Block bukkitBlock = CraftBlock.at(signEntity.getLevel(), signEntity.getBlockPos());
         CraftSign<?> bukkitSign = (CraftSign<?>) CraftBlockStates.getBlockState(bukkitBlock);
-        io.papermc.paper.event.player.PlayerOpenSignEvent event =
-                new io.papermc.paper.event.player.PlayerOpenSignEvent(
+        PlayerSignOpenEvent event =
+                new PlayerSignOpenEvent(
                         bukkitPlayer,
                         bukkitSign,
                         isFrontText ? org.bukkit.block.sign.Side.FRONT : org.bukkit.block.sign.Side.BACK,
                         cause);
-        if (!CraftEventFactory.callPlayerSignOpenEvent(player, signEntity, isFrontText, cause) || !event.callEvent()) return; // Banner
+        if (!CraftEventFactory.callPlayerSignOpenEvent(player, signEntity, isFrontText, cause) || event.isCancelled()) return; // Banner
         // Paper end
     }
 

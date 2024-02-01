@@ -877,4 +877,17 @@ public final class SimplePluginManager implements PluginManager {
     public void useTimings(boolean use) {
         useTimings = use;
     }
+
+    // Banner start
+    public List<Plugin> getPluginList() {
+        return plugins;
+    }
+
+    public Map<String, Plugin> getLookupNames() {
+        return lookupNames;
+    }
+
+    public SimpleCommandMap getCommandMap() {
+        return commandMap;
+    }
 }

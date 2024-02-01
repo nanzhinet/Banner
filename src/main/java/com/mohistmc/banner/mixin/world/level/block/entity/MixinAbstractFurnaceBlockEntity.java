@@ -141,7 +141,7 @@ public abstract class MixinAbstractFurnaceBlockEntity extends BaseContainerBlock
             CraftItemStack source = CraftItemStack.asCraftMirror(itemstack);
             org.bukkit.inventory.ItemStack result = CraftItemStack.asBukkitCopy(itemstack1);
 
-            FurnaceSmeltEvent furnaceSmeltEvent = new FurnaceSmeltEvent(CraftBlock.at(banner$level.get(), banner$pos.get()), source, result, (org.bukkit.inventory.CookingRecipe<?>) irecipe.toBukkitRecipe()); // Paper
+            FurnaceSmeltEvent furnaceSmeltEvent = new FurnaceSmeltEvent(CraftBlock.at(banner$level.get(), banner$pos.get()), source, result, irecipe.toBukkitRecipe()); // Paper
             banner$level.get().getCraftServer().getPluginManager().callEvent(furnaceSmeltEvent);
 
             if (furnaceSmeltEvent.isCancelled()) {
