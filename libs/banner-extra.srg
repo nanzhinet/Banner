@@ -1,0 +1,2 @@
+# If needed change some mapping, just modify this
+CL: net/minecraft/server/commands/ChaseCommand net/minecraft/server/commands/ChaseCommand
