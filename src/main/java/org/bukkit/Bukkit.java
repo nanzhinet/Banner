@@ -44,6 +44,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootTable;
 import org.bukkit.map.MapView;
 import org.bukkit.packs.DataPackManager;
+import org.bukkit.packs.ResourcePack;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
@@ -278,6 +279,16 @@ public final class Bukkit {
     @NotNull
     public static DataPackManager getDataPackManager() {
         return server.getDataPackManager();
+    }
+
+    /**
+     * Gets the resource pack configured to be sent to clients by the server.
+     *
+     * @return the resource pack
+     */
+    @Nullable
+    public static ResourcePack getServerResourcePack() {
+        return server.getServerResourcePack();
     }
 
     /**
@@ -842,6 +853,7 @@ public final class Bukkit {
      */
     public static void reload() {
         server.reload();
+        org.spigotmc.CustomTimingsHandler.reload(); // Spigot
     }
 
     /**
@@ -982,6 +994,7 @@ public final class Bukkit {
     public static ItemCraftResult craftItemResult(@NotNull ItemStack[] craftingMatrix, @NotNull World world, @NotNull Player player) {
         return server.craftItemResult(craftingMatrix, world, player);
     }
+
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
      *
@@ -1003,6 +1016,7 @@ public final class Bukkit {
     public static ItemCraftResult craftItemResult(@NotNull ItemStack[] craftingMatrix, @NotNull World world) {
         return server.craftItemResult(craftingMatrix, world);
     }
+
 
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
@@ -1900,16 +1914,6 @@ public final class Bukkit {
     @Nullable
     public static Entity getEntity(@NotNull UUID uuid) {
         return server.getEntity(uuid);
-    }
-
-    // Paper start
-    /**
-     * Gets the current server TPS
-     * @return current server TPS (1m, 5m, 15m in Paper-Server)
-     */
-    @NotNull
-    public static double[] getTPS() {
-        return server.getTPS();
     }
 
     /**

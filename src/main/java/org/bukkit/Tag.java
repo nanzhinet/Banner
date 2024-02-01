@@ -974,6 +974,7 @@ public interface Tag<T extends Keyed> extends Keyed {
      * Vanilla tag representing entities which can turn in boats.
      */
     Tag<EntityType> ENTITY_TYPES_CAN_TURN_IN_BOATS = Bukkit.getTag(REGISTRY_ENTITY_TYPES, NamespacedKey.minecraft("can_turn_in_boats"), EntityType.class);
+
     /**
      * Returns whether or not this tag has an entry for the specified item.
      *

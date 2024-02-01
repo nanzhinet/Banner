@@ -2,8 +2,8 @@ package org.bukkit.map;
 
 import java.awt.Color;
 import java.awt.Image;
-import javax.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a canvas for drawing to a map. Each canvas is associated with a

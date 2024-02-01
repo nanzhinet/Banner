@@ -26,6 +26,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a base entity in the world
+ * <p>
+ * Not all methods are guaranteed to work/may have side effects when
+ * {@link #isInWorld()} is false.
  */
 public interface Entity extends Metadatable, CommandSender, Nameable, PersistentDataHolder {
 
@@ -709,25 +712,6 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @NotNull
     Pose getPose();
 
-    // Paper start
-    /**
-     * Returns if the entity is in sneak mode
-     *
-     * @return true if the entity is in sneak mode
-     */
-    boolean isSneaking();
-
-    /**
-     * Sets the sneak mode the entity.
-     * <p>
-     * Note: For most Entities this does not update Entity's pose
-     * and just makes its name tag less visible.
-     *
-     * @param sneak true if the entity should be sneaking
-     */
-    void setSneaking(boolean sneak);
-    // Paper end
-
     /**
      * Get the category of spawn to which this entity belongs.
      *
@@ -744,6 +728,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
      * @return whether the entity has been spawned in a world
      */
     boolean isInWorld();
+
     /**
      * Crates an {@link EntitySnapshot} representing the current state of this entity.
      *
@@ -752,6 +737,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @Nullable
     @ApiStatus.Experimental
     EntitySnapshot createSnapshot();
+
     /**
      * Creates a copy of this entity and all its data. Does not spawn the copy in
      * the world. <br>
@@ -762,6 +748,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @NotNull
     @ApiStatus.Experimental
     Entity copy();
+
     /**
      * Creates a copy of this entity and all its data. Spawns the copy at the given location. <br>
      * <b>Note:</b> Players cannot be copied.

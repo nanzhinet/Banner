@@ -159,7 +159,7 @@ public enum Particle implements Keyed {
      */
     LEGACY_FALLING_DUST(null, MaterialData.class, false);
 
-    public NamespacedKey key;
+    private final NamespacedKey key;
     private final Class<?> dataType;
     final boolean register;
 

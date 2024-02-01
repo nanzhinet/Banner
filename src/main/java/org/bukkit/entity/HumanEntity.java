@@ -623,4 +623,5 @@ public interface HumanEntity extends LivingEntity, AnimalTamer, InventoryHolder 
      */
     @Nullable
     public Firework fireworkBoost(@NotNull ItemStack fireworkItemStack);
+
 }

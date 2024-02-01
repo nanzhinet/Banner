@@ -44,6 +44,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootTable;
 import org.bukkit.map.MapView;
 import org.bukkit.packs.DataPackManager;
+import org.bukkit.packs.ResourcePack;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
@@ -246,6 +247,14 @@ public interface Server extends PluginMessageRecipient {
      */
     @NotNull
     public ServerTickManager getServerTickManager();
+
+    /**
+     * Gets the resource pack configured to be sent to clients by the server.
+     *
+     * @return the resource pack
+     */
+    @Nullable
+    public ResourcePack getServerResourcePack();
 
     /**
      * Gets the server resource pack uri, or empty string if not specified.
@@ -864,6 +873,7 @@ public interface Server extends PluginMessageRecipient {
      */
     @NotNull
     public ItemStack craftItem(@NotNull ItemStack[] craftingMatrix, @NotNull World world);
+
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
      *
@@ -890,6 +900,7 @@ public interface Server extends PluginMessageRecipient {
      */
     @NotNull
     public ItemCraftResult craftItemResult(@NotNull ItemStack[] craftingMatrix, @NotNull World world, @NotNull Player player);
+
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
      *
@@ -1618,15 +1629,6 @@ public interface Server extends PluginMessageRecipient {
     @Nullable
     Entity getEntity(@NotNull UUID uuid);
 
-    // Paper start
-    /**
-     * Gets the current server TPS
-     *
-     * @return current server TPS (1m, 5m, 15m in Paper-Server)
-     */
-    @NotNull
-    public double[] getTPS();
-
     /**
      * Get the advancement specified by this key.
      *
@@ -1801,26 +1803,6 @@ public interface Server extends PluginMessageRecipient {
         public org.bukkit.configuration.file.YamlConfiguration getConfig() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-
-        // Paper start
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getBukkitConfig()
-        {
-            throw new UnsupportedOperationException( "Not supported yet." );
-        }
-
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getSpigotConfig()
-        {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getPaperConfig()
-        {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        // Paper end
 
         /**
          * Sends the component to the player

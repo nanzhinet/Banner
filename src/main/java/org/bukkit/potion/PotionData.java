@@ -3,6 +3,10 @@ package org.bukkit.potion;
 import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * @deprecated Upgraded / extended potions are now their own {@link PotionType} use them instead.
+ */
+@Deprecated
 public final class PotionData {
 
     private final PotionType type;

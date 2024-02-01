@@ -1,8 +1,21 @@
+buildscript {
+	repositories {
+		maven {
+			url = uri('./loom-plugin')
+		}
+	}
+	dependencies {
+		classpath 'com.mohistmc.banner:banner-gradle-plugin:1.0.0'
+	}
+}
+
 plugins {
 	id 'fabric-loom' version '1.3-SNAPSHOT'
 	id 'maven-publish'
 	id 'org.ajoberstar.grgit' version '5.2.0'
 }
+
+apply plugin: 'com.mohistmc.banner'
 
 version = project.minecraft_version + "-" + ci_version()
 group = project.maven_group
@@ -139,6 +152,7 @@ dependencies {
 
 	// mohist lib
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
+	implementation(include(fileTree dir: "libs"))
 }
 
 loom {

@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import org.bukkit.Material;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

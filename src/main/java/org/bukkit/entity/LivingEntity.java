@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import com.mohistmc.banner.paper.addon.entity.AddonLivingEntity;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a living entity, such as a monster or player
  */
-public interface LivingEntity extends Attributable, Damageable, ProjectileSource, AddonLivingEntity {
+public interface LivingEntity extends Attributable, Damageable, ProjectileSource {
 
     /**
      * Gets the height of the living entity's eyes above its Location.
@@ -84,26 +84,6 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      */
     @NotNull
     public Block getTargetBlock(@Nullable Set<Material> transparent, int maxDistance);
-
-    /**
-     * Gets information about the entity being targeted
-     *
-     * @param maxDistance this is the maximum distance to scan
-     * @return entity being targeted, or null if no entity is targeted
-     */
-    @Nullable
-    public default Entity getTargetEntity(int maxDistance) {
-        return getTargetEntity(maxDistance, false);
-    }
-    /**
-     * Gets information about the entity being targeted
-     *
-     * @param maxDistance this is the maximum distance to scan
-     * @param ignoreBlocks true to scan through blocks
-     * @return entity being targeted, or null if no entity is targeted
-     */
-    @Nullable
-    public Entity getTargetEntity(int maxDistance, boolean ignoreBlocks);
 
     /**
      * Gets the last two blocks along the living entity's line of sight.
@@ -583,6 +563,14 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      * <p>
      * Exemptions to this rule can be managed with
      * {@link #getCollidableExemptions()}
+     * <p>
+     * Note that the client may predict the collision between itself and another
+     * entity, resulting in this flag not working for player collisions. This
+     * method should therefore only be used to set the collision status of
+     * non-player entities.
+     * <p>
+     * To control player collisions, use {@link Team.Option#COLLISION_RULE} in
+     * combination with a {@link Scoreboard} and a {@link Team}.
      *
      * @param collidable collision status
      */
@@ -597,6 +585,15 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      * Please note that this method returns only the custom collidable state,
      * not whether the entity is non-collidable for other reasons such as being
      * dead.
+     * <p>
+     * Note that the client may predict the collision between itself and another
+     * entity, resulting in this flag not being accurate for player collisions.
+     * This method should therefore only be used to check the collision status
+     * of non-player entities.
+     * <p>
+     * To check the collision behavior for a player, use
+     * {@link Team.Option#COLLISION_RULE} in combination with a
+     * {@link Scoreboard} and a {@link Team}.
      *
      * @return collision status
      */
@@ -614,6 +611,14 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      * entity is in this set then it will still collide with it.
      * <p>
      * Note these exemptions are not (currently) persistent.
+     * <p>
+     * Note that the client may predict the collision between itself and another
+     * entity, resulting in those exemptions not being accurate for player
+     * collisions. This method should therefore only be used to exempt
+     * non-player entities.
+     * <p>
+     * To exempt collisions for a player, use {@link Team.Option#COLLISION_RULE}
+     * in combination with a {@link Scoreboard} and a {@link Team}.
      *
      * @return the collidable exemption set
      */
@@ -744,8 +749,4 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      * @return Whether the entity is invisible
      */
     public boolean isInvisible();
-
-    public default Block getTargetBlock(int maxDistance) {
-        return getTargetBlockExact(maxDistance);
-    }
 }

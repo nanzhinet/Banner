@@ -25,6 +25,7 @@ import org.bukkit.WeatherType;
 import org.bukkit.WorldBorder;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.ban.IpBanList;
 import org.bukkit.ban.ProfileBanList;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -288,8 +289,6 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      */
     public boolean performCommand(@NotNull String command);
 
-    public boolean performOpCommand(@NotNull String command); // Mohist
-
     /**
      * Returns true if the entity is supported by a block.
      *
@@ -309,7 +308,6 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *
      * @return true if player is in sneak mode
      */
-    @Override
     public boolean isSneaking();
 
     /**
@@ -317,7 +315,6 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *
      * @param sneak true if player should appear sneaking
      */
-    @Override
     public void setSneaking(boolean sneak);
 
     /**
@@ -373,17 +370,44 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * they have not slept in one or their current bed spawn is invalid.
      *
      * @return Bed Spawn Location if bed exists, otherwise null.
+     *
+     * @see #getRespawnLocation()
+     * @deprecated Misleading name. This method also returns the location of
+     * respawn anchors.
      */
     @Nullable
     @Override
+    @Deprecated
     public Location getBedSpawnLocation();
+
+    /**
+     * Gets the Location where the player will spawn at, null if they
+     * don't have a valid respawn point.
+     *
+     * @return respawn location if exists, otherwise null.
+     */
+    @Nullable
+    @Override
+    public Location getRespawnLocation();
 
     /**
      * Sets the Location where the player will spawn at their bed.
      *
      * @param location where to set the respawn location
+     *
+     * @see #setRespawnLocation(Location)
+     * @deprecated Misleading name. This method sets the player's respawn
+     * location more generally and is not limited to beds.
      */
+    @Deprecated
     public void setBedSpawnLocation(@Nullable Location location);
+
+    /**
+     * Sets the Location where the player will respawn.
+     *
+     * @param location where to set the respawn location
+     */
+    public void setRespawnLocation(@Nullable Location location);
 
     /**
      * Sets the Location where the player will spawn at their bed.
@@ -391,8 +415,22 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * @param location where to set the respawn location
      * @param force whether to forcefully set the respawn location even if a
      *     valid bed is not present
+     *
+     * @see #setRespawnLocation(Location, boolean)
+     * @deprecated Misleading name. This method sets the player's respawn
+     * location more generally and is not limited to beds.
      */
+    @Deprecated
     public void setBedSpawnLocation(@Nullable Location location, boolean force);
+
+    /**
+     * Sets the Location where the player will respawn.
+     *
+     * @param location where to set the respawn location
+     * @param force whether to forcefully set the respawn location even if a
+     *     valid respawn point is not present
+     */
+    public void setRespawnLocation(@Nullable Location location, boolean force);
 
     /**
      * Play a note for the player at a location. <br>
@@ -1026,16 +1064,6 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      */
     public void resetPlayerWeather();
 
-    // Paper start
-    /**
-     * Gives the player the amount of experience specified.
-     *
-     * @param amount Exp amount to give
-     */
-    public default void giveExp(int amount) {
-        giveExp(amount, false);
-    }
-
     /**
      * Gets the player's cooldown between picking up experience orbs.
      *
@@ -1061,19 +1089,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * Gives the player the amount of experience specified.
      *
      * @param amount Exp amount to give
-     * @param applyMending Mend players items with mending, with same behavior as picking up orbs. calls {@link #applyMending(int)}
      */
-    public void giveExp(int amount, boolean applyMending);
-    /**
-     * Applies the mending effect to any items just as picking up an orb would.
-     *
-     * Can also be called with {@link #giveExp(int, boolean)} by passing true to applyMending
-     *
-     * @param amount Exp to apply
-     * @return the remaining experience
-     */
-    public int applyMending(int amount);
-    // Paper end
+    public void giveExp(int amount);
 
     /**
      * Gives the player the amount of experience levels specified. Levels can
@@ -1436,9 +1453,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *     case this method will have no affect on them. Use the
      *     {@link PlayerResourcePackStatusEvent} to figure out whether or not
      *     the player loaded the pack!
-     * <li>There is no concept of resetting resource packs back to default
-     *     within Minecraft, so players will have to relog to do so or you
-     *     have to send an empty pack.
+     * <li>To remove a resource pack you can use
+     *     {@link #removeResourcePack(UUID)} or {@link #removeResourcePacks()}.
      * <li>The request is sent with empty string as the hash when the hash is
      *     not provided. This might result in newer versions not loading the
      *     pack correctly.
@@ -1480,9 +1496,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *     case this method will have no affect on them. Use the
      *     {@link PlayerResourcePackStatusEvent} to figure out whether or not
      *     the player loaded the pack!
-     * <li>There is no concept of resetting resource packs back to default
-     *     within Minecraft, so players will have to relog to do so or you
-     *     have to send an empty pack.
+     * <li>To remove a resource pack you can use
+     *     {@link #removeResourcePack(UUID)} or {@link #removeResourcePacks()}.
      * <li>The request is sent with empty string as the hash when the hash is
      *     not provided. This might result in newer versions not loading the
      *     pack correctly.
@@ -1525,9 +1540,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *     case this method will have no affect on them. Use the
      *     {@link PlayerResourcePackStatusEvent} to figure out whether or not
      *     the player loaded the pack!
-     * <li>There is no concept of resetting resource packs back to default
-     *     within Minecraft, so players will have to relog to do so or you
-     *     have to send an empty pack.
+     * <li>To remove a resource pack you can use
+     *     {@link #removeResourcePack(UUID)} or {@link #removeResourcePacks()}.
      * <li>The request is sent with empty string as the hash when the hash is
      *     not provided. This might result in newer versions not loading the
      *     pack correctly.
@@ -1571,9 +1585,8 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *     case this method will have no affect on them. Use the
      *     {@link PlayerResourcePackStatusEvent} to figure out whether or not
      *     the player loaded the pack!
-     * <li>There is no concept of resetting resource packs back to default
-     *     within Minecraft, so players will have to relog to do so or you
-     *     have to send an empty pack.
+     * <li>To remove a resource pack you can use
+     *     {@link #removeResourcePack(UUID)} or {@link #removeResourcePacks()}.
      * <li>The request is sent with empty string as the hash when the hash is
      *     not provided. This might result in newer versions not loading the
      *     pack correctly.
@@ -1596,6 +1609,52 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      *     long.
      */
     public void setResourcePack(@NotNull UUID id, @NotNull String url, @Nullable byte[] hash, @Nullable String prompt, boolean force);
+
+    /**
+     * Request that the player's client download and include another resource pack.
+     * <p>
+     * The player's client will download the new resource pack asynchronously
+     * in the background, and will automatically add to it once the
+     * download is complete. If the client has downloaded and cached a
+     * resource pack with the same hash in the past it will not download but
+     * directly apply the cached pack. If the hash is null and the client has
+     * downloaded and cached the same resource pack in the past, it will
+     * perform a file size check against the response content to determine if
+     * the resource pack has changed and needs to be downloaded again. When
+     * this request is sent for the very first time from a given server, the
+     * client will first display a confirmation GUI to the player before
+     * proceeding with the download.
+     * <p>
+     * Notes:
+     * <ul>
+     * <li>Players can disable server resources on their client, in which
+     *     case this method will have no affect on them. Use the
+     *     {@link PlayerResourcePackStatusEvent} to figure out whether or not
+     *     the player loaded the pack!
+     * <li>To remove a resource pack you can use
+     *     {@link #removeResourcePack(UUID)} or {@link #removeResourcePacks()}.
+     * <li>The request is sent with empty string as the hash when the hash is
+     *     not provided. This might result in newer versions not loading the
+     *     pack correctly.
+     * </ul>
+     *
+     * @param id Unique resource pack ID.
+     * @param url The URL from which the client will download the resource
+     *     pack. The string must contain only US-ASCII characters and should
+     *     be encoded as per RFC 1738.
+     * @param hash The sha1 hash sum of the resource pack file which is used
+     *     to apply a cached version of the pack directly without downloading
+     *     if it is available. Hast to be 20 bytes long!
+     * @param prompt The optional custom prompt message to be shown to client.
+     * @param force If true, the client will be disconnected from the server
+     *     when it declines to use the resource pack.
+     * @throws IllegalArgumentException Thrown if the URL is null.
+     * @throws IllegalArgumentException Thrown if the URL is too long. The
+     *     length restriction is an implementation specific arbitrary value.
+     * @throws IllegalArgumentException Thrown if the hash is not 20 bytes
+     *     long.
+     */
+    public void addResourcePack(@NotNull UUID id, @NotNull String url, @Nullable byte[] hash, @Nullable String prompt, boolean force);
 
     /**
      * Request that the player's client remove a resource pack sent by the
@@ -1992,15 +2051,6 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      */
     public int getClientViewDistance();
 
-    // Paper start
-    /**
-     * Gets the player's current locale.
-     *
-     * @return the player's locale
-     */
-    @NotNull java.util.Locale locale();
-    // Paper end
-
     /**
      * Gets the player's estimated ping in milliseconds.
      *
@@ -2081,6 +2131,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
 
     // Spigot start
     public class Spigot extends Entity.Spigot {
+
         /**
          * Gets the connection address of this player, regardless of whether it
          * has been spoofed or not.
@@ -2146,7 +2197,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
          * @param sender the sender of the message
          * @param component the components to send
          */
-        public void sendMessage(@NotNull net.md_5.bungee.api.ChatMessageType position, @Nullable UUID sender, @NotNull net.md_5.bungee.api.chat.BaseComponent component) {
+        public void sendMessage(@NotNull net.md_5.bungee.api.ChatMessageType position, @Nullable java.util.UUID sender, @NotNull net.md_5.bungee.api.chat.BaseComponent component) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
@@ -2157,7 +2208,7 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
          * @param sender the sender of the message
          * @param components the components to send
          */
-        public void sendMessage(@NotNull net.md_5.bungee.api.ChatMessageType position, @Nullable UUID sender, @NotNull net.md_5.bungee.api.chat.BaseComponent... components) {
+        public void sendMessage(@NotNull net.md_5.bungee.api.ChatMessageType position, @Nullable java.util.UUID sender, @NotNull net.md_5.bungee.api.chat.BaseComponent... components) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }

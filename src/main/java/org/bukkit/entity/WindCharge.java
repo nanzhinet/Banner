@@ -14,4 +14,5 @@ public interface WindCharge extends Fireball {
      * Immediately explode this WindCharge.
      */
     public void explode();
+
 }

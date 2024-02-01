@@ -24,7 +24,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_20_R3.generator.CraftLimitedRegion;
-import org.bukkit.craftbukkit.v1_20_R3.generator.strucutre.CraftStructure;
+import org.bukkit.craftbukkit.v1_20_R3.generator.structure.CraftStructure;
 import org.bukkit.craftbukkit.v1_20_R3.util.RandomSourceWrapper;
 import org.bukkit.generator.BlockPopulator;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,7 +55,7 @@ public abstract class MixinChunkGenerator implements InjectionChunkGenerator {
 
     /**
      * @author wdog5
-     * @reason
+     * @reason bukkit
      */
     @Overwrite
     private boolean tryGenerateStructure(StructureSet.StructureSelectionEntry structureSelectionEntry, StructureManager structureManager, RegistryAccess registryAccess, RandomState random, StructureTemplateManager structureTemplateManager, long seed, ChunkAccess chunk, ChunkPos chunkPos, SectionPos sectionPos) {
@@ -68,7 +68,7 @@ public abstract class MixinChunkGenerator implements InjectionChunkGenerator {
         if (structureStart.isValid()) {
             structureManager.setStartForStructure(sectionPos, structure, structureStart, chunk);
             var box = structureStart.getBoundingBox();
-            var event = new org.bukkit.event.world.AsyncStructureSpawnEvent((((LevelAccessor) structureManager.level).getMinecraftWorld()).getWorld(), CraftStructure.minecraftToBukkit(structure, registryAccess), new org.bukkit.util.BoundingBox(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ()), chunkPos.x, chunkPos.z);
+            var event = new org.bukkit.event.world.AsyncStructureSpawnEvent((((LevelAccessor) structureManager.level).getMinecraftWorld()).getWorld(), CraftStructure.minecraftToBukkit(structure), new org.bukkit.util.BoundingBox(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ()), chunkPos.x, chunkPos.z);
             Bukkit.getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return true;

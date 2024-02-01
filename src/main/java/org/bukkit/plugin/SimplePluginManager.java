@@ -5,23 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableGraph;
-import com.mohistmc.banner.plugins.BannerPlugin;
-import org.bukkit.Server;
-import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.PluginCommandYamlParser;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.permissions.Permissible;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.util.FileUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -41,6 +24,21 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommandYamlParser;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.permissions.Permissible;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.util.FileUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Handles all plugin management from the Server
@@ -481,8 +479,7 @@ public final class SimplePluginManager implements PluginManager {
             try {
                 plugin.getPluginLoader().enablePlugin(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while enabling "
-                        + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin);
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             HandlerList.bakeAll();
@@ -503,37 +500,32 @@ public final class SimplePluginManager implements PluginManager {
             try {
                 plugin.getPluginLoader().disablePlugin(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while disabling "
-                        + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 server.getScheduler().cancelTasks(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while cancelling tasks for "
-                        + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while cancelling tasks for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 server.getServicesManager().unregisterAll(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while unregistering services for "
-                        + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering services for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 HandlerList.unregisterAll(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while unregistering events for "
-                        + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering events for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 server.getMessenger().unregisterIncomingPluginChannel(plugin);
                 server.getMessenger().unregisterOutgoingPluginChannel(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while unregistering plugin channels for "
-                        + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering plugin channels for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
@@ -545,13 +537,6 @@ public final class SimplePluginManager implements PluginManager {
             }
         }
     }
-
-    // Paper start
-    private void handlePluginException(String msg, Throwable ex, Plugin plugin) {
-        server.getLogger().log(Level.SEVERE, msg, ex);
-        callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new com.destroystokyo.paper.exception.ServerPluginEnableDisableException(msg, ex, plugin)));
-    }
-    // Paper end
 
     @Override
     public void clearPlugins() {
@@ -616,16 +601,9 @@ public final class SimplePluginManager implements PluginManager {
                             ));
                 }
             } catch (Throwable ex) {
-                // Paper start - error reporting
-                String msg = "Could not pass event " + event.getEventName() + " to " + registration.getPlugin().getDescription().getFullName();
-                server.getLogger().log(Level.SEVERE, msg, ex);
-                if (!(event instanceof com.destroystokyo.paper.event.server.ServerExceptionEvent)) { // We don't want to cause an endless event loop
-                    callEvent(new com.destroystokyo.paper.event.server.ServerExceptionEvent(new com.destroystokyo.paper.exception.ServerEventException(msg, ex, registration.getPlugin(), registration.getListener(), event)));
-                }
-                // Paper end
+                server.getLogger().log(Level.SEVERE, "Could not pass event " + event.getEventName() + " to " + registration.getPlugin().getDescription().getFullName(), ex);
             }
         }
-        BannerPlugin.registerListener(event);
     }
 
     @Override
@@ -899,18 +877,4 @@ public final class SimplePluginManager implements PluginManager {
     public void useTimings(boolean use) {
         useTimings = use;
     }
-
-    // Banner start - add methods to support plugin manager
-    public List<Plugin> getPluginList() {
-        return plugins;
-    }
-
-    public Map<String, Plugin> getLookupNames() {
-        return lookupNames;
-    }
-
-    public SimpleCommandMap getCommandMap() {
-        return commandMap;
-    }
-    // Banner end
 }

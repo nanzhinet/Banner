@@ -1,11 +1,9 @@
 package org.bukkit.entity;
 
-import com.mohistmc.banner.paper.addon.entity.monster.AddonSlime;
-
 /**
  * Represents a Slime.
  */
-public interface Slime extends Mob, Enemy, AddonSlime {
+public interface Slime extends Mob, Enemy {
 
     /**
      * @return The size of the slime

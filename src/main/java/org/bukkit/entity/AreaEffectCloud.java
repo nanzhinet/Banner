@@ -150,15 +150,19 @@ public interface AreaEffectCloud extends Entity {
      * Sets the underlying potion data
      *
      * @param data PotionData to set the base potion state to
+     * @deprecated Upgraded / extended potions are now their own {@link PotionType} use {@link #setBasePotionType} instead.
      */
+    @Deprecated
     void setBasePotionData(@NotNull PotionData data);
 
     /**
      * Returns the potion data about the base potion
      *
      * @return a PotionData object
+     * @deprecated Upgraded / extended potions are now their own {@link PotionType} use {@link #getBasePotionType()} instead.
      */
     @NotNull
+    @Deprecated
     PotionData getBasePotionData();
 
     /**

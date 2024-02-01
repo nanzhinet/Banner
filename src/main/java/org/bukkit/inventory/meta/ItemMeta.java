@@ -13,6 +13,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
 import org.bukkit.persistence.PersistentDataHolder;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -185,6 +186,11 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      *     otherwise
      */
     boolean removeEnchant(@NotNull Enchantment ench);
+
+    /**
+     * Removes all enchantments from this item meta.
+     */
+    void removeEnchantments();
 
     /**
      * Checks if the specified enchantment conflicts with any enchantments in
@@ -392,9 +398,9 @@ public interface ItemMeta extends Cloneable, ConfigurationSerializable, Persiste
      * Internal use only! Do not use under any circumstances!
      *
      * @param version version
-     * @deprecated internal use only
+     * @apiNote  internal use only
      */
-    @Deprecated
+    @ApiStatus.Internal
     void setVersion(int version);
 
     @SuppressWarnings("javadoc")

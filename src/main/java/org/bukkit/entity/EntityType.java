@@ -1,16 +1,8 @@
 package org.bukkit.entity;
 
 import com.google.common.base.Preconditions;
-import com.mohistmc.banner.bukkit.entity.MohistModsAbstractHorse;
-import com.mohistmc.banner.bukkit.entity.MohistModsAnimals;
-import com.mohistmc.banner.bukkit.entity.MohistModsChestHorse;
-import com.mohistmc.banner.bukkit.entity.MohistModsMinecartContainer;
-import com.mohistmc.banner.bukkit.entity.MohistModsMonster;
-import com.mohistmc.banner.bukkit.entity.MohistModsProjectileEntity;
-import com.mohistmc.banner.bukkit.entity.MohistModsTameableEntity;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
@@ -288,12 +280,10 @@ public enum EntityType implements Keyed, Translatable {
     FROG("frog", Frog.class, -1),
     TADPOLE("tadpole", Tadpole.class, -1),
     WARDEN("warden", Warden.class, -1),
-
     CAMEL("camel", Camel.class, -1),
     BLOCK_DISPLAY("block_display", BlockDisplay.class, -1),
     INTERACTION("interaction", Interaction.class, -1),
     ITEM_DISPLAY("item_display", ItemDisplay.class, -1),
-
     SNIFFER("sniffer", Sniffer.class, -1),
     TEXT_DISPLAY("text_display", TextDisplay.class, -1),
     @MinecraftExperimental
@@ -316,23 +306,16 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * An unknown entity without an Entity Class
      */
-    UNKNOWN(null, null, -1, false),
-    FORGE_MOD_PROJECTILE("forge_mod_projectile", MohistModsProjectileEntity.class, -1, false),
-    FORGE_MOD_CHEST_HORSE("forge_mod_chest_horse", MohistModsChestHorse.class, -1, false),
-    FORGE_MOD_MINECART_CONTAINER("forge_mod_minecart_container", MohistModsMinecartContainer.class, -1, false),
-    FORGE_MOD_HORSE("forge_mod_horse", MohistModsAbstractHorse.class, -1, false),
-    FORGE_MOD_TAMEABLE_ANIMALS("forge_mod_tameable_animal", MohistModsTameableEntity.class, -1, false ),
-    FORGE_MOD_ANIMAL("forge_mod_animal", MohistModsAnimals.class, -1, false ),
-    FORGE_MOD_MONSTER("forge_mod_monster", MohistModsMonster.class, -1, false);
+    UNKNOWN(null, null, -1, false);
 
     private final String name;
     private final Class<? extends Entity> clazz;
     private final short typeId;
     private final boolean independent, living;
-    public NamespacedKey key;
+    private final NamespacedKey key;
 
-    public static final Map<String, EntityType> NAME_MAP = new HashMap<String, EntityType>();
-    public static final Map<Short, EntityType> ID_MAP = new HashMap<Short, EntityType>();
+    private static final Map<String, EntityType> NAME_MAP = new HashMap<String, EntityType>();
+    private static final Map<Short, EntityType> ID_MAP = new HashMap<Short, EntityType>();
 
     static {
         for (EntityType type : values()) {
@@ -382,13 +365,13 @@ public enum EntityType implements Keyed, Translatable {
     @Deprecated
     @Nullable
     public String getName() {
-        return name == null ? name() : name; // Mohist
+        return name;
     }
 
     @NotNull
     @Override
     public NamespacedKey getKey() {
-        Preconditions.checkArgument(key != null, "EntityType doesn't have key! Is it: %s".formatted(name()) );
+        Preconditions.checkArgument(key != null, "EntityType doesn't have key! Is it UNKNOWN?");
 
         return key;
     }
@@ -423,7 +406,7 @@ public enum EntityType implements Keyed, Translatable {
         if (name == null) {
             return null;
         }
-        return Objects.requireNonNullElse(NAME_MAP.get(name.toLowerCase(java.util.Locale.ENGLISH)), EntityType.UNKNOWN);
+        return NAME_MAP.get(name.toLowerCase(java.util.Locale.ENGLISH));
     }
 
     /**
