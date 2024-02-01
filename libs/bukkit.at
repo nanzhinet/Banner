@@ -28,3 +28,8 @@ public org/bukkit/craftbukkit/v1_20_R3/inventory/CraftMetaCrossbow/<init>(Lorg/b
 public org/bukkit/craftbukkit/v1_20_R3/inventory/CraftMetaSuspiciousStew/<init>(Lorg/bukkit/craftbukkit/v1_20_R3/inventory/CraftMetaItem;)V
 public org/spigotmc/ActivationRange$ActivationType/boundingBox
 public org/bukkit/craftbukkit/v1_20_R3/inventory/CraftMetaItem/<init>(Lnet/minecraft/nbt/CompoundTag;)V
+public org/bukkit/craftbukkit/v1_20_R3/util/CraftMagicNumbers/ITEM_MATERIAL
+public org/bukkit/craftbukkit/v1_20_R3/util/CraftMagicNumbers/BLOCK_MATERIAL
+public org/bukkit/craftbukkit/v1_20_R3/util/CraftMagicNumbers/MATERIAL_ITEM
+public org/bukkit/craftbukkit/v1_20_R3/util/CraftMagicNumbers/MATERIAL_BLOCK
+public org/bukkit/craftbukkit/v1_20_R3/block/CraftBlockStates/register(Lorg/bukkit/Material;Ljava/lang/Class;Ljava/util/function/BiFunction;Ljava/util/function/BiFunction;)V
