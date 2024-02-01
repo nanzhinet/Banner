@@ -44,6 +44,11 @@ It could be compilable and running, but the compatibility with plugins is poor.
 We do support using Spigot's net.minecraft.server classes. Classes and Fields will automatically remap to their intermediary counterparts in runtime, but it will not change plugins at all,
 so don't worried about the plugin files will be changed to unsafe
 
+### Development
+- Run command ./gradlew remapSpigotJar at first,waiting for source generated
+- Refresh your gradlew
+- Start development
+
 ## Installation (for Linux)
 - You'll need `wget` and `curl`
 ```bash
