@@ -16,6 +16,8 @@
     "MixinCrashReport",
     "MixinCrashReportCategory",
     "advancement.MixinAdvancementHolder",
+    "bukkit.MixinCraftServer",
+    "bukkit.util.MixinVersioning",
     "commands.MixinCommandDispatcher",
     "commands.MixinCommandNode",
     "commands.MixinCommands",
