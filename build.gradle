@@ -170,8 +170,8 @@ dependencies {
 	// mohist lib
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
 
-	extraLibs fileTree(dir: "build/banner-cache", include: "spigot-${project.minecraft_version}-mapped.jar")
 	compileOnly fileTree(dir: 'build/banner-cache', include: "spigot-${project.minecraft_version}-mapped.jar")
+	extraLibs fileTree(dir: "build/banner-cache", include: "spigot-${project.minecraft_version}-mapped.jar")
 	configurations.api.extendsFrom( (configurations.extraLibs) )
 }
 
