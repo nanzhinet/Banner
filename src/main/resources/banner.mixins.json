@@ -97,6 +97,7 @@
     "server.network.MixinServerGamePacketListenerImpl_1",
     "server.network.MixinServerHandshakePacketListenerImpl",
     "server.network.MixinServerLoginPacketListenerImpl",
+    "server.network.MixinServerLoginPacketListenerImpl_1",
     "server.network.MixinServerStatusPacketListenerImpl",
     "server.players.MixinBanListEntry",
     "server.players.MixinOldUsersConverter_5",
