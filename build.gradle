@@ -54,7 +54,7 @@ repositories {
 		url = 'https://jd.advntr.dev/'
 	}
 	maven {
-		url = uri('./libs')
+		url = uri(path: './libs')
 	}
 	mavenCentral()
 }
