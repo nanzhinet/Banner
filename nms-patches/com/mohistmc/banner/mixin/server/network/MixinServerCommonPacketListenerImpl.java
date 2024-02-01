@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.server.network;
+package com.mohistmc.banner.mixin.core.server.network;
 
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.bukkit.network.BannerServerboundCustomPayloadPacket;

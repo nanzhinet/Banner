@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.server;
+package com.mohistmc.banner.mixin.core.server;
 
 import java.nio.file.Path;
 import java.util.Map;

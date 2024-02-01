@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.network.protocol;
+package com.mohistmc.banner.mixin.core.network.protocol;
 
 import static com.mohistmc.banner.BannerServer.LOGGER;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;

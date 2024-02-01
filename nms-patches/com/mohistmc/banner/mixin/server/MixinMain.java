@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.server;
+package com.mohistmc.banner.mixin.core.server;
 
 import com.google.common.base.Charsets;
 import com.mohistmc.banner.BannerServer;

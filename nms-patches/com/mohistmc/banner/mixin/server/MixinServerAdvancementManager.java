@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.server;
+package com.mohistmc.banner.mixin.core.server;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;

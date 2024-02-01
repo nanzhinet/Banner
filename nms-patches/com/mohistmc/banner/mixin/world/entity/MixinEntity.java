@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.world.entity;
+package com.mohistmc.banner.mixin.core.world.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;

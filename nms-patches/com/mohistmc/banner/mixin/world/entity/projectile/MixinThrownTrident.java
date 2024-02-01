@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.world.entity.projectile;
+package com.mohistmc.banner.mixin.core.world.entity.projectile;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;

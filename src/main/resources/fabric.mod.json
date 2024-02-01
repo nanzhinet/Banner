@@ -24,7 +24,8 @@
     ]
   },
   "mixins": [
-    "banner.mixins.json"
+    "banner.core.mixins.json",
+    "banner.bukkit.mixins.json"
   ],
 
   "depends": {

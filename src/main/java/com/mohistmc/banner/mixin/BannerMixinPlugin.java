@@ -143,21 +143,21 @@ public class BannerMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.equals("com.mohistmc.banner.mixin.world.entity.MixinMob$PaperSpawnAffect")
-                || mixinClassName.equals("com.mohistmc.banner.mixin.server.players.MixinPlayerList$LoadRecursive")) {
+        if (mixinClassName.equals("com.mohistmc.banner.mixin.core.world.entity.MixinMob$PaperSpawnAffect")
+                || mixinClassName.equals("com.mohistmc.banner.mixin.core.server.players.MixinPlayerList$LoadRecursive")) {
             return !FabricLoader.getInstance().isModLoaded("vmp");
         }
-        if (mixinClassName.equals("com.mohistmc.banner.mixin.world.level.spawner.MixinNaturalSpawner")) {
+        if (mixinClassName.equals("com.mohistmc.banner.mixin.core.world.level.spawner.MixinNaturalSpawner")) {
             return !FabricLoader.getInstance().isModLoaded("carpet-tis-addition")
                     && !FabricLoader.getInstance().isModLoaded("carpet");
         }
-        if (mixinClassName.equals("com.mohistmc.banner.mixin.network.protocol.MixinPacketUtils")) {
+        if (mixinClassName.equals("com.mohistmc.banner.mixin.core.network.protocol.MixinPacketUtils")) {
             return !FabricLoader.getInstance().isModLoaded("cobblemon");
         }
-        if (mixinClassName.equals("com.mohistmc.banner.mixin.world.item.MixinChorusFruitItem")) {
+        if (mixinClassName.equals("com.mohistmc.banner.mixin.core.world.item.MixinChorusFruitItem")) {
             return !FabricLoader.getInstance().isModLoaded("openpartiesandclaims");
         }
-        if (mixinClassName.equals("com.mohistmc.banner.mixin.world.level.MixinClipContext")) {
+        if (mixinClassName.equals("com.mohistmc.banner.mixin.core.world.level.MixinClipContext")) {
             return !FabricLoader.getInstance().isModLoaded("create") && !FabricLoader.getInstance().isModLoaded("porting_lib");
         }
         if (mixinClassName.endsWith("ThreadingDetectorMixin")) {

@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.server.network;
+package com.mohistmc.banner.mixin.core.server.network;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.chat.Component;

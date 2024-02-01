@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.server;
+package com.mohistmc.banner.mixin.core.server;
 
 import com.mohistmc.banner.api.color.ColorsAPI;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;

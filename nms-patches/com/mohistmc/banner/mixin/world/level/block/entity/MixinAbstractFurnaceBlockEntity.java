@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.world.level.block.entity;
+package com.mohistmc.banner.mixin.core.world.level.block.entity;
 
 import com.mohistmc.banner.injection.world.level.block.entity.InjectionAbstractFurnaceBlockEntity;
 import io.izzel.arclight.mixin.Eject;

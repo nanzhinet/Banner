@@ -1,4 +1,4 @@
-package com.mohistmc.banner.mixin.world.level.block;
+package com.mohistmc.banner.mixin.core.world.level.block;
 
 import com.mohistmc.banner.injection.world.level.block.InjectionSignBlock;
 import java.util.concurrent.atomic.AtomicReference;
