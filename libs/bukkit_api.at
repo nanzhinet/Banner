@@ -1,6 +1,6 @@
 public org/bukkit/entity/EntityType/ID_MAP
 public org/bukkit/entity/EntityType/NAME_MAP
-public org/bukkit/entity/EntityType/key
+public-f org/bukkit/entity/EntityType/key
 public org/bukkit/Material/key
 public org/bukkit/Art/BY_ID
 public org/bukkit/Art/BY_NAME
