@@ -3,9 +3,6 @@ buildscript {
 		maven {
 			url = uri('./loom-plugin')
 		}
-		maven {
-			url = uri('./libs')
-		}
 	}
 	dependencies {
 		classpath 'com.mohistmc.banner:banner-gradle-plugin:1.0.0'
@@ -55,6 +52,9 @@ repositories {
 	maven {
 		name = "Adventure"
 		url = 'https://jd.advntr.dev/'
+	}
+	maven {
+		url = uri(path: './libs')
 	}
 	mavenCentral()
 }
