@@ -17,6 +17,11 @@ plugins {
 
 apply plugin: 'com.mohistmc.banner'
 
+banner {
+	mcVersion = project.minecraft_version
+	bukkitVersion = 'v1_20_R3'
+}
+
 version = project.minecraft_version + "-" + ci_version()
 group = project.maven_group
 
@@ -160,7 +165,7 @@ dependencies {
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
 
 	extraLibs fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
-	compileOnly fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
+	implementation fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
 	configurations.api.extendsFrom( (configurations.extraLibs) )
 }
 
