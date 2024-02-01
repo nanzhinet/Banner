@@ -1,7 +1,8 @@
 buildscript {
 	repositories {
 		maven {
-			url = uri('./loom-plugin')
+			name = 'mohist'
+			url = 'https://maven.mohistmc.com/'
 		}
 	}
 	dependencies {
@@ -164,8 +165,8 @@ dependencies {
 	// mohist lib
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
 
-	extraLibs fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
-	implementation fileTree(dir: 'libs', include: "spigot-1.20.4-mapped.jar")
+	extraLibs fileTree(dir: "build/banner-cache", include: "spigot-${project.minecraft_version}-mapped.jar")
+	implementation fileTree(dir: 'build/banner-cache', include: "spigot-${project.minecraft_version}-mapped.jar")
 	configurations.api.extendsFrom( (configurations.extraLibs) )
 }
 
