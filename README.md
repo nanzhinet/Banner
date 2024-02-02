@@ -48,6 +48,7 @@ so don't worried about the plugin files will be changed to unsafe
 - Run command ./gradlew remapSpigotJar at first,waiting for source generated
 - Refresh your gradlew
 - Start development
+- If you changed anything about at in libs folder, such as bukkit.at or bukkit_api.at, just restart ./gradlew remapSpigotJar to refresh jar files
 
 ## Installation (for Linux)
 - You'll need `wget` and `curl`
