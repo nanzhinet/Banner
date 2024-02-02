@@ -16,6 +16,13 @@ public abstract class MixinIngredient implements InjectionIngredient {
 
     public boolean exact; // CraftBukkit
 
+    private final boolean isVanilla = ((Ingredient) (Object) this).getClass() == Ingredient.class;
+
+    @Override
+    public boolean isVanilla() {
+        return isVanilla;
+    }
+
     @Inject(method = "test(Lnet/minecraft/world/item/ItemStack;)Z",
             at = @At("HEAD"),
             cancellable = true)

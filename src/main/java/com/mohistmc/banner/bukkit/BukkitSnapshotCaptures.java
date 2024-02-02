@@ -229,6 +229,10 @@ public class BukkitSnapshotCaptures {
         containerOwner = entity;
     }
 
+    public static void resetContainerOwner() {
+        containerOwner = null;
+    }
+
     public static Player getContainerOwner() {
         try {
             return containerOwner;

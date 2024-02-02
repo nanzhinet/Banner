@@ -12,9 +12,20 @@
   },
   "mixinPriority": 400,
   "mixins": [
+    "block.MixinCraftBlockState",
     "command.MixinSimpleCommandMap",
     "command.MixinVersionCommand",
+    "entity.MixinCraftAbstractVillager",
+    "entity.MixinCraftEntity",
+    "entity.MixinCraftHumanEntity",
+    "entity.MixinCraftPlayer",
     "entity.MixinCraftPlayer_1",
+    "inventory.MixinCraftInventory",
+    "inventory.MixinCraftInventoryView",
+    "inventory.MixinCraftRecipe",
+    "inventory.MixinRecipeIterator",
+    "potion.MixinPotionType",
+    "util.MixinCraftSpawnCategory",
     "util.MixinVersioning"
   ]
 }
