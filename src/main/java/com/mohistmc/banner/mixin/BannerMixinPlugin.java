@@ -99,63 +99,6 @@ public class BannerMixinPlugin implements IMixinConfigPlugin {
                                     ),
                                     ImmutableList.of()
                             ))
-                    .put("net.minecraft.world.level.storage.loot.parameters.LootContextParams",
-                            Maps.immutableEntry(
-                                    ImmutableList.of(
-                                            new FieldNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "LOOTING_MOD",
-                                                    "Lnet/minecraft/world/level/storage/loot/parameters/LootContextParam;", null, null)
-                                    ),
-                                    ImmutableList.of()
-                            ))
-                    .put("net.minecraft.world.item.BlockItem",
-                            Maps.immutableEntry(
-                                    ImmutableList.of(),
-                                    ImmutableList.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "getBlockState", "(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/block/state/BlockState;", null, null)
-                                    )
-                            ))
-                    .put("net.minecraft.world.entity.decoration.HangingEntity",
-                            Maps.immutableEntry(
-                                    ImmutableList.of(),
-                                    ImmutableList.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "calculateBoundingBox", "(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;II)Lnet/minecraft/world/phys/AABB;", null, null)
-                                    )
-                            ))
-                    .put("net.minecraft.world.entity.decoration.ItemFrame",
-                            Maps.immutableEntry(
-                                    ImmutableList.of(),
-                                    ImmutableList.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "calculateBoundingBox", "(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;II)Lnet/minecraft/world/phys/AABB;", null, null)
-                                    )
-                            ))
-                    .put("net.minecraft.server.commands.ReloadCommand",
-                            Maps.immutableEntry(
-                                    ImmutableList.of(),
-                                    ImmutableList.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "reload", "(Lnet/minecraft/server/MinecraftServer;)V", null, null)
-                                    )
-                            ))
-                    .put("net.minecraft.world.entity.monster.Zombie",
-                            Map.entry(
-                                    List.of(),
-                                    List.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "zombifyVillager", "(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/npc/Villager;Lnet/minecraft/core/BlockPos;ZLorg/bukkit/event/entity/CreatureSpawnEvent$SpawnReason;)Lnet/minecraft/world/entity/monster/ZombieVillager;", null, null)
-                                    )
-                            ))
-                    .put("net.minecraft.world.entity.item.FallingBlockEntity",
-                            Map.entry(
-                                    List.of(),
-                                    List.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "fall", "(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lorg/bukkit/event/entity/CreatureSpawnEvent$SpawnReason;)Lnet/minecraft/world/entity/item/FallingBlockEntity;", null, null)
-                                    )
-                            ))
-                    .put("net.minecraft.world.item.BoneMealItem",
-                            Map.entry(
-                                    List.of(),
-                                    List.of(
-                                            new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "applyBonemeal", "(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;", null, null)
-                                    )
-                            ))
                     .build();
 
     @Override
