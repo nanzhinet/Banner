@@ -14,6 +14,7 @@
   "mixins": [
     "command.MixinSimpleCommandMap",
     "command.MixinVersionCommand",
+    "entity.MixinCraftPlayer_1",
     "util.MixinVersioning"
   ]
 }
