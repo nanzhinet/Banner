@@ -89,6 +89,16 @@ public class BannerMixinPlugin implements IMixinConfigPlugin {
                                             new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "bindPlayerMobs", "Lnet/minecraft/world/InteractionResult;", "Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/InteractionHand;", null)
                                     )
                             ))
+                    .put("net.minecraft.server.level.TicketType",
+                            Maps.immutableEntry(
+                                    ImmutableList.of(
+                                            new FieldNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "PLUGIN",
+                                                    "Lnet/minecraft/server/level/TicketType;", null, null),
+                                            new FieldNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL, "PLUGIN_TICKET",
+                                                    "Lnet/minecraft/server/level/TicketType;", null, null)
+                                    ),
+                                    ImmutableList.of()
+                            ))
                     .build();
 
     @Override
