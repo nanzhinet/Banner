@@ -218,6 +218,7 @@ final class PluginClassLoader extends URLClassLoader {
                     bytecode = RemapUtils.remapFindClass(bytecode);
 
                     bytecode = modifyByteCode(name, bytecode); // Mohist: add entry point for asm or mixin
+
                     bytecode = PluginFixManager.injectPluginFix(name, bytecode); // Mohist - Inject plugin fix
 
                     JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
