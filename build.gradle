@@ -252,6 +252,10 @@ static String ci_version() {
 	}
 }
 
+remapSpigotJar {
+	includes.add('net/minecraft/world/level/block/ChestBlock$DoubleInventory')
+}
+
 /*
 tasks.register('refreshSpigotAT', Jar) {
 	File libDir = new File(project.rootDir, "libs")

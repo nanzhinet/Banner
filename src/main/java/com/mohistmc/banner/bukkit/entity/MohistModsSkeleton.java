@@ -16,7 +16,7 @@ public class MohistModsSkeleton extends CraftAbstractSkeleton {
     }
 
     public @NotNull Skeleton.SkeletonType getSkeletonType() {
-        return Skeleton.SkeletonType.MOD;
+        return Skeleton.SkeletonType.NORMAL;// Banner - wait for update fix
     }
 
     @Override

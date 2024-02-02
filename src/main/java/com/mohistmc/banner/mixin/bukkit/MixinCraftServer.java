@@ -32,11 +32,11 @@ import java.util.Map;
 @Mixin(CraftServer.class)
 public abstract class MixinCraftServer {
 
-    @Mutable @Shadow @Final private String serverName;
+    @Mutable @Shadow(remap = false) @Final private String serverName;
     @Shadow @Final protected DedicatedServer console;
-    @Shadow @Final private CraftCommandMap commandMap;
+    @Shadow(remap = false) @Final private CraftCommandMap commandMap;
     @Shadow public abstract DedicatedPlayerList getHandle();
-    @Mutable @Shadow @Final private List<CraftPlayer> playerView;
+    @Mutable @Shadow(remap = false) @Final private List<CraftPlayer> playerView;
     @Shadow @Final protected DedicatedPlayerList playerList;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -48,7 +48,7 @@ public abstract class MixinCraftServer {
      * @author wdog5
      * @reason banner things
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public void syncCommands() {
         // Clear existing commands // Banner - do not clear
         Commands dispatcher = console.resources.managers().commands;
@@ -85,7 +85,7 @@ public abstract class MixinCraftServer {
      * @author wdog5
      * @reason banner things
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public List<CraftPlayer> getOnlinePlayers() {
         // Banner start - refresh online players
         this.playerView = Collections.unmodifiableList(Lists.transform(playerList.players, new Function<ServerPlayer, CraftPlayer>() {
