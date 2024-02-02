@@ -13,7 +13,6 @@
   },
   "mixinPriority": 400,
   "mixins": [
-    "MixinCraftServer",
     "util.MixinVersioning"
   ]
 }
