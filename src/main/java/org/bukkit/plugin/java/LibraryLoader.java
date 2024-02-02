@@ -2,7 +2,7 @@ package org.bukkit.plugin.java;
 
 import com.mohistmc.banner.BannerServer;
 import com.mohistmc.banner.bukkit.PluginsLibrarySource;
-import com.mohistmc.banner.bukkit.remapping.RemappingURLClassLoader;
+import com.mohistmc.banner.bukkit.nms.proxy.DelegateURLClassLoder;
 import com.mohistmc.banner.util.I18n;
 import com.mohistmc.tools.ConnectionUtil;
 import java.io.BufferedReader;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -110,7 +111,7 @@ class LibraryLoader {
             }
         }
 
-        return new RemappingURLClassLoader(jarFiles.toArray(new URL[0]), getClass().getClassLoader());
+        return new DelegateURLClassLoder(jarFiles.toArray(new URL[0]), getClass().getClassLoader());
     }
 
     public List<Dependency> initDependencies0(URL url) throws IOException {
