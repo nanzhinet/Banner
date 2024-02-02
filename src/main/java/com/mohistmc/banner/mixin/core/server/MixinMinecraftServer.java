@@ -361,6 +361,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                     this.services.profileCache().clearExecutor();
                 }
 
+                org.spigotmc.WatchdogThread.doStop(); // Spigot
                 this.onServerExit();
             }
 
@@ -712,6 +713,11 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     @Inject(method = "haveTime", cancellable = true, at = @At("HEAD"))
     private void banner$forceAheadOfTime(CallbackInfoReturnable<Boolean> cir) {
         if (this.forceTicks) cir.setReturnValue(true);
+    }
+
+    @Inject(method = "tickServer", at = @At("RETURN"))
+    private void banner$watchdogThreadStart(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
+        org.spigotmc.WatchdogThread.tick(); // Spigot
     }
 
     @Inject(method = "tickChildren", at = @At("HEAD"))
