@@ -16,6 +16,7 @@ accessible field net/minecraft/world/entity/Display DATA_POS_ROT_INTERPOLATION_D
 accessible field net/minecraft/world/entity/projectile/EvokerFangs warmupDelayTicks I
 accessible method net/minecraft/world/entity/projectile/Arrow updateColor ()V
 accessible field net/minecraft/world/entity/projectile/Arrow potion Lnet/minecraft/world/item/alchemy/Potion;
+accessible field net/minecraft/server/level/ServerPlayer language Ljava/lang/String;
 
 # 1.20.2
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl latency I
