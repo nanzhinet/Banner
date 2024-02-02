@@ -1,2 +1,3 @@
 # If needed change some mapping, just modify this
-CL: net/minecraft/server/commands/ChaseCommand net/minecraft/server/commands/ChaseCommand
+FD: net/minecraft/world/level/block/ChestBlock$DoubleInventory/tileentitychest net/minecraft/world/level/block/ChestBlock$2$1/field_17358
+FD: net/minecraft/world/level/block/ChestBlock$DoubleInventory/tileentitychest1 net/minecraft/world/level/block/ChestBlock$2$1/field_17359
