@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  *
@@ -38,15 +37,6 @@ public class RemapUtils {
     public static BannerJarRemapper jarRemapper;
     private static final List<Remapper> remappers = new ArrayList<>();
     public static Map<String, String> relocations = new HashMap<>();
-    public static final Function<byte[], byte[]> SWITCH_TABLE_FIXER;
-
-    static {
-        try {
-            SWITCH_TABLE_FIXER = (Function<byte[], byte[]>) Class.forName("com.mohistmc.asm.SwitchTableFixer").getField("INSTANCE").get(null);
-        } catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void init() {
         jarMapping = new BannerJarMapping();

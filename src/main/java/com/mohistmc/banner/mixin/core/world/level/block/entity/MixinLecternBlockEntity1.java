@@ -19,8 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(targets = "net/minecraft/world/level/block/entity/LecternBlockEntity$1")
 public abstract class MixinLecternBlockEntity1 implements Container {
 
-    @Shadow @Final
-    LecternBlockEntity field_17391;
+    @Shadow @Final private LecternBlockEntity field_17391;
     public List<HumanEntity> transaction = new ArrayList<>();
     private int maxStack = 1;
 
