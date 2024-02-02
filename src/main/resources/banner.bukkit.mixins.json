@@ -13,6 +13,8 @@
   },
   "mixinPriority": 400,
   "mixins": [
+    "command.MixinSimpleCommandMap",
+    "command.MixinVersionCommand",
     "util.MixinVersioning"
   ]
 }
