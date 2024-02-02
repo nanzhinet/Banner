@@ -89,6 +89,7 @@ public class DelegateURLClassLoder extends URLClassLoader {
                 if (stream != null) {
                     byte[] bytecode = RemapUtils.jarRemapper.remapClassFile(stream, RuntimeRepo.getInstance());
                     bytecode = RemapUtils.remapFindClass(bytecode);
+                    bytecode = RemapUtils.SWITCH_TABLE_FIXER.apply(bytecode);
                     final JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
                     final URL jarURL = jarURLConnection.getJarFileURL();
 
