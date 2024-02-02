@@ -259,6 +259,8 @@ remapSpigotJar {
 	includes.add('net/minecraft/world/level/block/ChestBlock$2$1')
 	includes.add('net/minecraft/world/level/block/entity/LecternBlockEntity$1')
 	excludes.add('org/bukkit/craftbukkit/v1_20_R3/CraftServer.class')
+	excludesApi.add('org/bukkit/event/block/BlockCookEvent.class')
+	excludesApi.add('org/bukkit/event/inventory/FurnaceSmeltEvent.class')
 }
 
 /*

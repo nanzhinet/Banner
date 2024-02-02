@@ -12,30 +12,31 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.InventoryHolder;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(targets = "net/minecraft/world/level/block/entity/LecternBlockEntity$1")
 public abstract class MixinLecternBlockEntity1 implements Container {
 
-    @Shadow(aliases = {"field_17391"}, remap = false) private LecternBlockEntity outerThis;
-
+    @Shadow(remap = false) @Final
+    LecternBlockEntity field_17391;
     public List<HumanEntity> transaction = new ArrayList<>();
     private int maxStack = 1;
 
     @Override
     public void setItem(int index, ItemStack stack) {
         if (index == 0) {
-            outerThis.setBook(stack);
-            if (outerThis.getLevel() != null) {
-                LecternBlock.resetBookState(null, outerThis.getLevel(), outerThis.getBlockPos(), outerThis.getBlockState(), outerThis.hasBook());
+            field_17391.setBook(stack);
+            if (field_17391.getLevel() != null) {
+                LecternBlock.resetBookState(null, field_17391.getLevel(), field_17391.getBlockPos(), field_17391.getBlockState(), field_17391.hasBook());
             }
         }
     }
 
     @Override
     public List<ItemStack> getContents() {
-        return Collections.singletonList(outerThis.getBook());
+        return Collections.singletonList(field_17391.getBook());
     }
 
     @Override
@@ -55,7 +56,7 @@ public abstract class MixinLecternBlockEntity1 implements Container {
 
     @Override
     public InventoryHolder getOwner() {
-        return outerThis.bridge$getOwner();
+        return field_17391.bridge$getOwner();
     }
 
     @Override
@@ -75,8 +76,8 @@ public abstract class MixinLecternBlockEntity1 implements Container {
 
     @Override
     public Location getLocation() {
-        if (outerThis.getLevel() == null) return null;
-        return new Location(outerThis.getLevel().getWorld(), outerThis.getBlockPos().getX(), outerThis.getBlockPos().getY(), outerThis.getBlockPos().getZ());
+        if (field_17391.getLevel() == null) return null;
+        return new Location(field_17391.getLevel().getWorld(), field_17391.getBlockPos().getX(), field_17391.getBlockPos().getY(), field_17391.getBlockPos().getZ());
     }
 
     @Override
@@ -89,6 +90,6 @@ public abstract class MixinLecternBlockEntity1 implements Container {
     }
 
     public LecternBlockEntity getLectern() {
-        return outerThis;
+        return field_17391;
     }
 }

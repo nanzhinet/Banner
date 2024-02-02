@@ -88,7 +88,7 @@ public abstract class MixinTreeGrower {
         } else if (worldgentreeabstract == TreeFeatures.CHERRY || worldgentreeabstract == TreeFeatures.CHERRY_BEES_005) {
             BukkitExtraConstants.treeType = TreeType.CHERRY;
         } else {
-            BukkitExtraConstants.treeType = TreeType.CUSTOM;// Banner - add field to handle modded trees
+            BukkitExtraConstants.treeType = TreeType.ACACIA;// Banner - add field to handle modded trees TODO fixme
         }
     }
     // CraftBukkit end

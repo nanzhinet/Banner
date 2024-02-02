@@ -5,3 +5,7 @@ public org/bukkit/Material/key
 public org/bukkit/Art/BY_ID
 public org/bukkit/Art/BY_NAME
 public-f org/bukkit/Particle/key
+public org/bukkit/plugin/SimplePluginManager/plugins
+public org/bukkit/plugin/SimplePluginManager/lookupNames
+public org/bukkit/plugin/SimplePluginManager/commandMap
+public org/bukkit/command/SimpleCommandMap/knownCommands

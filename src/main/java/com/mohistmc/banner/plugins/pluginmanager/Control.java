@@ -66,10 +66,10 @@ public class Control {
     public static boolean unloadPlugin(Plugin plugin) {
         SimplePluginManager manager = (SimplePluginManager) Bukkit.getServer().getPluginManager();
 
-        List<Plugin> plugins = manager.getPluginList();
-        Map<String, Plugin> lookupNames = manager.getLookupNames();
-        SimpleCommandMap commandMap = manager.getCommandMap();
-        Map<String, Command> knownCommands = commandMap.getKnownCommands();
+        List<Plugin> plugins = manager.plugins;
+        Map<String, Plugin> lookupNames = manager.lookupNames;
+        SimpleCommandMap commandMap = manager.commandMap;
+        Map<String, Command> knownCommands = commandMap.knownCommands;
 
         for (Plugin plugin1 : manager.getPlugins()) {
             if (!plugin1.equals(plugin)) continue;
