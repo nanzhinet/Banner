@@ -12,12 +12,11 @@ import com.mohistmc.banner.util.EulaUtil;
 import com.mohistmc.banner.util.I18n;
 import com.mohistmc.i18n.i18n;
 import io.izzel.arclight.mixin.injector.EjectorInfo;
+import java.util.Scanner;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.injection.struct.InjectionInfo;
-
-import java.util.Scanner;
 
 public class BannerMCStart {
 
@@ -49,7 +48,7 @@ public class BannerMCStart {
         }
         DefaultLibraries.proposeFabricLibs();
         CustomLibraries.loadCustomLibs();
-        injectDeobfStack();
+        if (BannerConfigUtil.stackdeobf()) injectDeobfStack();
         if (!EulaUtil.hasAcceptedEULA()) {
             System.out.println(I18n.as("eula"));
             while (!"true".equals(new Scanner(System.in).next()));
