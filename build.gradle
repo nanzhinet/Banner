@@ -254,6 +254,11 @@ static String ci_version() {
 
 remapSpigotJar {
 	includes.add('net/minecraft/world/level/block/ChestBlock$DoubleInventory')
+	includes.add('net/minecraft/world/level/block/entity/LecternBlockEntity$LecternInventory')
+	includes.add('net/minecraft/world/level/block/ChestBlock$DoubleInventory')
+	includes.add('net/minecraft/world/level/block/ChestBlock$2$1')
+	includes.add('net/minecraft/world/level/block/entity/LecternBlockEntity$1')
+	excludes.add('org/bukkit/craftbukkit/v1_20_R3/CraftServer.class')
 }
 
 /*
