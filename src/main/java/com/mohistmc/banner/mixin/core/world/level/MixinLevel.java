@@ -113,7 +113,7 @@ public abstract class MixinLevel implements LevelAccessor, AutoCloseable, Inject
     public List<ItemEntity> captureDrops;
     public final it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap<SpawnCategory> ticksPerSpawnCategory = new it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap<>();
     public boolean populating;
-    private org.spigotmc.SpigotWorldConfig spigotConfig; // Spigot
+    public org.spigotmc.SpigotWorldConfig spigotConfig; // Spigot
     protected org.bukkit.World.Environment environment;
     protected org.bukkit.generator.BiomeProvider biomeProvider;
     private com.mohistmc.banner.config.BannerWorldConfig bannerConfig;
