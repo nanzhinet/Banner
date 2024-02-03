@@ -566,7 +566,7 @@ public abstract class MixinLevel implements LevelAccessor, AutoCloseable, Inject
     }
 
     @Override
-    public boolean bridge$KeepSpawnInMemory() {
+    public boolean bridge$keepSpawnInMemory() {
         return keepSpawnInMemory;
     }
 
