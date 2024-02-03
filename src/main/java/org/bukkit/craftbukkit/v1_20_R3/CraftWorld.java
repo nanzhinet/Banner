@@ -1282,7 +1282,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public boolean getKeepSpawnInMemory() {
-        return world.bridge$KeepSpawnInMemory();
+        return world.bridge$keepSpawnInMemory();
     }
 
     @Override

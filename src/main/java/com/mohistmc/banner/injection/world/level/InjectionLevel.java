@@ -101,7 +101,7 @@ public interface InjectionLevel {
 
     }
 
-    default boolean bridge$KeepSpawnInMemory() {
+    default boolean bridge$keepSpawnInMemory() {
         return false;
     }
 
