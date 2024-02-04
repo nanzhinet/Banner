@@ -23,16 +23,22 @@ public abstract class MixinPlayerEnderChestContainer extends SimpleContainer {
 
     private Player owner;
 
+    public MixinPlayerEnderChestContainer(Player owner) {
+        super(27);
+        this.owner = owner;
+    }
+
+    /*
     @ShadowConstructor
-    public void banner$constructor$super(int numSlots, InventoryHolder owner) {
+    public void banner$constructor$super(int numSlots) {
         throw new RuntimeException();
     }
 
     @CreateConstructor
     public void banner$constructor(Player owner) {
-        banner$constructor$super(27,  owner.getBukkitEntity());
+        banner$constructor$super(27);
         this.owner = owner;
-    }
+    }*/
 
     @Override
     public InventoryHolder getOwner() {
