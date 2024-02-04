@@ -2,7 +2,6 @@ plugins {
 	id 'fabric-loom' version '1.5-SNAPSHOT'
 	id 'maven-publish'
 	id 'org.ajoberstar.grgit' version '5.2.0'
-	id "com.modrinth.minotaur" version "1.2.1"
 }
 
 apply plugin: com.mohistmc.banner.gradle.BannerGradlePlugin
