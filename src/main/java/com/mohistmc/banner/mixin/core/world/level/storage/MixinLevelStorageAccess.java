@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.level.storage;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.level.storage.InjectionLevelStorageAccess;
 import java.nio.file.Path;
 import java.util.logging.Level;
@@ -19,10 +21,11 @@ public abstract class MixinLevelStorageAccess implements InjectionLevelStorageAc
     @Shadow @Final public LevelStorageSource.LevelDirectory levelDirectory;
     public ResourceKey<LevelStem> dimensionType;
 
+    @ShadowConstructor
     public void banner$constructor(LevelStorageSource saveFormat, String saveName) {
         throw new RuntimeException();
     }
-
+    @CreateConstructor
     public void banner$constructor(LevelStorageSource saveFormat, String saveName, ResourceKey<LevelStem> dimensionType) {
         banner$constructor(saveFormat, saveName);
         this.dimensionType = dimensionType;

@@ -1,6 +1,8 @@
 package com.mohistmc.banner.mixin.core.server.level;
 
 import com.google.common.collect.Lists;
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.injection.server.level.InjectionServerEntity;
 import com.mojang.datafixers.util.Pair;
@@ -98,10 +100,12 @@ public abstract class MixinServerEntity implements InjectionServerEntity {
         lastUpdate = lastPosUpdate = lastMapUpdate = -1;
     }
 
+    @ShadowConstructor
     public void banner$constructor(ServerLevel serverWorld, Entity entity, int updateFrequency, boolean sendVelocityUpdates, Consumer<Packet<?>> packetConsumer) {
         throw new NullPointerException();
     }
 
+    @CreateConstructor
     public void banner$constructor(ServerLevel serverWorld, Entity entity, int updateFrequency, boolean sendVelocityUpdates, Consumer<Packet<?>> packetConsumer, Set<ServerPlayerConnection> set) {
         banner$constructor(serverWorld, entity, updateFrequency, sendVelocityUpdates, packetConsumer);
         this.trackedPlayers = set;

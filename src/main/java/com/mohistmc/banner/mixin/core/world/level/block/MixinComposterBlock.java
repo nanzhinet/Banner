@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.core.world.level.block;
 
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +18,7 @@ import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftBlockInventoryHolder;
 import org.bukkit.craftbukkit.v1_20_R3.util.DummyGeneratorAccess;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -78,6 +80,7 @@ public class MixinComposterBlock {
         }
     }
 
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
     private static BlockState addItem(Entity entity, BlockState state, LevelAccessor world, BlockPos pos, ItemStack stack, double rand) {
         int i = state.getValue(LEVEL);
         float f = COMPOSTABLES.getFloat(stack.getItem());

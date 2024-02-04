@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.network.chat;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.network.chat.InjectionTextColor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextColor;
@@ -26,10 +28,12 @@ public class MixinTextColor implements InjectionTextColor {
         return format;
     }
 
+    @ShadowConstructor
     public void banner$constructor(int color) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(int color, String name, ChatFormatting textFormatting) {
         banner$constructor(color);
         this.name = name;

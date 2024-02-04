@@ -1,7 +1,10 @@
 package com.mohistmc.banner.mixin.core.world.item;
 
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -15,8 +18,11 @@ import net.minecraft.world.item.PlaceOnWaterBlockItem;
 import net.minecraft.world.item.SolidBucketItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockStates;
@@ -24,6 +30,7 @@ import org.bukkit.craftbukkit.v1_20_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,6 +44,11 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class MixinBlockItem {
 
     @Shadow protected abstract boolean mustSurvive();
+
+    @Shadow
+    public static <T extends Comparable<T>> BlockState updateState(BlockState blockState, Property<T> property, String string) {
+        return null;
+    }
 
     private AtomicReference<org.bukkit.block.BlockState> banner$stateCB = new AtomicReference<>(null);
 
@@ -108,5 +120,18 @@ public abstract class MixinBlockItem {
         context.getLevel().getCraftServer().getPluginManager().callEvent(event);
         return event.isBuildable();
         // CraftBukkit end
+    }
+
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
+    private static BlockState getBlockState(BlockState blockState, CompoundTag nbt) {
+        StateDefinition<Block, BlockState> statecontainer = blockState.getBlock().getStateDefinition();
+        for (String s : nbt.getAllKeys()) {
+            Property<?> iproperty = statecontainer.getProperty(s);
+            if (iproperty != null) {
+                String s1 = nbt.get(s).getAsString();
+                blockState = updateState(blockState, iproperty, s1);
+            }
+        }
+        return blockState;
     }
 }

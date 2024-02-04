@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.food;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.food.InjectionFoodData;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,10 +35,12 @@ public abstract class MixinFoodData implements InjectionFoodData {
     public int unsaturatedRegenRate = 80;
     public int starvationRate = 80;
 
+    @ShadowConstructor
     public void banner$constructor() {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(Player entityhuman) {
         Validate.notNull(entityhuman);
         this.entityhuman = entityhuman;

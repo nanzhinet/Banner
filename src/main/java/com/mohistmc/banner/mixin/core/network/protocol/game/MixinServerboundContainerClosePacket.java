@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.network.protocol.game;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,10 +13,12 @@ public class MixinServerboundContainerClosePacket {
 
     @Shadow @Final @Mutable private int containerId;
 
+    @ShadowConstructor
     public void banner$constructor() {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(int id) {
         banner$constructor();
         this.containerId = id;

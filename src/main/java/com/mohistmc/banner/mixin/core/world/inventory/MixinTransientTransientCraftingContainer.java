@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.inventory;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.inventory.InjectionTransientCraftingContainer;
 import java.util.List;
 import net.minecraft.core.NonNullList;
@@ -32,10 +34,12 @@ public abstract class MixinTransientTransientCraftingContainer implements Contai
     private Player owner;
     private int maxStack = MAX_STACK;
 
+    @ShadowConstructor
     public void banner$constructor(AbstractContainerMenu eventHandlerIn, int width, int height) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(AbstractContainerMenu eventHandlerIn, int width, int height, Player owner) {
         banner$constructor(eventHandlerIn, width, height);
         this.owner = owner;

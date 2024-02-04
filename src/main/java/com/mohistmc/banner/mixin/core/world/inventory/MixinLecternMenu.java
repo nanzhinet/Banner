@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.inventory;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.inventory.InjectionLecternMenu;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,19 +33,23 @@ public abstract class MixinLecternMenu extends AbstractContainerMenu implements 
         super(menuType, i);
     }
 
+    @ShadowConstructor
     public void banner$constructor(int i) {
         throw new RuntimeException();
     }
 
+    @ShadowConstructor
     public void banner$constructor(int i, Container inventory, ContainerData intArray) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(int i, Inventory playerInventory) {
         banner$constructor(i);
         this.playerInventory = playerInventory;
     }
 
+    @CreateConstructor
     public void banner$constructor(int i, Container inventory, ContainerData intArray, Inventory playerInventory) {
         banner$constructor(i, inventory, intArray);
         this.playerInventory = playerInventory;

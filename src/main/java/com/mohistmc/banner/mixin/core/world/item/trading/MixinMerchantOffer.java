@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.item.trading;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.item.trading.InjectionMerchantOffer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
@@ -20,10 +22,12 @@ public abstract class MixinMerchantOffer implements InjectionMerchantOffer {
 
     private CraftMerchantRecipe bukkitHandle;
 
+    @ShadowConstructor
     public void banner$constructor(ItemStack buyingStackFirstIn, ItemStack buyingStackSecondIn, ItemStack sellingStackIn, int usesIn, int maxUsesIn, int givenEXPIn, float priceMultiplierIn, int demand) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(ItemStack buyingStackFirstIn, ItemStack buyingStackSecondIn, ItemStack sellingStackIn, int usesIn, int maxUsesIn, int givenEXPIn, float priceMultiplierIn, int demand, CraftMerchantRecipe bukkit) {
         banner$constructor(buyingStackFirstIn, buyingStackSecondIn, sellingStackIn, usesIn, maxUsesIn, givenEXPIn, priceMultiplierIn, demand);
         this.bukkitHandle = bukkit;

@@ -1,6 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.entity.moster;
 
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import io.izzel.arclight.mixin.Eject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -28,6 +29,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTransformEvent;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -89,6 +91,7 @@ public abstract class MixinZombie extends Monster {
          worldIn.getLevel().pushAddEntityReason(CreatureSpawnEvent.SpawnReason.MOUNT);
     }
 
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
     private static ZombieVillager zombifyVillager(ServerLevel level, Villager villager, BlockPos blockPosition, boolean silent, CreatureSpawnEvent.SpawnReason spawnReason) {
         villager.level().pushAddEntityReason(spawnReason);
         villager.bridge$pushTransformReason(EntityTransformEvent.TransformReason.INFECTION);

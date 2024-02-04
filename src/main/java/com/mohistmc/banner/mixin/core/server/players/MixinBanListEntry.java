@@ -1,6 +1,8 @@
 package com.mohistmc.banner.mixin.core.server.players;
 
 import com.google.gson.JsonObject;
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.server.players.InjectionBanListEntry;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,10 +23,12 @@ public abstract class MixinBanListEntry<T> extends StoredUserEntry<T> implements
 
     @Shadow @Final protected String reason;
 
+    @ShadowConstructor
     public void banner$constructor$super(T object) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(T object, JsonObject jsonObject) {
         banner$constructor$super(checkExpiry(object, jsonObject));
     }

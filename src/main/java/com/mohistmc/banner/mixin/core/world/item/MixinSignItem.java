@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.core.world.item;
 
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -9,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SignItem.class)
 public class MixinSignItem {
 
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
     private static BlockPos openSign = BukkitExtraConstants.openSign; // CraftBukkit
 
     @Redirect(method = "updateCustomBlockEntityTag", at = @At(value = "INVOKE",

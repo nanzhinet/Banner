@@ -1,6 +1,7 @@
 package com.mohistmc.banner.mixin.core.server;
 
 import com.mohistmc.banner.api.color.ColorsAPI;
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.config.BannerConfig;
@@ -89,6 +90,7 @@ import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -232,7 +234,8 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     public OptionSet options;
     public org.bukkit.command.ConsoleCommandSender console;
     public ConsoleReader reader;
-    private static int currentTick = BukkitExtraConstants.currentTick;
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
+    private static int currentTick = (int) (System.currentTimeMillis() / 50);
     public java.util.Queue<Runnable> processQueue = BukkitExtraConstants.bridge$processQueue;
     public int autosavePeriod = BukkitExtraConstants.bridge$autosavePeriod;
     private boolean forceTicks;
@@ -502,6 +505,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
         this.server = server;
     }
 
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
     private static MinecraftServer getServer() {
         return Bukkit.getServer() instanceof CraftServer ? ((CraftServer) Bukkit.getServer()).getServer() : null;
     }

@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.core.world.entity.item;
 
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -53,6 +55,7 @@ public abstract class MixinFallingBlockEntity extends Entity {
         }
     }
 
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
     private static FallingBlockEntity fall(Level level, BlockPos pos, BlockState blockState, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
         level.pushAddEntityReason(spawnReason);
         return FallingBlockEntity.fall(level, pos, blockState);

@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.level.levelgen;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.level.levelgen.InjectionFlatLevelSource;
 import java.util.function.Function;
 import net.minecraft.Util;
@@ -23,11 +25,13 @@ public abstract class MixinFlatLevelSource implements InjectionFlatLevelSource {
 
     private BiomeSource banner$biomeSource;
 
+    @ShadowConstructor
     public void banner$constructor$super(BiomeSource biomeSource,
                                          Function<Holder<Biome>, BiomeGenerationSettings> generationSettingsGetter, BiomeSource newBiomeSource) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(FlatLevelGeneratorSettings settings, BiomeSource biomeSource) {
         banner$constructor$super(biomeSource, Util.memoize(settings::adjustGenerationSettings), biomeSource);
         banner$biomeSource = banner$biomeSource == null ? new FixedBiomeSource(settings.getBiome()) : banner$biomeSource;

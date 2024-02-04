@@ -2,6 +2,9 @@ package com.mohistmc.banner.mixin.core.world;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -27,15 +30,18 @@ public abstract class MixinSimpleContainer implements Container, StackedContents
     protected InventoryHolder bukkitOwner;
     public List<HumanEntity> transaction = new ArrayList<>();
 
+    @ShadowConstructor
     public void banner$constructor(int numSlots) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(int numSlots, InventoryHolder owner) {
         this.banner$constructor(numSlots);
         this.bukkitOwner = owner;
     }
 
+    @CreateConstructor
     public void banner$constructor(SimpleContainer original) {
         this.banner$constructor(this.size);
         for (int slot = 0; slot < this.size; slot++) {

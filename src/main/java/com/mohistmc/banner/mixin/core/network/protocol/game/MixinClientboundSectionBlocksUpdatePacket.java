@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.core.network.protocol.game;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
 import com.mohistmc.banner.injection.network.protocol.game.InjectionClientboundSectionBlocksUpdatePacket;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.core.SectionPos;
@@ -17,6 +18,7 @@ public class MixinClientboundSectionBlocksUpdatePacket implements InjectionClien
     @Shadow @Final @Mutable private short[] positions;
     @Shadow @Final @Mutable private BlockState[] states;
 
+    @CreateConstructor
     public void banner$constructor(SectionPos sectionposition, ShortSet shortset, BlockState[] states) {
         this.sectionPos = sectionposition;
         this.positions = shortset.toShortArray();

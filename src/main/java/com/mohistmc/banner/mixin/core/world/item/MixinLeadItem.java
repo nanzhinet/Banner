@@ -2,6 +2,8 @@ package com.mohistmc.banner.mixin.core.world.item;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,6 +17,7 @@ import net.minecraft.world.phys.AABB;
 import org.bukkit.craftbukkit.v1_20_R3.CraftEquipmentSlot;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
@@ -72,6 +75,7 @@ public abstract class MixinLeadItem {
         return bl ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
     private static InteractionResult bindPlayerMobs(Player entityhuman, Level world, BlockPos blockposition, InteractionHand enumhand) { // CraftBukkit - Add EnumHand
        banner$hand.set(enumhand);
        return bindPlayerMobs(entityhuman, world, blockposition);

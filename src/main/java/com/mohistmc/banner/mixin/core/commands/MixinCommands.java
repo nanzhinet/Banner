@@ -2,6 +2,7 @@ package com.mohistmc.banner.mixin.core.commands;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
 import com.mohistmc.banner.injection.commands.InjectionCommandNode;
 import com.mohistmc.banner.injection.commands.InjectionCommands;
 import com.mojang.brigadier.CommandDispatcher;
@@ -36,6 +37,7 @@ public abstract class MixinCommands implements InjectionCommands {
 
     @Shadow public abstract void performPrefixedCommand(CommandSourceStack commandSourceStack, String string);
 
+    @CreateConstructor
     public void banner$constructor() {
         this.dispatcher.setConsumer(ExecutionCommandSource.resultConsumer());
     }

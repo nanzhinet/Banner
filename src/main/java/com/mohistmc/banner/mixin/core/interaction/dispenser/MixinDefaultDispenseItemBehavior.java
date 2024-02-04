@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.interaction.dispenser;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.BlockSource;
@@ -23,10 +25,12 @@ public class MixinDefaultDispenseItemBehavior {
     private static transient boolean banner$dropper;
     private static transient ItemEntity banner$itemEntity;
 
+    @ShadowConstructor
     public void banner$constructor() {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(boolean dropper) {
         banner$constructor();
         this.dropper = dropper;

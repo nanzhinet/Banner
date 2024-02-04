@@ -1,5 +1,7 @@
 package com.mohistmc.banner.mixin.core.server.rcon;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.server.rcon.InjectionRconConsoleSource;
 import java.net.SocketAddress;
 import net.minecraft.commands.CommandSourceStack;
@@ -19,10 +21,12 @@ public abstract class MixinRconConsoleSource implements InjectionRconConsoleSour
     public SocketAddress socketAddress;
     private CraftRemoteConsoleCommandSender remoteConsole = null;
 
+    @ShadowConstructor
     public void banner$constructor(MinecraftServer pServer) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(MinecraftServer pServer, SocketAddress socketAddress) {
         banner$constructor(pServer);
         this.socketAddress = socketAddress;

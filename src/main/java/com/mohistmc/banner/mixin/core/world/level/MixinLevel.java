@@ -1,5 +1,8 @@
 package com.mohistmc.banner.mixin.core.world.level;
 
+import com.mohistmc.banner.asm.annotation.CreateConstructor;
+import com.mohistmc.banner.asm.annotation.ShadowConstructor;
+import com.mohistmc.banner.asm.annotation.TransformAccess;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import com.mohistmc.banner.config.BannerWorldConfig;
 import com.mohistmc.banner.fabric.BukkitRegistry;
@@ -62,6 +65,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.ChunkGenerator;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spigotmc.SpigotWorldConfig;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -117,11 +121,15 @@ public abstract class MixinLevel implements LevelAccessor, AutoCloseable, Inject
     protected org.bukkit.World.Environment environment;
     protected org.bukkit.generator.BiomeProvider biomeProvider;
     private com.mohistmc.banner.config.BannerWorldConfig bannerConfig;
+    @TransformAccess(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC)
+    private static BlockPos lastPhysicsProblem; // Spigot
 
+    @ShadowConstructor
     public void banner$constructor(WritableLevelData worldInfo, ResourceKey<Level> dimension, RegistryAccess registryAccess, final Holder<DimensionType> dimensionType, Supplier<ProfilerFiller> profiler, boolean isRemote, boolean isDebug, long seed, int maxNeighborUpdate) {
         throw new RuntimeException();
     }
 
+    @CreateConstructor
     public void banner$constructor(WritableLevelData worldInfo, ResourceKey<Level> dimension, RegistryAccess registryAccess, final Holder<DimensionType> dimensionType, Supplier<ProfilerFiller> profiler, boolean isRemote, boolean isDebug, long seed, int maxNeighborUpdate, org.bukkit.generator.ChunkGenerator gen, org.bukkit.generator.BiomeProvider biomeProvider, org.bukkit.World.Environment env) {
         banner$constructor(worldInfo, dimension, registryAccess, dimensionType, profiler, isRemote, isDebug, seed, maxNeighborUpdate);
         this.generator = gen;
@@ -353,13 +361,17 @@ public abstract class MixinLevel implements LevelAccessor, AutoCloseable, Inject
                 // CraftBukkit start
                 iblockdata1.updateIndirectNeighbourShapes(((Level) (Object) this), blockposition, k, j - 1); // Don't call an event for the old block to limit event spam
                 CraftWorld world = ((ServerLevel) (Object) this).getWorld();
-                if (world != null) {
-                    BlockPhysicsEvent event = new BlockPhysicsEvent(world.getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ()), CraftBlockData.fromData(iblockdata));
-                    this.getCraftServer().getPluginManager().callEvent(event);
+                try {
+                    if (world != null) {
+                        BlockPhysicsEvent event = new BlockPhysicsEvent(world.getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ()), CraftBlockData.fromData(iblockdata));
+                        this.getCraftServer().getPluginManager().callEvent(event);
 
-                    if (event.isCancelled()) {
-                        return;
+                        if (event.isCancelled()) {
+                            return;
+                        }
                     }
+                } catch (StackOverflowError e) {
+                    lastPhysicsProblem = blockposition;
                 }
                 // CraftBukkit end
                 iblockdata.updateNeighbourShapes(((Level) (Object) this), blockposition, k, j - 1);
