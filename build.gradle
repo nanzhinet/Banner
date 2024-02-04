@@ -1,10 +1,26 @@
+buildscript {
+	repositories {
+		maven {
+			name = 'mohist'
+			url = 'https://maven.mohistmc.com/'
+		}
+		maven {
+			name = "local"
+			url = uri('./loom-plugin')
+		}
+	}
+	dependencies {
+		classpath 'com.mohistmc.banner:banner-gradle-plugin:1.0.0'
+	}
+}
+
 plugins {
 	id 'fabric-loom' version '1.5-SNAPSHOT'
 	id 'maven-publish'
 	id 'org.ajoberstar.grgit' version '5.2.0'
 }
 
-apply plugin: com.mohistmc.banner.gradle.BannerGradlePlugin
+apply plugin: 'com.mohistmc.banner'
 
 banner {
 	mcVersion = project.minecraft_version
@@ -218,8 +234,6 @@ publishing {
 	}
 }
 
-
-import com.mohistmc.banner.gradle.BannerGradlePlugin
 import groovy.json.JsonSlurper
 static String ci_version() {
 	try {
