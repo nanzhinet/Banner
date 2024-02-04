@@ -105,6 +105,11 @@ import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftRayTraceResult;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftSpawnCategory;
 import org.bukkit.craftbukkit.v1_20_R3.util.CraftStructureSearchResult;
+import org.bukkit.craftbukkit.v1_20_R3.generator.structure.CraftStructure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
+import org.bukkit.generator.structure.GeneratedStructure;
+import org.bukkit.craftbukkit.v1_20_R3.generator.structure.CraftGeneratedStructure;
+import net.minecraft.core.registries.Registries;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -2006,6 +2011,30 @@ public class CraftWorld extends CraftRegionAccessor implements World {
     @Override
     public DragonBattle getEnderDragonBattle() {
         return (getHandle().getDragonFight() == null) ? null : new CraftDragonBattle(getHandle().getDragonFight());
+    }
+
+    @Override
+    public Collection<GeneratedStructure> getStructures(int x, int z) {
+        return getStructures(x, z, struct -> true);
+    }
+
+    @Override
+    public Collection<GeneratedStructure> getStructures(int x, int z, Structure structure) {
+        Preconditions.checkArgument(structure != null, "Structure cannot be null");
+
+        Registry<net.minecraft.world.level.levelgen.structure.Structure> registry = CraftRegistry.getMinecraftRegistry(Registries.STRUCTURE);
+        ResourceLocation key = registry.getKey(CraftStructure.bukkitToMinecraft(structure));
+
+        return getStructures(x, z, struct -> registry.getKey(struct).equals(key));
+    }
+
+    private List<GeneratedStructure> getStructures(int x, int z, Predicate<net.minecraft.world.level.levelgen.structure.Structure> predicate) {
+        List<GeneratedStructure> structures = new ArrayList<>();
+        for (StructureStart start : getHandle().structureManager().startsForStructure(new ChunkPos(x, z), predicate)) {
+            structures.add(new CraftGeneratedStructure(start));
+        }
+
+        return structures;
     }
 
     @Override
