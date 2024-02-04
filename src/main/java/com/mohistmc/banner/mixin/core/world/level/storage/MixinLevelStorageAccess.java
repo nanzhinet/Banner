@@ -21,17 +21,6 @@ public abstract class MixinLevelStorageAccess implements InjectionLevelStorageAc
     @Shadow @Final public LevelStorageSource.LevelDirectory levelDirectory;
     public ResourceKey<LevelStem> dimensionType;
 
-    @ShadowConstructor
-    public void banner$constructor(LevelStorageSource saveFormat, String saveName) {
-        throw new RuntimeException();
-    }
-    @CreateConstructor
-    public void banner$constructor(LevelStorageSource saveFormat, String saveName, ResourceKey<LevelStem> dimensionType) {
-        banner$constructor(saveFormat, saveName);
-        this.dimensionType = dimensionType;
-    }
-
-
     @Inject(method = "getDimensionPath", cancellable = true, at = @At("HEAD"))
     private void banner$useActualType(ResourceKey<Level> dimensionKey, CallbackInfoReturnable<Path> cir) {
         if (dimensionType == LevelStem.OVERWORLD) {

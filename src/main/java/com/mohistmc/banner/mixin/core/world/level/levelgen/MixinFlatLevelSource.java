@@ -26,16 +26,14 @@ public abstract class MixinFlatLevelSource implements InjectionFlatLevelSource {
     private BiomeSource banner$biomeSource;
 
     @ShadowConstructor
-    public void banner$constructor$super(BiomeSource biomeSource,
-                                         Function<Holder<Biome>, BiomeGenerationSettings> generationSettingsGetter, BiomeSource newBiomeSource) {
+    public void banner$constructor$super(FlatLevelGeneratorSettings flatLevelGeneratorSettings) {
         throw new RuntimeException();
     }
 
     @CreateConstructor
     public void banner$constructor(FlatLevelGeneratorSettings settings, BiomeSource biomeSource) {
-        banner$constructor$super(biomeSource, Util.memoize(settings::adjustGenerationSettings), biomeSource);
+        banner$constructor$super(settings);
         banner$biomeSource = banner$biomeSource == null ? new FixedBiomeSource(settings.getBiome()) : banner$biomeSource;
-        biomeSource = banner$biomeSource;
         this.settings = settings;
     }
 

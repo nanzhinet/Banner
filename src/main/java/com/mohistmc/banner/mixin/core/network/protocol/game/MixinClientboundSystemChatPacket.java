@@ -21,13 +21,8 @@ public class MixinClientboundSystemChatPacket {
     }
 
     @CreateConstructor
-    public void banner$constructor(String content, boolean overlay) {
-        banner$constructor(Component.Serializer.fromJson(content), overlay);
-    }
-
-    @CreateConstructor
     public void banner$constructor(BaseComponent[] content, boolean overlay) {
-        banner$constructor(ComponentSerializer.toString(content), overlay);
+        banner$constructor(Component.Serializer.fromJson(ComponentSerializer.toString(content)), overlay);
     }
 
     @Inject(method = "<init>(Lnet/minecraft/network/chat/Component;Z)V", at = @At("RETURN"))

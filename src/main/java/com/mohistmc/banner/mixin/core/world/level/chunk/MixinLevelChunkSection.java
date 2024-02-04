@@ -1,10 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.level.chunk;
 
-import com.mohistmc.banner.asm.annotation.CreateConstructor;
-import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import com.mohistmc.banner.injection.world.level.chunk.InjectionLevelChunkSection;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -19,21 +16,6 @@ public abstract class MixinLevelChunkSection implements InjectionLevelChunkSecti
     @Shadow private PalettedContainerRO<Holder<Biome>> biomes;
     @Shadow public PalettedContainer<BlockState> states;
     @Shadow public abstract void recalcBlockCounts();
-
-    @ShadowConstructor
-    public void banner$constructor(PalettedContainer<BlockState> pStates, PalettedContainerRO<Holder<Biome>> pBiomes) {
-        throw new RuntimeException();
-    }
-
-    @CreateConstructor
-    public void LevelChunkSection(Registry<Biome> biomeRegistry) {
-        throw new RuntimeException();
-    }
-
-    @CreateConstructor
-    public void LevelChunkSection(PalettedContainer<BlockState> pStates, PalettedContainer<Holder<Biome>> pBiomes) {
-        banner$constructor(pStates, pBiomes);
-    }
 
     @Override
     public void setBiome(int i, int j, int k, Holder<Biome> biome) {

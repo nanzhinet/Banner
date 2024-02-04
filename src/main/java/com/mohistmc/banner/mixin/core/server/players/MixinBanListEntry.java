@@ -17,46 +17,14 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(BanListEntry.class)
 public abstract class MixinBanListEntry<T> extends StoredUserEntry<T> implements InjectionBanListEntry {
 
+    // @formatter:off
     @Shadow @Final protected Date created;
-
-    @Shadow @Final public static SimpleDateFormat DATE_FORMAT;
-
-    @Shadow @Final protected String reason;
-
-    @ShadowConstructor
-    public void banner$constructor$super(T object) {
-        throw new RuntimeException();
-    }
-
-    @CreateConstructor
-    public void banner$constructor(T object, JsonObject jsonObject) {
-        banner$constructor$super(checkExpiry(object, jsonObject));
-    }
 
     public MixinBanListEntry(@Nullable T object) {
         super(object);
     }
+    // @formatter:on
 
-
-    // CraftBukkit start
-    private static <T> T checkExpiry(T object, JsonObject jsonobject) {
-        Date expires = null;
-
-        try {
-            expires = jsonobject.has("expires") ? DATE_FORMAT.parse(jsonobject.get("expires").getAsString()) : null;
-        } catch (ParseException ex) {
-            // Guess we don't have a date
-        }
-
-        if (expires == null || expires.after(new Date())) {
-            return object;
-        } else {
-            return null;
-        }
-    }
-    // CraftBukkit end
-
-    @Override
     public Date getCreated() {
         return this.created;
     }
