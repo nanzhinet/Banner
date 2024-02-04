@@ -20,7 +20,6 @@ libraries/org/jline/jline-reader/3.21.0/jline-reader-3.21.0.jar|3fd7c434561cbdd6
 libraries/org/jline/jline-terminal/3.21.0/jline-terminal-3.21.0.jar|e3f8f0f98178d4a95a66b154d157ecf8|228777
 libraries/org/jline/jline-terminal-jansi/3.21.0/jline-terminal-jansi-3.21.0.jar|8b91d2fd8e5328a28b87f2ea15690826|39477
 libraries/org/checkerframework/checker-qual/2.0.0/checker-qual-2.0.0.jar|94fe1af76c10006fbc5b988180b71bf0|343222
-libraries/org/apache/logging/log4j/log4j-iostreams/2.20.0/log4j-iostreams-2.20.0.jar|d612855f572573a409bb59957c7c24c8|48552
 libraries/net/minecrell/terminalconsoleappender/1.4.0/terminalconsoleappender-1.4.0.jar|6508e35ad178825278fbd3d1ff82d2cc|26102
 libraries/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar|5cc2c478d73e8454b4c369cee66c5bc7|23931
 libraries/com/mysql/mysql-connector-j/8.0.33/mysql-connector-j-8.0.33.jar|801b67e18f23e4e9ec392812a1c108d4|2481560
