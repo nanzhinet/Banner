@@ -8,6 +8,7 @@ import net.minecraft.world.food.FoodData;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.apache.commons.lang3.Validate;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.event.entity.EntityExhaustionEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -37,7 +38,7 @@ public abstract class MixinFoodData implements InjectionFoodData {
     }
 
     public void banner$constructor(Player entityhuman) {
-        org.apache.commons.lang.Validate.notNull(entityhuman);
+        Validate.notNull(entityhuman);
         this.entityhuman = entityhuman;
     }
 
