@@ -4,10 +4,6 @@ buildscript {
 			name = 'mohist'
 			url = 'https://maven.mohistmc.com/'
 		}
-		maven {
-			name = "local"
-			url = uri('./loom-plugin')
-		}
 	}
 	dependencies {
 		classpath 'com.mohistmc.banner:banner-gradle-plugin:1.0.0'
