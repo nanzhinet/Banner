@@ -20,6 +20,7 @@
     "entity.MixinCraftHumanEntity",
     "entity.MixinCraftPlayer",
     "entity.MixinCraftPlayer_1",
+    "event.MixinCraftEventFactory",
     "inventory.MixinCraftInventory",
     "inventory.MixinCraftInventoryView",
     "inventory.MixinCraftRecipe",

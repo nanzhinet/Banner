@@ -207,7 +207,6 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
     public boolean lastDamageCancelled; // SPIGOT-5339, SPIGOT-6252, SPIGOT-6777: Keep track if the event was canceled
     public boolean persistentInvisibility = false;
     public BlockPos lastLavaContact;
-    private static transient BlockPos banner$damageEventBlock;
     private static final int CURRENT_LEVEL = 2;
     @javax.annotation.Nullable
     private org.bukkit.util.Vector origin;
@@ -420,13 +419,13 @@ public abstract class MixinEntity implements Nameable, EntityAccess, CommandSour
 
     @ModifyArg(method = "move", index = 1, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;stepOn(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/Entity;)V"))
     private BlockPos banner$captureBlockWalk(BlockPos pos) {
-        banner$damageEventBlock = pos;
+        BukkitSnapshotCaptures.captureDamageEventBlock(pos);
         return pos;
     }
 
     @Inject(method = "move", at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/world/level/block/Block;stepOn(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/Entity;)V"))
     private void banner$resetBlockWalk(MoverType type, Vec3 pos, CallbackInfo ci) {
-        banner$damageEventBlock = null;
+        BukkitSnapshotCaptures.captureDamageEventBlock(null);
     }
 
     @Inject(method = "move", at = @At(value = "INVOKE",
