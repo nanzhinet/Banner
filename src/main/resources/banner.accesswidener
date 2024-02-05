@@ -17,6 +17,7 @@ accessible field net/minecraft/world/entity/projectile/EvokerFangs warmupDelayTi
 accessible method net/minecraft/world/entity/projectile/Arrow updateColor ()V
 accessible field net/minecraft/world/entity/projectile/Arrow potion Lnet/minecraft/world/item/alchemy/Potion;
 accessible field net/minecraft/server/level/ServerPlayer language Ljava/lang/String;
+accessible field net/minecraft/world/entity/Entity random Lnet/minecraft/util/RandomSource;
 
 # 1.20.2
 accessible field net/minecraft/server/network/ServerCommonPacketListenerImpl latency I
