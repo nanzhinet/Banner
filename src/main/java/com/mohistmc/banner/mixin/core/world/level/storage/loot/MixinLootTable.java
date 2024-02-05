@@ -10,6 +10,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import org.bukkit.craftbukkit.v1_20_R3.CraftLootTable;
 import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.event.world.LootGenerateEvent;
@@ -22,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinLootTable implements InjectionLootTable {
     @Shadow protected abstract ObjectArrayList<ItemStack> getRandomItems(LootContext context);
     @Shadow public abstract void fill(Container container, LootParams params, long seed);
+
+    public CraftLootTable craftLootTable; // CraftBukkit
 
     @Eject(method = "fill", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootContext;)Lit/unimi/dsi/fastutil/objects/ObjectArrayList;"))
     private ObjectArrayList<ItemStack> banner$nonPluginEvent(LootTable lootTable, LootContext context, CallbackInfo ci, Container inv) {
@@ -45,5 +48,15 @@ public abstract class MixinLootTable implements InjectionLootTable {
     public void fillInventory(Container inv, LootParams lootparams, long seed, boolean plugin) {
         isPlugin.set(plugin);
         fill(inv, lootparams, seed);
+    }
+
+    @Override
+    public CraftLootTable bridge$craftLootTable() {
+        return craftLootTable;
+    }
+
+    @Override
+    public void banner$setCraftLootTable(CraftLootTable craftLootTable) {
+        this.craftLootTable = craftLootTable;
     }
 }
