@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mohistmc.banner.BannerMCStart;
 import com.mohistmc.banner.injection.world.item.crafting.InjectionRecipeManager;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import java.util.HashMap;
@@ -96,7 +97,7 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
             return (entry1.getValue()); // CraftBukkit
         }));
         this.byName = Maps.newHashMap(builder.build()); // CraftBukkit
-        LOGGER.info("Loaded {} recipes", (int)map.size());
+        LOGGER.info(BannerMCStart.I18N.as("server.recipe.loaded"), (int)map.size());
     }
 
     /**

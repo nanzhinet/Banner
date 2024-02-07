@@ -1,5 +1,6 @@
 package com.mohistmc.banner.mixin.core.server;
 
+import com.mohistmc.banner.BannerMCStart;
 import com.mohistmc.banner.api.color.ColorsAPI;
 import com.mohistmc.banner.asm.annotation.TransformAccess;
 import com.mohistmc.banner.bukkit.BukkitExtraConstants;
@@ -309,7 +310,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
                         long n = m / l;
 
                         if (server.getWarnOnOverload()) // CraftBukkit
-                        LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", m / TimeUtil.NANOSECONDS_PER_MILLISECOND, n);
+                        LOGGER.warn(BannerMCStart.I18N.as("server.hold.ckp"), m / TimeUtil.NANOSECONDS_PER_MILLISECOND, n);
                         this.nextTickTimeNanos += n * l;
                         this.lastOverloadWarningNanos = this.nextTickTimeNanos;
                     }
