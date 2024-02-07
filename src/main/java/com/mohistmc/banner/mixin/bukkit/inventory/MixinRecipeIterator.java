@@ -25,6 +25,22 @@ public class MixinRecipeIterator {
      * @reason mod compat
      */
     @Overwrite
+    public boolean hasNext() {
+        if (this.current != null && this.current.hasNext()) {
+            return true;
+        } else if (this.recipes.hasNext()) {
+            this.current = this.recipes.next().getValue().values().iterator();
+            return this.hasNext();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @author wdog5
+     * @reason mod compat
+     */
+    @Overwrite
     public Recipe next() {
         if (current == null || !current.hasNext()) {
             current = recipes.next().getValue().values().iterator();
