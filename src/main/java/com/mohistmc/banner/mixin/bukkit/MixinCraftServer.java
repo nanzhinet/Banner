@@ -68,6 +68,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitWorker;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.spigotmc.SpigotConfig;
@@ -155,9 +156,6 @@ public abstract class MixinCraftServer {
     @Shadow public boolean ignoreVanillaPermissions;
 
     @Shadow public abstract CraftScheduler getScheduler();
-
-    @Shadow public abstract void loadPlugins();
-
     @Shadow public abstract PluginManager getPluginManager();
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -504,5 +502,35 @@ public abstract class MixinCraftServer {
         this.enablePlugins(PluginLoadOrder.POSTWORLD);
         this.getPluginManager().callEvent(new ServerLoadEvent(ServerLoadEvent.LoadType.RELOAD));
         ServerLifecycleEvents.SERVER_STARTING.invoker().onServerStarting(console);// Banner - add for fire fabric lifecycle event
+    }
+
+    /**
+     * @author wdog5
+     * @reason custom modify
+     */
+    @Overwrite
+    public void loadPlugins() {
+        this.pluginManager.registerInterface(JavaPluginLoader.class);
+        File pluginFolder = (File)this.console.bridge$options().valueOf("plugins");
+        if (pluginFolder.exists()) {
+            Plugin[] plugins = this.pluginManager.loadPlugins(pluginFolder);
+            Plugin[] var6 = plugins;
+            int var5 = plugins.length;
+
+            for(int var4 = 0; var4 < var5; ++var4) {
+                Plugin plugin = var6[var4];
+
+                try {
+                    String message = String.format(BannerMCStart.I18N.as("bukkit.plugin.loading"), plugin.getDescription().getFullName());
+                    plugin.getLogger().info(message);
+                    plugin.onLoad();
+                } catch (Throwable var8) {
+                    Logger.getLogger(CraftServer.class.getName()).log(Level.SEVERE, var8.getMessage() + " " + BannerMCStart.I18N.as("bukkit.plugin.initializing") + " " + plugin.getDescription().getFullName() + " " + BannerMCStart.I18N.as("bukkit.plugin.ifUpToDate"), var8);
+                }
+            }
+        } else {
+            pluginFolder.mkdir();
+        }
+
     }
 }
