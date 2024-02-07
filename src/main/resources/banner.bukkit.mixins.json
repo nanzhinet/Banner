@@ -12,7 +12,9 @@
   },
   "mixinPriority": 400,
   "mixins": [
+    "MixinCraftServer",
     "block.MixinCraftBlockState",
+    "command.MixinColouredConsoleSender",
     "command.MixinSimpleCommandMap",
     "command.MixinVersionCommand",
     "entity.MixinCraftAbstractVillager",
@@ -27,6 +29,8 @@
     "inventory.MixinRecipeIterator",
     "potion.MixinPotionType",
     "util.MixinCraftSpawnCategory",
+    "util.MixinServerShutdownThread",
+    "util.MixinTerminalConsoleWriterThread",
     "util.MixinVersioning"
   ]
 }

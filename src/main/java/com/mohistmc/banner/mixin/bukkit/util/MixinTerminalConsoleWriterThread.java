@@ -1,28 +1,31 @@
-package org.bukkit.craftbukkit.v1_20_R3.util;
+package com.mohistmc.banner.mixin.bukkit.util;
 
-import org.bukkit.craftbukkit.Main;
 import com.mojang.logging.LogQueues;
+import jline.console.ConsoleReader;
+import org.bukkit.craftbukkit.v1_20_R3.util.TerminalConsoleWriterThread;
+import org.fusesource.jansi.Ansi;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.console.ConsoleReader;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Erase;
 
-public class TerminalConsoleWriterThread extends Thread {
-    private final ConsoleReader reader;
-    private final OutputStream output;
+@Mixin(value = TerminalConsoleWriterThread.class, remap = false)
+public class MixinTerminalConsoleWriterThread {
 
-    public TerminalConsoleWriterThread(OutputStream output, ConsoleReader reader) {
-        super("TerminalConsoleWriter");
-        this.output = output;
-        this.reader = reader;
+    @Shadow @Final private ConsoleReader reader;
 
-        this.setDaemon(true);
-    }
+    @Shadow @Final private OutputStream output;
 
-    @Override
+    /**
+     * @author wdog5
+     * @reason custom modify
+     */
+    @Overwrite
     public void run() {
         String message;
 
@@ -35,7 +38,7 @@ public class TerminalConsoleWriterThread extends Thread {
 
             try {
                 if (true) {
-                    reader.print(Ansi.ansi().eraseLine(Erase.ALL).toString() + ConsoleReader.RESET_LINE);
+                    reader.print(Ansi.ansi().eraseLine(Ansi.Erase.ALL).toString() + ConsoleReader.RESET_LINE);
                     reader.flush();
                     output.write(message.getBytes());
                     output.flush();
