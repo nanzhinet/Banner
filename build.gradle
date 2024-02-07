@@ -234,16 +234,3 @@ remapSpigotJar {
 	excludesApi.add('org/bukkit/plugin/java/LibraryLoader$1.class')
 	excludesApi.add('org/bukkit/event/inventory/FurnaceSmeltEvent.class')
 }
-
-/*
-tasks.register('refreshSpigotAT', Jar) {
-	File libDir = new File(project.rootDir, "libs")
-	File[] files = libDir.listFiles()
-	for (File jar : files) {
-		if (jar.name.endsWith(".jar")) {
-			jar.delete()
-		}
-	}
-
-	finalizedBy 'remapSpigotJar'
-}*/
