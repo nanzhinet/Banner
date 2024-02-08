@@ -14,16 +14,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = CraftItemStack.class, remap = false)
 public abstract class MixinCraftItemStack {
 
+    /*
     @Shadow
     static Material getType(ItemStack item) {
         return null;
     }
-
     @Inject(method = "getItemMeta(Lnet/minecraft/world/item/ItemStack;)Lorg/bukkit/inventory/meta/ItemMeta;",
             at = @At("HEAD"), cancellable = true)
     private static void banner$checkItemMeta(ItemStack item, CallbackInfoReturnable<ItemMeta> cir) {
         if (item.getTag() == null) {
             cir.setReturnValue(CraftItemFactory.instance().getItemMeta(getType(item)));
         }
-    }
+    }*/
 }
