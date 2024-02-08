@@ -5,7 +5,6 @@ import com.mohistmc.banner.bukkit.DoubleChestInventory;
 import com.mohistmc.banner.injection.server.level.InjectionServerPlayer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Unit;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -14,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -31,8 +31,10 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.stats.ServerRecipeBook;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.CombatTracker;
@@ -52,6 +54,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
@@ -126,30 +129,9 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
 
     @Shadow public abstract void initMenu(AbstractContainerMenu abstractContainerMenu);
 
-    @Shadow public abstract void initInventoryMenu();
-
-    @Shadow public boolean isChangingDimension;
-    @Shadow public boolean wonGame;
-    @Shadow private boolean seenCredits;
-    @Shadow @Nullable private Vec3 enteredNetherPosition;
-
-    @Shadow protected abstract void createEndPlatform(ServerLevel serverLevel, BlockPos blockPos);
-
-    @Shadow public abstract void triggerDimensionChangeTriggers(ServerLevel serverLevel);
-
-    @Shadow private int lastSentFood;
-    @Shadow private float lastSentHealth;
-    @Shadow @Nullable private Vec3 levitationStartPos;
-
-    @Shadow public abstract boolean canChatInColor();
-
     @Shadow public abstract boolean teleportTo(ServerLevel level, double x, double y, double z, Set<RelativeMovement> relativeMovements, float yRot, float xRot);
 
     @Shadow public abstract void teleportTo(ServerLevel newLevel, double x, double y, double z, float yaw, float pitch);
-
-    @Shadow @Nullable private BlockPos respawnPosition;
-    @Shadow private float respawnAngle;
-    @Shadow private boolean respawnForced;
 
     @Shadow public abstract void setCamera(@Nullable Entity entityToSpectate);
 
@@ -158,6 +140,8 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     @Shadow public abstract void resetFallDistance();
 
     @Shadow public abstract boolean canHarmPlayer(Player other);
+
+    @Shadow public abstract void setRespawnPosition(ResourceKey<Level> resourceKey, @Nullable BlockPos blockPos, float f, boolean bl, boolean bl2);
 
     // CraftBukkit start
     public String displayName;
@@ -350,52 +334,95 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         this.setRespawnPosition(level, pos, pitch, flag, flag1);
     }
 
-    /**
-     * @author wdog5
-     * @reason bukkit
-     */
-    @Overwrite
-    public void setRespawnPosition(ResourceKey<Level> resourceKey, @Nullable BlockPos blockPos, float x, boolean y, boolean z) {
+    @Inject(method = "startSleepInBed", at = @At("HEAD"), cancellable = true)
+    private void banner$bedEvent(BlockPos blockPos, CallbackInfoReturnable<Either<BedSleepingProblem, Unit>> cir) {
+        boolean force = bridge$startSleepInBed_force().getAndSet(false);
+        Either<Player.BedSleepingProblem, Unit> bedResult = null;
+        Direction direction = this.level().getBlockState(blockPos).getValue(HorizontalDirectionalBlock.FACING);
+        if (!this.isSleeping() && this.isAlive()) {
+            if (!this.level().dimensionType().natural()) {
+                bedResult = Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
+            } else if (!this.bedInRange(blockPos, direction)) {
+                bedResult = Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
+            } else if (this.bedBlocked(blockPos, direction)) {
+                bedResult = Either.left(Player.BedSleepingProblem.OBSTRUCTED);
+            } else {
+                this.setRespawnPosition(this.level().dimension(), blockPos, this.getYRot(), false, true);
+                if (this.level().isDay()) {
+                    bedResult = Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
+                } else {
+                    if (!this.isCreative()) {
+                        double d = 8.0;
+                        double e = 5.0;
+                        Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
+                        List<Monster> list = this.level().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3.z() + 8.0), (monster) -> {
+                            return monster.isPreventingPlayerRest(this);
+                        });
+                        if (!list.isEmpty()) {
+                            cir.setReturnValue(Either.left(BedSleepingProblem.NOT_SAFE));
+                        }
+                    }
+
+                    if (bedResult == null) {
+                        bedResult = Either.right(Unit.INSTANCE);
+                    }
+                }
+            }
+        } else {
+            bedResult = Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
+        }
+
+        if (bedResult.left().orElse(null) == Player.BedSleepingProblem.OTHER_PROBLEM) {
+            cir.setReturnValue(bedResult); // return immediately if the result is not bypassable by plugins
+        }
+
+        if (force) {
+            bedResult = Either.right(Unit.INSTANCE);
+        }
+
+        bedResult = CraftEventFactory.callPlayerBedEnterEvent(this, blockPos, bedResult);
+
+        if (bedResult.left().isPresent()) {
+            cir.setReturnValue(bedResult);
+        }
+
+        Either<Player.BedSleepingProblem, Unit> either = super.startSleepInBed(blockPos).ifRight((unit) -> {
+            this.awardStat(Stats.SLEEP_IN_BED);
+            CriteriaTriggers.SLEPT_IN_BED.trigger(((ServerPlayer) (Object) this));
+        });
+        if (!this.serverLevel().canSleepThroughNights()) {
+            this.displayClientMessage(Component.translatable("sleep.not_possible"), true);
+        }
+
+        ((ServerLevel) this.level()).updateSleepingPlayerList();
+        cir.setReturnValue(either);
+        cir.cancel();
+    }
+
+    @Inject(method = "setRespawnPosition", at = @At("HEAD"))
+    private void banner$spawnChangeEvent(ResourceKey<Level> resourceKey, BlockPos blockPos, float f, boolean bl, boolean bl2, CallbackInfo ci) {
         var cause = banner$spawnChangeCause == null ? PlayerSpawnChangeEvent.Cause.UNKNOWN : banner$spawnChangeCause;
         banner$spawnChangeCause = null;
-        var newWorld = this.server.getLevel(resourceKey);
-        Location newSpawn = (blockPos != null) ? CraftLocation.toBukkit(blockPos, newWorld.getWorld(), x, 0) : null;
+        ServerLevel newWorld = this.server.getLevel(resourceKey);
+        Location newSpawn = (blockPos != null) ? CraftLocation.toBukkit(blockPos, newWorld.getWorld(), f, 0) : null;
 
-        PlayerSpawnChangeEvent event = new PlayerSpawnChangeEvent(this.getBukkitEntity(), newSpawn, y, cause);
+        PlayerSpawnChangeEvent event = new PlayerSpawnChangeEvent(this.getBukkitEntity(), newSpawn, bl, cause);
         Bukkit.getServer().getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return;
         }
         newSpawn = event.getNewSpawn();
-        y = event.isForced();
+        bl = event.isForced();
 
         if (newSpawn != null) {
             resourceKey = ((CraftWorld) newSpawn.getWorld()).getHandle().dimension();
             blockPos = BlockPos.containing(newSpawn.getX(), newSpawn.getY(), newSpawn.getZ());
-            x = newSpawn.getYaw();
+            f = newSpawn.getYaw();
         } else {
             resourceKey = Level.OVERWORLD;
             blockPos = null;
-            x = 0.0F;
+            f = 0.0F;
         }
-
-        if (blockPos != null) {
-            boolean flag = blockPos.equals(this.respawnPosition) && resourceKey.equals(this.respawnDimension);
-            if (z && !flag) {
-                this.sendSystemMessage(Component.translatable("block.minecraft.set_spawn"));
-            }
-
-            this.respawnPosition = blockPos;
-            this.respawnDimension = resourceKey;
-            this.respawnAngle = x;
-            this.respawnForced = y;
-        } else {
-            this.respawnPosition = null;
-            this.respawnDimension = Level.OVERWORLD;
-            this.respawnAngle = 0.0F;
-            this.respawnForced = false;
-        }
-
     }
 
     @Override
