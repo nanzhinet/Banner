@@ -612,6 +612,13 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
         this.clientViewDistance = packetIn.viewDistance();
     }
 
+    @Inject(method = "setCamera",
+            at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;teleportTo(Lnet/minecraft/server/level/ServerLevel;DDDLjava/util/Set;FF)Z"))
+    private void banner$pushSpectiveTpReason(Entity entity, CallbackInfo ci) {
+        this.connection.pushTeleportCause(PlayerTeleportEvent.TeleportCause.SPECTATE);
+    }
+
     // Banner TODO - fix
     /*
     @Inject(method = "trackChunk",
