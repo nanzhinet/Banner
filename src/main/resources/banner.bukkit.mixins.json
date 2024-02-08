@@ -25,6 +25,7 @@
     "event.MixinCraftEventFactory",
     "inventory.MixinCraftInventory",
     "inventory.MixinCraftInventoryView",
+    "inventory.MixinCraftItemStack",
     "inventory.MixinCraftRecipe",
     "inventory.MixinRecipeIterator",
     "potion.MixinPotionType",
