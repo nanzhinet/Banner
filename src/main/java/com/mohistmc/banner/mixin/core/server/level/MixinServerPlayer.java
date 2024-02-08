@@ -77,6 +77,7 @@ import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
 import org.bukkit.event.entity.EntityExhaustionEvent;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.event.player.PlayerChangedMainHandEvent;
 import org.bukkit.event.player.PlayerLocaleChangeEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -612,7 +613,7 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     }
 
     // Banner TODO - fix
-    /**
+    /*
     @Inject(method = "trackChunk",
             at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V",
@@ -890,6 +891,29 @@ public abstract class MixinServerPlayer extends Player implements InjectionServe
     private void banner$tpCauseExitBed(boolean wakeImmediately, boolean updateLevelForSleepingPlayers, CallbackInfo ci) {
         this.connection.pushTeleportCause(PlayerTeleportEvent.TeleportCause.EXIT_BED);
     }
+
+    @Inject(method = "stopSleepInBed", at = @At("HEAD"), cancellable = true)
+    private void banner$exitBedEvent(boolean flag, boolean flag1, CallbackInfo ci) {
+        if (!this.isSleeping()) ci.cancel(); // CraftBukkit - Can't leave bed if not in one!
+        // CraftBukkit start - fire PlayerBedLeaveEvent
+        CraftPlayer player = this.getBukkitEntity();
+        BlockPos bedPosition = this.getSleepingPos().orElse(null);
+
+        org.bukkit.block.Block bed;
+        if (bedPosition != null) {
+            bed = this.level().getWorld().getBlockAt(bedPosition.getX(), bedPosition.getY(), bedPosition.getZ());
+        } else {
+            bed = this.level().getWorld().getBlockAt(player.getLocation());
+        }
+
+        PlayerBedLeaveEvent event = new PlayerBedLeaveEvent(player, bed, true);
+        this.level().getCraftServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
+        // CraftBukkit end
+    }
+
 
     @Override
     public void pushChangeDimensionCause(PlayerTeleportEvent.TeleportCause cause) {
