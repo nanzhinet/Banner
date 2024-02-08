@@ -10,6 +10,8 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import jline.console.ConsoleReader;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.impl.biome.modification.BiomeModificationImpl;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.NbtException;
@@ -426,6 +428,8 @@ public abstract class MixinCraftServer {
         internal.entityManager.tick(); // SPIGOT-6526: Load pending entities so they are available to the API
 
         pluginManager.callEvent(new WorldLoadEvent(internal.getWorld()));
+        ServerWorldEvents.LOAD.invoker().onWorldLoad(console, internal);// Banner - add for fabric loading
+        BiomeModificationImpl.INSTANCE.finalizeWorldGen(console.registryAccess());// Banner - add for fabric api
         return internal.getWorld();
     }
 
