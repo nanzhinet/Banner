@@ -15,6 +15,7 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.Level;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.Nullable;
@@ -59,6 +60,7 @@ public class MixinTeleportCommand {
                 f = to.getYaw();
                 g = to.getPitch();
 
+                level = ((CraftWorld) to.getWorld()).getHandle();
                 result = entity.teleportTo(level, x, y, z, relativeList, f, g);
             }
             if (result) {
