@@ -37,7 +37,7 @@ public class BannerBukkitMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!FabricLoader.getInstance().isModLoaded("arclight")) {
+        if (FabricLoader.getInstance().isModLoaded("arclight")) {
             return false;
         }
     }
