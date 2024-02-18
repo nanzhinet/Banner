@@ -1,4 +1,0 @@
-# If needed change some mapping, just modify this
-FD: net/minecraft/world/level/block/ChestBlock$DoubleInventory/tileentitychest net/minecraft/world/level/block/ChestBlock$2$1/field_17358
-FD: net/minecraft/world/level/block/ChestBlock$DoubleInventory/tileentitychest1 net/minecraft/world/level/block/ChestBlock$2$1/field_17359
-MD: net/minecraft/server/level/ServerPlayer/nextContainerCounter ()I net/minecraft/server/level/ServerPlayer/nextContainerCounterInt ()I

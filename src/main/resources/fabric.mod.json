@@ -25,7 +25,6 @@
   },
   "mixins": [
     "banner.core.mixins.json",
-    "banner.bukkit.mixins.json",
     "banner.translate.mixins.json"
   ],
 

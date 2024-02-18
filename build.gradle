@@ -1,36 +1,11 @@
-buildscript {
-	repositories {
-		maven {
-			name = 'mohist'
-			url = 'https://maven.mohistmc.com/'
-		}
-	}
-	dependencies {
-		classpath 'com.mohistmc.banner:banner-gradle-plugin:1.0.1'
-	}
-}
-
 plugins {
 	id 'fabric-loom' version '1.5-SNAPSHOT'
 	id 'maven-publish'
 	id 'org.ajoberstar.grgit' version '5.2.0'
 }
 
-apply plugin: 'com.mohistmc.banner'
-
-banner {
-	mcVersion = project.minecraft_version
-	bukkitVersion = 'v1_20_R3'
-}
-
 version = project.minecraft_version + "-" + ci_version()
 group = project.maven_group
-
-configurations {
-	extraLibs
-	removeLibs
-	metest
-}
 
 base {
 	archivesName = project.archives_base_name
@@ -130,10 +105,6 @@ dependencies {
 
 	// mohist lib
 	implementation(include("com.mohistmc:librariesvault:1.20.2"))
-
-	compileOnly fileTree(dir: 'libs', includes: ["*.jar"])
-	extraLibs fileTree(dir: "libs", includes: ["*.jar"])
-	configurations.api.extendsFrom( (configurations.extraLibs) )
 }
 
 loom {
@@ -169,9 +140,6 @@ tasks.withType(JavaCompile).configureEach {
 
 jar {
 	from("LICENSE")
-	from {
-		(configurations.extraLibs - configurations.removeLibs).filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
-	}
 	manifest {
 		attributes(
 				'Main-Class': 'com.mohistmc.banner.BannerGUI',
@@ -211,17 +179,4 @@ static String ci_version() {
 	} catch (Exception ignored) {
 		return "1.20.4"
 	}
-}
-
-remapSpigotJar {
-	includes.add('net/minecraft/world/level/block/ChestBlock$DoubleInventory')
-	includes.add('net/minecraft/world/level/block/entity/LecternBlockEntity$LecternInventory')
-	includes.add('net/minecraft/world/level/block/ChestBlock$DoubleInventory')
-	includes.add('net/minecraft/world/level/block/ChestBlock$2$1')
-	includes.add('net/minecraft/world/level/block/entity/LecternBlockEntity$1')
-	excludesApi.add('org/bukkit/event/block/BlockCookEvent.class')
-	excludesApi.add('org/bukkit/event/Event$Result.class')
-	excludesApi.add('org/bukkit/plugin/java/JavaPluginLoader$1.class')
-	excludesApi.add('org/bukkit/plugin/java/LibraryLoader$1.class')
-	excludesApi.add('org/bukkit/event/inventory/FurnaceSmeltEvent.class')
 }
