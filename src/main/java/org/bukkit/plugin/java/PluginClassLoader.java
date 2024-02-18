@@ -104,26 +104,12 @@ final class PluginClassLoader extends URLClassLoader implements RemappingClassLo
 
     @Override
     public URL getResource(String name) {
-        Objects.requireNonNull(name);
-        URL url = findResource(name);
-        if (url == null) {
-            if (getParent() != null) {
-                url = getParent().getResource(name);
-            }
-        }
-        return url;
+        return findResource(name);
     }
 
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        Objects.requireNonNull(name);
-        @SuppressWarnings("unchecked")
-        Enumeration<URL>[] tmp = (Enumeration<URL>[]) new Enumeration<?>[2];
-        if (getParent()!= null) {
-            tmp[1] = getParent().getResources(name);
-        }
-        tmp[0] = findResources(name);
-        return EnumerationHelper.merge(tmp[0], tmp[1]);
+        return findResources(name);
     }
 
     @Override
@@ -200,8 +186,8 @@ final class PluginClassLoader extends URLClassLoader implements RemappingClassLo
                     byteSource = () -> {
                         try (InputStream is = connection.getInputStream()) {
                             byte[] classBytes = ByteStreams.toByteArray(is);
-                            classBytes = PluginFixManager.injectPluginFix(name, classBytes); // Mohist - Inject plugin fix
                             classBytes = Bukkit.getUnsafe().processClass(description, path, classBytes);
+                            classBytes = PluginFixManager.injectPluginFix(name, classBytes); // Mohist - Inject plugin fix
                             return classBytes;
                         }
                     };

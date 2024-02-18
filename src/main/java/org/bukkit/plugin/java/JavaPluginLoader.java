@@ -27,7 +27,6 @@ import org.bukkit.plugin.TimedRegisteredListener;
 import org.bukkit.plugin.UnknownDependencyException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spigotmc.CustomTimingsHandler;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
@@ -57,7 +56,6 @@ public final class JavaPluginLoader implements PluginLoader {
     private final Pattern[] fileFilters = new Pattern[]{Pattern.compile("\\.jar$")};
     private final List<PluginClassLoader> loaders = new CopyOnWriteArrayList<PluginClassLoader>();
     private final LibraryLoader libraryLoader;
-    public static final CustomTimingsHandler pluginParentTimer = new CustomTimingsHandler("** Plugins"); // Spigot // Banner - fix running
 
     /**
      * This class was not meant to be constructed explicitly
@@ -106,31 +104,31 @@ public final class JavaPluginLoader implements PluginLoader {
             // They are equal -- nothing needs to be done!
         } else if (dataFolder.isDirectory() && oldDataFolder.isDirectory()) {
             server.getLogger().warning(String.format(
-                    "While loading %s (%s) found old-data folder: `%s' next to the new one `%s'",
-                    description.getFullName(),
-                    file,
-                    oldDataFolder,
-                    dataFolder
+                "While loading %s (%s) found old-data folder: `%s' next to the new one `%s'",
+                description.getFullName(),
+                file,
+                oldDataFolder,
+                dataFolder
             ));
         } else if (oldDataFolder.isDirectory() && !dataFolder.exists()) {
             if (!oldDataFolder.renameTo(dataFolder)) {
                 throw new InvalidPluginException("Unable to rename old data folder: `" + oldDataFolder + "' to: `" + dataFolder + "'");
             }
             server.getLogger().log(Level.INFO, String.format(
-                    "While loading %s (%s) renamed data folder: `%s' to `%s'",
-                    description.getFullName(),
-                    file,
-                    oldDataFolder,
-                    dataFolder
+                "While loading %s (%s) renamed data folder: `%s' to `%s'",
+                description.getFullName(),
+                file,
+                oldDataFolder,
+                dataFolder
             ));
         }
 
         if (dataFolder.exists() && !dataFolder.isDirectory()) {
             throw new InvalidPluginException(String.format(
-                    "Projected datafolder: `%s' for %s (%s) exists and is not a directory",
-                    dataFolder,
-                    description.getFullName(),
-                    file
+                "Projected datafolder: `%s' for %s (%s) exists and is not a directory",
+                dataFolder,
+                description.getFullName(),
+                file
             ));
         }
 
