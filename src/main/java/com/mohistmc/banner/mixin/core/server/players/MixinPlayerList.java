@@ -754,20 +754,6 @@ public abstract class MixinPlayerList implements InjectionPlayerList {
         }
     }
 
-    /**
-     * @author wdog5
-     * @reason bukkit
-     */
-    @Overwrite
-    public ServerStatsCounter getPlayerStats(net.minecraft.world.entity.player.Player player) {
-        // Banner start - add a null method to provide a inject point to compat with easy auth
-        if (player == null) {
-            this.stats.put(player.getUUID(), null);
-        }
-        // Banner end
-        return getPlayerStats((ServerPlayer) player);
-    }
-
     @Override
     public ServerStatsCounter getPlayerStats(ServerPlayer entityhuman) {
         ServerStatsCounter serverstatisticmanager = entityhuman.getStats();
