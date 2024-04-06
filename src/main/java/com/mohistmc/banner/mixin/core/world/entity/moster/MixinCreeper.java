@@ -19,7 +19,6 @@ import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,24 +48,13 @@ public abstract class MixinCreeper extends Monster implements PowerableMob, Inje
         }
     }
 
-    /**
-     * @author wdog5
-     * @reason
-     */
-    @Overwrite
-    public final void explodeCreeper() {
-        if (!this.level().isClientSide) {
-            final float f = this.isPowered() ? 2.0f : 1.0f;
-            final ExplosionPrimeEvent event = new ExplosionPrimeEvent(this.getBukkitEntity(), this.explosionRadius * f, false);
-            Bukkit.getPluginManager().callEvent(event);
-            if (!event.isCancelled()) {
-                this.dead = true;
-                this.level().explode((Creeper) (Object) this, this.getX(), this.getY(), this.getZ(), event.getRadius(), event.getFire(), Level.ExplosionInteraction.MOB);
-                this.discard();
-                this.spawnLingeringCloud();
-            } else {
-                this.swell = 0;
-            }
+    @Inject(method = "explodeCreeper", locals = LocalCapture.CAPTURE_FAILHARD, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Creeper;isPowered()Z"), cancellable = true)
+    public final void explodeCreeper(CallbackInfo ci) {
+        ExplosionPrimeEvent event = new ExplosionPrimeEvent(this.getBukkitEntity(), this.explosionRadius * (this.isPowered() ? 2.0f : 1.0f), false);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            this.swell = 0;
+            ci.cancel();
         }
     }
 
