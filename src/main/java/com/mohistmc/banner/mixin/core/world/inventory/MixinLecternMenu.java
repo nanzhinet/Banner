@@ -71,6 +71,9 @@ public abstract class MixinLecternMenu extends AbstractContainerMenu implements 
 
     @Override
     public CraftInventoryView getBukkitView() {
+        if (this.playerInventory == null) {
+            return null;
+        }
         if (bukkitEntity != null) {
             return bukkitEntity;
         }
