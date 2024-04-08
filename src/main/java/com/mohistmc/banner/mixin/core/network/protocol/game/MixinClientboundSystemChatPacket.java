@@ -32,16 +32,6 @@ public class MixinClientboundSystemChatPacket {
 
     private String a;
 
-
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public Component content() {
-        return Component.Serializer.fromJson(a);
-    }
-
     public String content0() {
         return a;
     }
