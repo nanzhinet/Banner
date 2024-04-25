@@ -1,15 +1,15 @@
 package org.spigotmc;
 
-import com.mohistmc.banner.bukkit.BukkitExtraConstants;
+import net.minecraft.server.MinecraftServer;
 
 public class AsyncCatcher
 {
 
-    public static boolean enabled = false;
+    public static boolean enabled = true;
 
     public static void catchOp(String reason)
     {
-        if ( (AsyncCatcher.enabled || io.papermc.paper.util.TickThread.STRICT_THREAD_CHECKS) && Thread.currentThread() != BukkitExtraConstants.getServer().serverThread ) // Paper
+        if ( AsyncCatcher.enabled && Thread.currentThread() != MinecraftServer.getServer().serverThread )
         {
             throw new IllegalStateException( "Asynchronous " + reason + "!" );
         }
