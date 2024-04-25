@@ -5,7 +5,6 @@ import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.injection.server.network.InjectionServerGamePacketListenerImpl;
 import com.mojang.brigadier.ParseResults;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
 import net.minecraft.ChatFormatting;
@@ -21,8 +19,8 @@ import net.minecraft.commands.CommandSigningContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
@@ -65,6 +63,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
@@ -86,6 +85,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
@@ -176,7 +176,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     @Shadow private double vehicleFirstGoodX;
     @Shadow @Nullable private Vec3 awaitingPositionFromClient;
 
-    @Shadow protected abstract void updateBookPages(List<FilteredText> pages, UnaryOperator<String> unaryOperator, ItemStack book);
+    @Shadow private Filterable<String> filterableFromOutgoing(FilteredText filteredText);
 
     @Shadow private int tickCount;
 
@@ -500,29 +500,17 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
      * @reason bukkit
      */
     @Overwrite
-    private void signBook(FilteredText filteredtext, List<FilteredText> list, int i) {
-        ItemStack itemstack = this.player.getInventory().getItem(i);
-
-        if (itemstack.is(Items.WRITABLE_BOOK)) {
-            ItemStack itemstack1 = new ItemStack(Items.WRITTEN_BOOK);
-            CompoundTag nbttagcompound = itemstack.getTag();
-
-            if (nbttagcompound != null) {
-                itemstack1.setTag(nbttagcompound.copy());
-            }
-
-            itemstack1.addTagElement("author", StringTag.valueOf(this.player.getName().getString()));
-            if (this.player.isTextFilteringEnabled()) {
-                itemstack1.addTagElement("title", StringTag.valueOf(filteredtext.filteredOrEmpty()));
-            } else {
-                itemstack1.addTagElement("filtered_title", StringTag.valueOf(filteredtext.filteredOrEmpty()));
-                itemstack1.addTagElement("title", StringTag.valueOf(filteredtext.raw()));
-            }
-
-            this.updateBookPages(list, (s) -> {
-                return Component.Serializer.toJson(Component.literal(s));
-            }, itemstack1); // CraftBukkit
-            this.player.getInventory().setItem(i, CraftEventFactory.handleEditBookEvent(this.player, i, itemstack, itemstack1)); // CraftBukkit - event factory updates the hand book
+    private void signBook(FilteredText filteredText, List<FilteredText> list, int i) {
+        ItemStack itemStack = this.player.getInventory().getItem(i);
+        if (itemStack.is(Items.WRITABLE_BOOK)) {
+            ItemStack itemStack2 = itemStack.transmuteCopy(Items.WRITTEN_BOOK, 1);
+            itemStack2.remove(DataComponents.WRITABLE_BOOK_CONTENT);
+            List<Filterable<Component>> list2 = list.stream().map((filteredTextx) -> {
+                return this.filterableFromOutgoing(filteredTextx).map(Component::literal);
+            }).toList();
+            itemStack2.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(this.filterableFromOutgoing(filteredText), this.player.getName().getString(), 0, list2, true));
+            CraftEventFactory.handleEditBookEvent(player, i, itemStack, itemStack2); // CraftBukkit
+            this.player.getInventory().setItem(i, itemStack); // CraftBukkit - event factory updates the hand book
         }
     }
 

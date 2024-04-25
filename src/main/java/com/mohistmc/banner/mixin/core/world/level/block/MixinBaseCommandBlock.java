@@ -20,7 +20,7 @@ public class MixinBaseCommandBlock {
 
 
     // @formatter:off
-    @Shadow private Component name;
+    @Shadow private Component customName;
     // @formatter:on
 
     @Redirect(method = "performCommand", at = @At(value = "INVOKE", target = "Lnet/minecraft/commands/Commands;performPrefixedCommand(Lnet/minecraft/commands/CommandSourceStack;Ljava/lang/String;)V"))
@@ -56,10 +56,10 @@ public class MixinBaseCommandBlock {
         commands.performPrefixedCommand(sender, joiner.join(args));
     }
 
-    @Inject(method = "setName", at = @At("RETURN"))
+    @Inject(method = "setCustomName", at = @At("RETURN"))
     public void banner$setName(Component nameIn, CallbackInfo ci) {
-        if (this.name == null) {
-            this.name = Component.literal("@");
+        if (this.customName == null) {
+            this.customName = Component.literal("@");
         }
     }
 }

@@ -2,6 +2,7 @@ package com.mohistmc.banner.mixin.core.server.network;
 
 import com.mohistmc.banner.bukkit.BukkitSnapshotCaptures;
 import com.mohistmc.banner.injection.server.network.InjectionServerCommonPacketListenerImpl;
+import java.util.concurrent.ExecutionException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
@@ -34,8 +35,6 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.concurrent.ExecutionException;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public abstract class MixinServerCommonPacketListenerImpl implements InjectionServerCommonPacketListenerImpl {

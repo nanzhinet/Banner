@@ -83,8 +83,6 @@ public abstract class MixinItemStack implements InjectionItemStack {
     @Shadow @Deprecated private Item item;
     @Shadow private int count;
     // @formatter:on
-    @Shadow public abstract CompoundTag save(CompoundTag compoundTag);
-    @Shadow @Nullable private CompoundTag tag;
 
     @Shadow public abstract Item getItem();
 
@@ -92,117 +90,13 @@ public abstract class MixinItemStack implements InjectionItemStack {
 
     @Shadow public abstract int getDamageValue();
 
-    @Shadow public abstract void setTag(@Nullable CompoundTag compoundTag);
-
-    @Shadow public abstract void removeTagKey(String key);
-
     @Shadow public abstract int getCount();
 
     @Shadow public abstract void setCount(int count);
 
-    @Shadow public abstract boolean hasAdventureModePlaceTagForBlock(Registry<Block> blockRegistry, BlockInWorld block);
-
     @Shadow public abstract ItemStack copy();
 
     @Shadow public abstract void shrink(int decrement);
-
-    @Redirect(method = "<init>(Lnet/minecraft/nbt/CompoundTag;)V",
-            at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/nbt/CompoundTag;getCompound(Ljava/lang/String;)Lnet/minecraft/nbt/CompoundTag;"))
-    private CompoundTag banner$markAsCopy(CompoundTag instance, String key) {
-        // CraftBukkit start - make defensive copy as this data may be coming from the save thread
-        return instance.getCompound(key).copy();
-        // CraftBukkit end
-    }
-
-    @Override
-    public void convertStack(int version) {
-        if (0 < version && version < CraftMagicNumbers.INSTANCE.getDataVersion()) {
-            CompoundTag savedStack = new CompoundTag();
-            this.save(savedStack);
-            savedStack = (CompoundTag) BukkitExtraConstants.getServer().fixerUpper.update(References.ITEM_STACK, new Dynamic(NbtOps.INSTANCE, savedStack), version, CraftMagicNumbers.INSTANCE.getDataVersion()).getValue();
-            this.load(savedStack);
-        }
-    }
-
-    @Inject(at = @At("HEAD"), method = "hurt", cancellable = true)
-    public void banner$callPlayerItemDamageEvent(int i, RandomSource random, ServerPlayer entityplayer, CallbackInfoReturnable<Boolean> ci) {
-        if (!((ItemStack)(Object)this).isDamageableItem()) {
-            ci.setReturnValue(false);
-            return;
-        }
-        int j;
-
-        if (i > 0) {
-            j = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.UNBREAKING, ((ItemStack)(Object)this));
-            for (int l = 0; j > 0 && l < i; ++l) if (DigDurabilityEnchantment.shouldIgnoreDurabilityDrop(((ItemStack)(Object)this), j, random)) i--;
-
-            if (entityplayer != null) {
-                PlayerItemDamageEvent event = new PlayerItemDamageEvent(((ServerPlayer)entityplayer).getBukkitEntity(), CraftItemStack.asCraftMirror((ItemStack)(Object)this), i);
-                event.getPlayer().getServer().getPluginManager().callEvent(event);
-
-                if (i != event.getDamage() || event.isCancelled()) event.getPlayer().updateInventory();
-                if (event.isCancelled()) {
-                    ci.setReturnValue(false);
-                    return;
-                }
-                i = event.getDamage();
-            }
-            if (i <= 0) {
-                ci.setReturnValue(false);
-                return;
-            }
-        }
-        if (entityplayer != null && i != 0) CriteriaTriggers.ITEM_DURABILITY_CHANGED.trigger(entityplayer, ((ItemStack)(Object)this), ((ItemStack)(Object)this).getDamageValue() + i);
-
-        ((ItemStack)(Object)this).setDamageValue((j = ((ItemStack)(Object)this).getDamageValue() + i));
-        ci.setReturnValue(j >= ((ItemStack)(Object)this).getMaxDamage());
-        return;
-    }
-
-    @Inject(method = "hurtAndBreak", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
-    private <T extends LivingEntity> void banner$itemBreak(int amount, T entityIn, Consumer<T> onBroken, CallbackInfo ci) {
-        if (this.count == 1 && entityIn instanceof Player) {
-            CraftEventFactory.callPlayerItemBreakEvent(((Player) entityIn), (ItemStack) (Object) this);
-        }
-    }
-
-    @Override
-    public void load(CompoundTag compoundTag) {
-        this.item = BuiltInRegistries.ITEM.get(new ResourceLocation(compoundTag.getString("id")));
-        this.count = compoundTag.getByte("Count");
-        if (compoundTag.contains("tag", 10)) {
-            // CraftBukkit start - make defensive copy as this data may be coming from the save thread
-            this.tag = compoundTag.getCompound("tag").copy();
-            // CraftBukkit end
-            this.getItem().verifyTagAfterLoad(this.tag);
-        }
-
-        if (this.getItem().canBeDepleted()) {
-            this.setDamageValue(this.getDamageValue());
-        }
-    }
-
-    @Override
-    @Nullable
-    public CompoundTag getTagClone() {
-        return this.tag == null ? null : this.tag.copy();
-    }
-
-    @Override
-    public void setTagClone(@Nullable CompoundTag nbtttagcompound) {
-        this.setTag(nbtttagcompound == null ? null : nbtttagcompound.copy());
-    }
-
-    @Inject(method = "setRepairCost", at = @At("HEAD"), cancellable = true)
-    private void banner$handleCost(int cost, CallbackInfo ci) {
-        // CraftBukkit start - remove RepairCost tag when 0 (SPIGOT-3945)
-        if (cost == 0) {
-            this.removeTagKey("RepairCost");
-            ci.cancel();
-        }
-        // CraftBukkit end
-    }
 
     @SuppressWarnings("all")
     @Override

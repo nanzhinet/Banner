@@ -16,6 +16,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.DataSlot;
@@ -27,7 +28,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.minecraft.world.level.block.EnchantmentTableBlock;
+import net.minecraft.world.level.block.EnchantingTableBlock;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryEnchanting;
 import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryView;
@@ -57,7 +58,7 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
     @Shadow @Final public int[] costs;
     @Shadow @Final public int[] enchantClue;
     @Shadow @Final public int[] levelClue;
-    @Shadow protected abstract List<EnchantmentInstance> getEnchantmentList(ItemStack stack, int enchantSlot, int level);
+    @Shadow protected abstract List<EnchantmentInstance> getEnchantmentList(FeatureFlagSet featureFlagSet, ItemStack itemStack, int i, int j);
     // @formatter:on
 
     private CraftInventoryView bukkitEntity = null;
@@ -94,7 +95,7 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
             } else {
                 this.access.execute((level, blockPos) -> {
                     ItemStack itemStack3 = itemStack;
-                    List<EnchantmentInstance> list = this.getEnchantmentList(itemStack, id, this.costs[id]);
+                    List<EnchantmentInstance> list = this.getEnchantmentList(level.enabledFeatures(), itemStack3, id, this.costs[id]);
                     if (true || !list.isEmpty()) {
                         //player.onEnchantmentPerformed(itemStack, i);
                         Map<org.bukkit.enchantments.Enchantment, Integer> enchants = new java.util.HashMap<>();
@@ -113,42 +114,29 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
                         if (event.isCancelled() || (banner$level > player.experienceLevel && !player.getAbilities().instabuild) || event.getEnchantsToAdd().isEmpty()) {
                             return;
                         }
-                        boolean bl = itemStack.is(Items.BOOK);
-
-                        if (bl) {
-                            itemStack3 = new ItemStack(Items.ENCHANTED_BOOK);
-                            CompoundTag compoundTag = itemStack.getTag();
-                            if (compoundTag != null) {
-                                itemStack3.setTag(compoundTag.copy());
-                            }
-
+                        if (itemStack3.is(Items.BOOK)) {
+                            itemStack3 = itemStack.transmuteCopy(Items.ENCHANTED_BOOK, 1);
                             this.enchantSlots.setItem(0, itemStack3);
                         }
 
                         for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : event.getEnchantsToAdd().entrySet()) {
-                            try {
-                                if (bl) {
-                                    NamespacedKey enchantId = entry.getKey().getKey();
-                                    Enchantment nms = BuiltInRegistries.ENCHANTMENT.get(CraftNamespacedKey.toMinecraft(enchantId));
-                                    if (nms == null) {
-                                        continue;
-                                    }
 
-                                    EnchantmentInstance weightedrandomenchant = new EnchantmentInstance(nms, entry.getValue());
-                                    EnchantedBookItem.addEnchantment(itemStack3, weightedrandomenchant);
-                                } else {
-                                    item.addUnsafeEnchantment(entry.getKey(), entry.getValue());
-                                }
-                            } catch (IllegalArgumentException e) {
-                                /* Just swallow invalid enchantments */
+                            NamespacedKey enchantId = entry.getKey().getKey();
+                            Enchantment nms = BuiltInRegistries.ENCHANTMENT.get(CraftNamespacedKey.toMinecraft(enchantId));
+                            if (nms == null) {
+                                continue;
                             }
+
+                            EnchantmentInstance weightedrandomenchant = new EnchantmentInstance(nms, entry.getValue());
+                            itemStack3.enchant(weightedrandomenchant.enchantment, weightedrandomenchant.level);
+
                         }
 
                         player.onEnchantmentPerformed(itemStack, i);
                         // CraftBukkit end
 
                         // CraftBukkit - TODO: let plugins change this
-                        if (!player.getAbilities().instabuild) {
+                        if (!player.hasInfiniteMaterials()) {
                             itemStack2.shrink(i);
                             if (itemStack2.isEmpty()) {
                                 this.enchantSlots.setItem(1, ItemStack.EMPTY);
@@ -170,8 +158,8 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
                 return true;
             }
         } else {
-            Component var10000 = player.getName();
-            Util.logAndPauseIfInIde("" + var10000 + " pressed invalid button id: " + id);
+            String var10000 = String.valueOf(player.getName());
+            Util.logAndPauseIfInIde(var10000 + " pressed invalid button id: " + id);
             return false;
         }
     }
@@ -188,8 +176,8 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
                 this.access.execute((level, blockPos) -> {
                     int i = 0;
 
-                    for (BlockPos blockPos2 : EnchantmentTableBlock.BOOKSHELF_OFFSETS) {
-                        if (EnchantmentTableBlock.isValidBookShelf(level, blockPos, blockPos2)) {
+                    for (BlockPos blockPos2 : EnchantingTableBlock.BOOKSHELF_OFFSETS) {
+                        if (EnchantingTableBlock.isValidBookShelf(level, blockPos, blockPos2)) {
                             ++i;
                         }
                     }
@@ -208,7 +196,7 @@ public abstract class MixinEnchantmentMenu extends AbstractContainerMenu{
 
                     for(j = 0; j < 3; ++j) {
                         if (this.costs[j] > 0) {
-                            List<EnchantmentInstance> list = this.getEnchantmentList(itemStack, j, this.costs[j]);
+                            List<EnchantmentInstance> list = this.getEnchantmentList(level.enabledFeatures(), itemStack, j, this.costs[j]);
                             if (list != null && !list.isEmpty()) {
                                 EnchantmentInstance enchantmentInstance = (EnchantmentInstance)list.get(this.random.nextInt(list.size()));
                                 this.enchantClue[j] = BuiltInRegistries.ENCHANTMENT.getId(enchantmentInstance.enchantment);

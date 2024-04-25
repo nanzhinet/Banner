@@ -1,9 +1,8 @@
 package com.mohistmc.banner.mixin.core.world.item.crafting;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.protocol.game.ClientboundRecipePacket;
 import net.minecraft.resources.ResourceLocation;

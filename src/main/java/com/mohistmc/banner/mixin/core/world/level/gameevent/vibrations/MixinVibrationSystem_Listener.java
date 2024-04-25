@@ -2,6 +2,7 @@ package com.mohistmc.banner.mixin.core.world.level.gameevent.vibrations;
 
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -25,14 +26,14 @@ public abstract class MixinVibrationSystem_Listener {
     @Shadow
     private static boolean isOccluded(Level level, Vec3 vec3, Vec3 vec32) {return false;}
 
-    @Shadow protected abstract void scheduleVibration(ServerLevel serverLevel, VibrationSystem.Data data, GameEvent gameEvent, GameEvent.Context context, Vec3 vec3, Vec3 vec32);
+    @Shadow protected abstract void scheduleVibration(ServerLevel serverLevel, VibrationSystem.Data data, Holder<GameEvent> gameEvent, GameEvent.Context context, Vec3 vec3, Vec3 vec32);
 
     /**
      * @author wdog5
      * @reason bukkit
      */
     @Overwrite
-    public boolean handleGameEvent(ServerLevel level, GameEvent gameEvent, GameEvent.Context context, Vec3 pos) {
+    public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> gameEvent, GameEvent.Context context, Vec3 pos) {
         VibrationSystem.Data data = this.system.getVibrationData();
         VibrationSystem.User user = this.system.getVibrationUser();
         if (data.getCurrentVibration() != null) {
@@ -49,7 +50,7 @@ public abstract class MixinVibrationSystem_Listener {
 
                 boolean defaultCancel = !user.canReceiveVibration(level, BlockPos.containing(pos), gameEvent, context);
                 Entity entity = context.sourceEntity();
-                BlockReceiveGameEvent event = new BlockReceiveGameEvent(CraftGameEvent.minecraftToBukkit(gameEvent), CraftBlock.at(level, BlockPos.containing(pos)), (entity == null) ? null : entity.getBukkitEntity());
+                BlockReceiveGameEvent event = new BlockReceiveGameEvent(CraftGameEvent.minecraftToBukkit(gameEvent.value()), CraftBlock.at(level, BlockPos.containing(pos)), (entity == null) ? null : entity.getBukkitEntity());
                 event.setCancelled(defaultCancel);
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) {

@@ -1,7 +1,5 @@
 package com.mohistmc.banner.mixin.core.world.inventory;
 
-import com.mohistmc.banner.asm.annotation.CreateConstructor;
-import com.mohistmc.banner.asm.annotation.ShadowConstructor;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.PlayerEnderChestContainer;

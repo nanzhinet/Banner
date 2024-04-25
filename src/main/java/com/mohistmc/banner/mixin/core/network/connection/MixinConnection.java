@@ -3,7 +3,6 @@ package com.mohistmc.banner.mixin.core.network.connection;
 import com.mohistmc.banner.injection.network.connection.InjectionConnection;
 import io.netty.channel.Channel;
 import java.net.SocketAddress;
-
 import net.minecraft.network.Connection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

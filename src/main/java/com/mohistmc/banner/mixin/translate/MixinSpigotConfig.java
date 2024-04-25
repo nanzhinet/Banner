@@ -1,6 +1,7 @@
 package com.mohistmc.banner.mixin.translate;
 
 import com.mohistmc.banner.BannerMCStart;
+import java.io.PrintStream;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.file.YamlConfigurationOptions;
 import org.spigotmc.SpigotConfig;
@@ -12,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.io.PrintStream;
 
 @Mixin(value = SpigotConfig.class, remap = false)
 public class MixinSpigotConfig {

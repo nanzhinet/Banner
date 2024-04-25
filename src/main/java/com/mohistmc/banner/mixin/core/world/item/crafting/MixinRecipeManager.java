@@ -2,17 +2,22 @@ package com.mohistmc.banner.mixin.core.world.item.crafting;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.mohistmc.banner.BannerMCStart;
 import com.mohistmc.banner.injection.world.item.crafting.InjectionRecipeManager;
+import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -34,15 +39,15 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
     @Shadow private boolean hasErrors;
 
     @Shadow
-    protected static RecipeHolder<?> fromJson(ResourceLocation resourceLocation, JsonObject jsonObject) {
+    protected static RecipeHolder<?> fromJson(ResourceLocation resourceLocation, JsonObject jsonObject, HolderLookup.Provider provider) {
         return null;
     }
-
+    @Shadow @Final private HolderLookup.Provider registries;
     @Shadow @Final private static Logger LOGGER;
-    @Shadow public Map<RecipeType<?>, Map<ResourceLocation, RecipeHolder<?>>> recipes;
+    @Shadow private Multimap<RecipeType<?>, RecipeHolder<?>> byType;
     @Shadow private Map<ResourceLocation, RecipeHolder<?>> byName;
 
-    @Shadow protected abstract <C extends Container, T extends Recipe<C>> Map<ResourceLocation, RecipeHolder<T>> byType(RecipeType<T> recipeType);
+    @Shadow protected abstract <C extends Container, T extends Recipe<C>> Collection<RecipeHolder<T>> byType(RecipeType<T> recipeType);
 
     public Map<RecipeType<?>, Object2ObjectLinkedOpenHashMap<ResourceLocation, RecipeHolder<?>>> recipesCB = ImmutableMap.of(); // CraftBukkit  // Mohist use obf name
 
@@ -66,6 +71,7 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
 
         Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map = Maps.newHashMap();
         ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder = ImmutableMap.builder();
+        RegistryOps<JsonElement> registryOps = this.registries.createSerializationContext(JsonOps.INSTANCE);
 
         Iterator var6 = pObject.entrySet().iterator();
 
@@ -74,7 +80,7 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
             ResourceLocation resourceLocation = (ResourceLocation)entry.getKey();
 
             try {
-                RecipeHolder<?> recipe = fromJson(resourceLocation, GsonHelper.convertToJsonObject(entry.getValue(), "top element"));
+                Recipe<?> recipe = (Recipe)Recipe.CODEC.parse(registryOps, (JsonElement)entry.getValue()).getOrThrow(JsonParseException::new);
                 map.computeIfAbsent(recipe.value().getType(), (p_44075_) -> {
                     return ImmutableMap.builder();
                 }).put(resourceLocation, recipe);
@@ -151,7 +157,7 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
         if (this.byName instanceof ImmutableMap) {
             this.byName = new HashMap<>(byName);
         }
-        for (var recipes : recipes.values()) {
+        for (var recipes : byType.values()) {
             if (!(recipes instanceof ImmutableMap)) {
                 recipes.remove(mcKey);
             }
@@ -164,9 +170,9 @@ public abstract class MixinRecipeManager implements InjectionRecipeManager {
 
     @Override
     public void clearRecipes() {
-        this.recipes = Maps.newHashMap();
+        this.byType = Maps.newHashMap();
         for (RecipeType<?> recipeType : BuiltInRegistries.RECIPE_TYPE) {
-            this.recipes.put(recipeType, ImmutableMap.of());
+            this.byType.put(recipeType, ImmutableMap.of());
         }
 
         this.recipesCB = Maps.newHashMap();

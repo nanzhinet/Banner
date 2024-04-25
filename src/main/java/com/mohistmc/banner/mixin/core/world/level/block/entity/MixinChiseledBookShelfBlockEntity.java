@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -85,11 +84,6 @@ public abstract class MixinChiseledBookShelfBlockEntity extends BlockEntity impl
         if (this.level != null) {
             this.updateState(i); // CraftBukkit - SPIGOT-7381: check for null world
         }
-    }
-
-    @Inject(method = "load", at = @At("HEAD"))
-    private void banner$load(CompoundTag compoundTag, CallbackInfo ci) {
-        super.load(compoundTag); // CraftBukkit - SPIGOT-7393: Load super Bukkit data
     }
 
     @Inject(method = "removeItem",

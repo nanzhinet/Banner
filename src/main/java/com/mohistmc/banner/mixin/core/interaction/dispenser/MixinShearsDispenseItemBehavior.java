@@ -16,7 +16,6 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
@@ -42,19 +41,19 @@ public abstract class MixinShearsDispenseItemBehavior extends OptionalDispenseIt
      * @reason
      */
     @Overwrite
-    protected ItemStack execute(BlockSource source, ItemStack stack) {
-        Level level = source.level();
+    protected ItemStack execute(BlockSource blockSource, ItemStack itemStack) {
+        ServerLevel serverLevel = blockSource.level();
         // CraftBukkit start
-        org.bukkit.block.Block bukkitBlock = level.getWorld().getBlockAt(source.pos().getX(), source.pos().getY(), source.pos().getZ());
-        CraftItemStack craftItem = CraftItemStack.asCraftMirror(stack);
+        org.bukkit.block.Block bukkitBlock = serverLevel.getWorld().getBlockAt(blockSource.pos().getX(), blockSource.pos().getY(), blockSource.pos().getZ());
+        CraftItemStack craftItem = CraftItemStack.asCraftMirror(itemStack);
 
         BlockDispenseEvent event = new BlockDispenseEvent(bukkitBlock, craftItem.clone(), new org.bukkit.util.Vector(0, 0, 0));
         if (!BukkitExtraConstants.dispenser_eventFired) {
-            level.getCraftServer().getPluginManager().callEvent(event);
+            serverLevel.getCraftServer().getPluginManager().callEvent(event);
         }
 
         if (event.isCancelled()) {
-            return stack;
+            return itemStack;
         }
 
         if (!event.getItem().equals(craftItem)) {
@@ -62,20 +61,22 @@ public abstract class MixinShearsDispenseItemBehavior extends OptionalDispenseIt
             ItemStack eventStack = CraftItemStack.asNMSCopy(event.getItem());
             DispenseItemBehavior idispensebehavior = (DispenseItemBehavior) DispenserBlock.DISPENSER_REGISTRY.get(eventStack.getItem());
             if (idispensebehavior != DispenseItemBehavior.NOOP && idispensebehavior != this) {
-                idispensebehavior.dispense(source, eventStack);
-                return stack;
+                idispensebehavior.dispense(blockSource, eventStack);
+                return itemStack;
             }
         }
         // CraftBukkit end
-        if (!level.isClientSide()) {
-            BlockPos blockPos = source.pos().relative((Direction)source.state().getValue(DispenserBlock.FACING));
-            this.setSuccess(tryShearBeehive((ServerLevel)level, blockPos) || tryShearLivingEntity((ServerLevel)level, blockPos, bukkitBlock, craftItem)); // CraftBukkit
-            if (this.isSuccess() && stack.hurt(1, level.getRandom(), (ServerPlayer)null)) {
-                stack.setCount(0);
+        if (!serverLevel.isClientSide()) {
+            BlockPos blockPos = blockSource.pos().relative((Direction)blockSource.state().getValue(DispenserBlock.FACING));
+            this.setSuccess(tryShearBeehive(serverLevel, blockPos) || tryShearLivingEntity(serverLevel, blockPos));
+            if (this.isSuccess()) {
+                itemStack.hurtAndBreak(1, serverLevel.getRandom(), (ServerPlayer)null, () -> {
+                    itemStack.setCount(0);
+                });
             }
         }
 
-        return stack;
+        return itemStack;
     }
 
     private static boolean tryShearLivingEntity(ServerLevel worldserver, BlockPos blockposition, org.bukkit.block.Block bukkitBlock, CraftItemStack craftItem) { // CraftBukkit - add args

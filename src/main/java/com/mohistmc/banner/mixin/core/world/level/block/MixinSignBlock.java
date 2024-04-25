@@ -3,7 +3,6 @@ package com.mohistmc.banner.mixin.core.world.level.block;
 import com.mohistmc.banner.injection.world.level.block.InjectionSignBlock;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -54,10 +53,9 @@ public abstract class MixinSignBlock implements InjectionSignBlock {
         // Paper end
     }
 
-    @Inject(method = "use", at = @At(value = "INVOKE",
+    @Inject(method = "useWithoutItem", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/SignBlock;openTextEdit(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/block/entity/SignBlockEntity;Z)V"))
-    private void banner$setCause(BlockState state, Level level, BlockPos pos, Player player,
-                                 InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
+    private void banner$setCause(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
         pushOpenSignCause(PlayerSignOpenEvent.Cause.INTERACT);
     }
 

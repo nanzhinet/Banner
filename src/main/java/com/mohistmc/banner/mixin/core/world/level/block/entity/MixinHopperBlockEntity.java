@@ -49,8 +49,8 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     @Shadow private static boolean tryMoveItems(Level p_155579_, BlockPos p_155580_, BlockState p_155581_, HopperBlockEntity p_155582_, BooleanSupplier p_155583_) { return false; }
     // @formatter:on
 
-    @Shadow(prefix = "shadow$")
-    private static boolean shadow$ejectItems(Level level, BlockPos pos, BlockState state, Container sourceContainer) {
+    @Shadow
+    private static boolean ejectItems(Level level, BlockPos pos, HopperBlockEntity hopperBlockEntity) {
         return false;
     }
 
@@ -79,13 +79,6 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
         banner$hopperEntity.set(blockEntity);
     }
 
-    @Redirect(method = "tryMoveItems",
-            at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;ejectItems(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/Container;)Z"))
-    private static boolean banner$changeEjects(Level level, BlockPos pos, BlockState state, Container sourceContainer) {
-        return ejectItems(level, pos, state, sourceContainer, banner$hopperEntity.get());
-    }
-
     private static AtomicReference<HopperBlockEntity> banner$hopper = new AtomicReference<>();
     private static AtomicReference<Level> banner$world = new AtomicReference<>();
     private static AtomicReference<InventoryMoveItemEvent> banner$moveEvent = new AtomicReference<>();
@@ -93,7 +86,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     private static boolean ejectItems(Level world, BlockPos blockposition, BlockState iblockdata, Container iinventory, HopperBlockEntity hopper) { // CraftBukkit
         banner$hopper.set(hopper);
         banner$world.set(world);
-        return shadow$ejectItems(world, blockposition, iblockdata, iinventory);
+        return ejectItems(world, blockposition, hopper);
     }
 
     @Redirect(method = "ejectItems", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/HopperBlockEntity;addItem(Lnet/minecraft/world/Container;Lnet/minecraft/world/Container;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/core/Direction;)Lnet/minecraft/world/item/ItemStack;"))
@@ -131,7 +124,7 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
             shift = At.Shift.BY,
             target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"),
             cancellable = true)
-    private static void banner$cancelIfNotEject(Level level, BlockPos pos, BlockState state, Container sourceContainer, CallbackInfoReturnable<Boolean> cir) {
+    private static void banner$cancelIfNotEject(Level level, BlockPos blockPos, HopperBlockEntity hopperBlockEntity, CallbackInfoReturnable<Boolean> cir) {
         if (banner$moveEvent.get() != null && banner$moveEvent.getAndSet(null).isCancelled()) {
             cir.setReturnValue(false);
         }
@@ -196,19 +189,20 @@ public abstract class MixinHopperBlockEntity extends RandomizableContainerBlockE
     }
 
     @Inject(method = "getAttachedContainer", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
-    private static void banner$searchTo(Level level, BlockPos pos, BlockState p_155595_, CallbackInfoReturnable<Container> cir, Direction direction) {
+    private static void banner$searchTo(Level level, BlockPos blockPos, HopperBlockEntity hopperBlockEntity, CallbackInfoReturnable<Container> cir) {
+        var searchPosition = blockPos.relative(hopperBlockEntity.facing);
         var container = cir.getReturnValue();
-        var hopper = CraftBlock.at(level, pos);
-        var searchBlock = CraftBlock.at(level, pos.relative(direction));
+        var hopper = CraftBlock.at(level, blockPos);
+        var searchBlock = CraftBlock.at(level, searchPosition);
         cir.setReturnValue(runHopperInventorySearchEvent(container, hopper, searchBlock, HopperInventorySearchEvent.ContainerType.DESTINATION));
     }
 
     @Inject(method = "getSourceContainer", cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
-    private static void banner$searchFrom(Level level, Hopper hopper, CallbackInfoReturnable<Container> cir) {
+    private static void banner$searchFrom(Level level, Hopper hopper, BlockPos blockPos, BlockState blockState, CallbackInfoReturnable<Container> cir) {
         var container = cir.getReturnValue();
-        var blockPos = BlockPos.containing(hopper.getLevelX(), hopper.getLevelY(), hopper.getLevelZ());
-        var hopperBlock = CraftBlock.at(level, blockPos);
-        var containerBlock = CraftBlock.at(level, blockPos.above());
+        var blockPosition = BlockPos.containing(hopper.getLevelX(), hopper.getLevelY(), hopper.getLevelZ());
+        var hopperBlock = CraftBlock.at(level, blockPosition);
+        var containerBlock = CraftBlock.at(level, blockPosition.above());
         cir.setReturnValue(runHopperInventorySearchEvent(container, hopperBlock, containerBlock, HopperInventorySearchEvent.ContainerType.SOURCE));
     }
 
