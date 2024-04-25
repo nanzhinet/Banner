@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftHeavyCore extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.Waterlogged {
+public final class CraftHeavyCore extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.Waterlogged {
 
     public CraftHeavyCore() {
         super();
@@ -13,7 +13,7 @@ public final class CraftHeavyCore extends org.bukkit.craftbukkit.block.data.Craf
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.HeavyCoreBlock.class, "waterlogged");
 

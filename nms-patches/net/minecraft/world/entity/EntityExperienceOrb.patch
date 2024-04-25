@@ -32,7 +32,7 @@
 +        boolean cancelled = false;
 +        if (this.followingPlayer != prevTarget) {
 +            EntityTargetLivingEntityEvent event = CraftEventFactory.callEntityTargetLivingEvent(this, followingPlayer, (followingPlayer != null) ? EntityTargetEvent.TargetReason.CLOSEST_PLAYER : EntityTargetEvent.TargetReason.FORGOT_TARGET);
-+            EntityLiving target = (event.getTarget() == null) ? null : ((org.bukkit.craftbukkit.entity.CraftLivingEntity) event.getTarget()).getHandle();
++            EntityLiving target = (event.getTarget() == null) ? null : ((org.bukkit.craftbukkit.v1_20_R4.entity.CraftLivingEntity) event.getTarget()).getHandle();
 +            cancelled = event.isCancelled();
 +
 +            if (cancelled) {

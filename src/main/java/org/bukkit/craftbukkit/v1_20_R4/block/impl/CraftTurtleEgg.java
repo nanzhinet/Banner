@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftTurtleEgg extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.TurtleEgg, org.bukkit.block.data.Hatchable {
+public final class CraftTurtleEgg extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.TurtleEgg, org.bukkit.block.data.Hatchable {
 
     public CraftTurtleEgg() {
         super();
@@ -13,7 +13,7 @@ public final class CraftTurtleEgg extends org.bukkit.craftbukkit.block.data.Craf
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftTurtleEgg
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftTurtleEgg
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty EGGS = getInteger(net.minecraft.world.level.block.TurtleEggBlock.class, "eggs");
 
@@ -37,7 +37,7 @@ public final class CraftTurtleEgg extends org.bukkit.craftbukkit.block.data.Craf
         return getMax(CraftTurtleEgg.EGGS);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftHatchable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftHatchable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty HATCH = getInteger(net.minecraft.world.level.block.TurtleEggBlock.class, "hatch");
 

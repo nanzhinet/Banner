@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftGrass extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.Snowable {
+public final class CraftGrass extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.Snowable {
 
     public CraftGrass() {
         super();
@@ -13,7 +13,7 @@ public final class CraftGrass extends org.bukkit.craftbukkit.block.data.CraftBlo
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftSnowable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftSnowable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty SNOWY = getBoolean(net.minecraft.world.level.block.GrassBlock.class, "snowy");
 

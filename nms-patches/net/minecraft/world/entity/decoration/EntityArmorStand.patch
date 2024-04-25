@@ -8,7 +8,7 @@
 +import org.bukkit.event.entity.EntityRemoveEvent;
 +import org.bukkit.inventory.EquipmentSlot;
 +import org.bukkit.craftbukkit.CraftEquipmentSlot;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
 +import org.bukkit.entity.ArmorStand;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
@@ -123,7 +123,7 @@
  
          itemstack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
 -        Block.popResource(this.level(), this.blockPosition(), itemstack);
-+        drops.add(org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(itemstack)); // CraftBukkit - add to drops
++        drops.add(org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack.asBukkitCopy(itemstack)); // CraftBukkit - add to drops
          this.brokenByAnything(damagesource);
      }
  
@@ -139,7 +139,7 @@
              itemstack = (ItemStack) this.handItems.get(i);
              if (!itemstack.isEmpty()) {
 -                Block.popResource(this.level(), this.blockPosition().above(), itemstack);
-+                drops.add(org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(itemstack)); // CraftBukkit - add to drops
++                drops.add(org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack.asBukkitCopy(itemstack)); // CraftBukkit - add to drops
                  this.handItems.set(i, ItemStack.EMPTY);
              }
          }
@@ -148,7 +148,7 @@
              itemstack = (ItemStack) this.armorItems.get(i);
              if (!itemstack.isEmpty()) {
 -                Block.popResource(this.level(), this.blockPosition().above(), itemstack);
-+                drops.add(org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(itemstack)); // CraftBukkit - add to drops
++                drops.add(org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack.asBukkitCopy(itemstack)); // CraftBukkit - add to drops
                  this.armorItems.set(i, ItemStack.EMPTY);
              }
          }

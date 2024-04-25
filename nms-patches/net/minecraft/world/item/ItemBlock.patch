@@ -6,8 +6,8 @@
  
 +// CraftBukkit start
 +import net.minecraft.server.level.WorldServer;
-+import org.bukkit.craftbukkit.block.CraftBlock;
-+import org.bukkit.craftbukkit.block.data.CraftBlockData;
++import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlock;
++import org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData;
 +import org.bukkit.event.block.BlockCanBuildEvent;
 +// CraftBukkit end
 +
@@ -21,7 +21,7 @@
 +                // CraftBukkit start - special case for handling block placement with water lilies and snow buckets
 +                org.bukkit.block.BlockState blockstate = null;
 +                if (this instanceof PlaceOnWaterBlockItem || this instanceof SolidBucketItem) {
-+                    blockstate = org.bukkit.craftbukkit.block.CraftBlockStates.getBlockState(blockactioncontext1.getLevel(), blockactioncontext1.getClickedPos());
++                    blockstate = org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockStates.getBlockState(blockactioncontext1.getLevel(), blockactioncontext1.getClickedPos());
 +                }
 +                // CraftBukkit end
  

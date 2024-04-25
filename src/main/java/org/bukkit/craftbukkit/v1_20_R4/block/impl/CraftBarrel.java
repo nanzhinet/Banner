@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftBarrel extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Barrel, org.bukkit.block.data.Directional, org.bukkit.block.data.Openable {
+public final class CraftBarrel extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Barrel, org.bukkit.block.data.Directional, org.bukkit.block.data.Openable {
 
     public CraftBarrel() {
         super();
@@ -13,7 +13,7 @@ public final class CraftBarrel extends org.bukkit.craftbukkit.block.data.CraftBl
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.BarrelBlock.class, "facing");
 
@@ -32,7 +32,7 @@ public final class CraftBarrel extends org.bukkit.craftbukkit.block.data.CraftBl
         return this.getValues(CraftBarrel.FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftOpenable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftOpenable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty OPEN = getBoolean(net.minecraft.world.level.block.BarrelBlock.class, "open");
 

@@ -6,7 +6,7 @@
          if (structureboundingbox.isInside(blockposition)) {
 +            // CraftBukkit start
 +            if (generatoraccessseed instanceof org.bukkit.craftbukkit.util.TransformerGeneratorAccess transformerAccess) {
-+                org.bukkit.craftbukkit.block.CraftBrushableBlock brushableState = (org.bukkit.craftbukkit.block.CraftBrushableBlock) org.bukkit.craftbukkit.block.CraftBlockStates.getBlockState(generatoraccessseed, blockposition, Blocks.SUSPICIOUS_SAND.defaultBlockState(), null);
++                org.bukkit.craftbukkit.v1_20_R4.block.CraftBrushableBlock brushableState = (org.bukkit.craftbukkit.v1_20_R4.block.CraftBrushableBlock) org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockStates.getBlockState(generatoraccessseed, blockposition, Blocks.SUSPICIOUS_SAND.defaultBlockState(), null);
 +                brushableState.setLootTable(org.bukkit.craftbukkit.CraftLootTable.minecraftToBukkit(LootTables.DESERT_PYRAMID_ARCHAEOLOGY));
 +                brushableState.setSeed(blockposition.asLong());
 +                transformerAccess.setCraftBlock(blockposition, brushableState, 2);

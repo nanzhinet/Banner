@@ -15,7 +15,7 @@
 +                                memoryaccessor2.erase();
 +                            }
 +
-+                            entityitem = (EntityItem) ((org.bukkit.craftbukkit.entity.CraftEntity) event.getTarget()).getHandle();
++                            entityitem = (EntityItem) ((org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity) event.getTarget()).getHandle();
 +                        }
 +                        // CraftBukkit end
                          MemoryTarget memorytarget = new MemoryTarget(new BehaviorPositionEntity(entityitem, false), f, 0);

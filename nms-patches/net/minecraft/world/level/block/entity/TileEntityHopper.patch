@@ -8,10 +8,10 @@
 +import net.minecraft.world.InventoryLargeChest;
 +import net.minecraft.world.entity.vehicle.EntityMinecartHopper;
 +import org.bukkit.Bukkit;
-+import org.bukkit.craftbukkit.block.CraftBlock;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.craftbukkit.inventory.CraftInventory;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlock;
++import org.bukkit.craftbukkit.v1_20_R4.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventory;
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
 +import org.bukkit.entity.HumanEntity;
 +import org.bukkit.event.entity.EntityRemoveEvent;
 +import org.bukkit.event.inventory.HopperInventorySearchEvent;
@@ -71,7 +71,7 @@
 +                        Inventory destinationInventory;
 +                        // Have to special case large chests as they work oddly
 +                        if (iinventory instanceof InventoryLargeChest) {
-+                            destinationInventory = new org.bukkit.craftbukkit.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
++                            destinationInventory = new org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
 +                        } else if (iinventory.getOwner() != null) {
 +                            destinationInventory = iinventory.getOwner().getInventory();
 +                        } else {
@@ -101,7 +101,7 @@
 +            Inventory sourceInventory;
 +            // Have to special case large chests as they work oddly
 +            if (iinventory instanceof InventoryLargeChest) {
-+                sourceInventory = new org.bukkit.craftbukkit.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
++                sourceInventory = new org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
 +            } else if (iinventory.getOwner() != null) {
 +                sourceInventory = iinventory.getOwner().getInventory();
 +            } else {

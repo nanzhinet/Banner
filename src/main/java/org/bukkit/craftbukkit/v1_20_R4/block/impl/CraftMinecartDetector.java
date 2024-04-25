@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftMinecartDetector extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.RedstoneRail, org.bukkit.block.data.Powerable, org.bukkit.block.data.Rail, org.bukkit.block.data.Waterlogged {
+public final class CraftMinecartDetector extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.RedstoneRail, org.bukkit.block.data.Powerable, org.bukkit.block.data.Rail, org.bukkit.block.data.Waterlogged {
 
     public CraftMinecartDetector() {
         super();
@@ -13,7 +13,7 @@ public final class CraftMinecartDetector extends org.bukkit.craftbukkit.block.da
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.DetectorRailBlock.class, "powered");
 
@@ -27,7 +27,7 @@ public final class CraftMinecartDetector extends org.bukkit.craftbukkit.block.da
         this.set(CraftMinecartDetector.POWERED, powered);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftRail
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftRail
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> SHAPE = getEnum(net.minecraft.world.level.block.DetectorRailBlock.class, "shape");
 
@@ -46,7 +46,7 @@ public final class CraftMinecartDetector extends org.bukkit.craftbukkit.block.da
         return this.getValues(CraftMinecartDetector.SHAPE, org.bukkit.block.data.Rail.Shape.class);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.DetectorRailBlock.class, "waterlogged");
 

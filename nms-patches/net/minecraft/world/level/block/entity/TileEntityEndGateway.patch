@@ -7,7 +7,7 @@
 +// CraftBukkit start
 +import net.minecraft.world.level.dimension.WorldDimension;
 +import org.bukkit.Bukkit;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
 +import org.bukkit.craftbukkit.util.CraftLocation;
 +import org.bukkit.event.entity.EntityRemoveEvent;
 +import org.bukkit.event.player.PlayerTeleportEvent;
@@ -40,7 +40,7 @@
  
 +                // CraftBukkit start - Fire PlayerTeleportEvent/EntityTeleportEvent
 +                if (entity1 instanceof EntityPlayer) {
-+                    org.bukkit.craftbukkit.entity.CraftPlayer player = (CraftPlayer) entity1.getBukkitEntity();
++                    org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer player = (CraftPlayer) entity1.getBukkitEntity();
 +                    org.bukkit.Location location = CraftLocation.toBukkit(blockposition1, world.getWorld()).add(0.5D, 0.5D, 0.5D);
 +                    location.setPitch(player.getLocation().getPitch());
 +                    location.setYaw(player.getLocation().getYaw());

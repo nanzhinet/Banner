@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftFloorSign extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Sign, org.bukkit.block.data.Rotatable, org.bukkit.block.data.Waterlogged {
+public final class CraftFloorSign extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Sign, org.bukkit.block.data.Rotatable, org.bukkit.block.data.Waterlogged {
 
     public CraftFloorSign() {
         super();
@@ -13,7 +13,7 @@ public final class CraftFloorSign extends org.bukkit.craftbukkit.block.data.Craf
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftRotatable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftRotatable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty ROTATION = getInteger(net.minecraft.world.level.block.StandingSignBlock.class, "rotation");
 
@@ -116,7 +116,7 @@ public final class CraftFloorSign extends org.bukkit.craftbukkit.block.data.Craf
         this.set(CraftFloorSign.ROTATION, val);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.StandingSignBlock.class, "waterlogged");
 

@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftBubbleColumn extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.BubbleColumn {
+public final class CraftBubbleColumn extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.BubbleColumn {
 
     public CraftBubbleColumn() {
         super();
@@ -13,7 +13,7 @@ public final class CraftBubbleColumn extends org.bukkit.craftbukkit.block.data.C
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftBubbleColumn
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftBubbleColumn
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty DRAG = getBoolean(net.minecraft.world.level.block.BubbleColumnBlock.class, "drag");
 

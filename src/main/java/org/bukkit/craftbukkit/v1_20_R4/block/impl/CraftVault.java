@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftVault extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Vault, org.bukkit.block.data.Directional {
+public final class CraftVault extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Vault, org.bukkit.block.data.Directional {
 
     public CraftVault() {
         super();
@@ -13,7 +13,7 @@ public final class CraftVault extends org.bukkit.craftbukkit.block.data.CraftBlo
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftVault
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftVault
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> VAULT_STATE = getEnum(net.minecraft.world.level.block.VaultBlock.class, "vault_state");
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty OMINOUS = getBoolean(net.minecraft.world.level.block.VaultBlock.class, "ominous");
@@ -38,7 +38,7 @@ public final class CraftVault extends org.bukkit.craftbukkit.block.data.CraftBlo
         this.set(CraftVault.OMINOUS, ominous);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.VaultBlock.class, "facing");
 

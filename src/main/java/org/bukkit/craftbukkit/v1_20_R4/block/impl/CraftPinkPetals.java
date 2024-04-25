@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftPinkPetals extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.PinkPetals, org.bukkit.block.data.Directional {
+public final class CraftPinkPetals extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.PinkPetals, org.bukkit.block.data.Directional {
 
     public CraftPinkPetals() {
         super();
@@ -13,7 +13,7 @@ public final class CraftPinkPetals extends org.bukkit.craftbukkit.block.data.Cra
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftPinkPetals
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftPinkPetals
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty FLOWER_AMOUNT = getInteger(net.minecraft.world.level.block.PinkPetalsBlock.class, "flower_amount");
 
@@ -32,7 +32,7 @@ public final class CraftPinkPetals extends org.bukkit.craftbukkit.block.data.Cra
         return getMax(CraftPinkPetals.FLOWER_AMOUNT);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.PinkPetalsBlock.class, "facing");
 

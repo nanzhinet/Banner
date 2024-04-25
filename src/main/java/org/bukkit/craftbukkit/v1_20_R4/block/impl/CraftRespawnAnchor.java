@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftRespawnAnchor extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.RespawnAnchor {
+public final class CraftRespawnAnchor extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.RespawnAnchor {
 
     public CraftRespawnAnchor() {
         super();
@@ -13,7 +13,7 @@ public final class CraftRespawnAnchor extends org.bukkit.craftbukkit.block.data.
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftRespawnAnchor
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftRespawnAnchor
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty CHARGES = getInteger(net.minecraft.world.level.block.RespawnAnchorBlock.class, "charges");
 

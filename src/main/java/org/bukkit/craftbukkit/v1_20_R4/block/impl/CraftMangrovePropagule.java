@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftMangrovePropagule extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.MangrovePropagule, org.bukkit.block.data.Ageable, org.bukkit.block.data.Hangable, org.bukkit.block.data.type.Sapling, org.bukkit.block.data.Waterlogged {
+public final class CraftMangrovePropagule extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.MangrovePropagule, org.bukkit.block.data.Ageable, org.bukkit.block.data.Hangable, org.bukkit.block.data.type.Sapling, org.bukkit.block.data.Waterlogged {
 
     public CraftMangrovePropagule() {
         super();
@@ -13,7 +13,7 @@ public final class CraftMangrovePropagule extends org.bukkit.craftbukkit.block.d
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftAgeable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftAgeable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty AGE = getInteger(net.minecraft.world.level.block.MangrovePropaguleBlock.class, "age");
 
@@ -32,7 +32,7 @@ public final class CraftMangrovePropagule extends org.bukkit.craftbukkit.block.d
         return getMax(CraftMangrovePropagule.AGE);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftHangable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftHangable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty HANGING = getBoolean(net.minecraft.world.level.block.MangrovePropaguleBlock.class, "hanging");
 
@@ -46,7 +46,7 @@ public final class CraftMangrovePropagule extends org.bukkit.craftbukkit.block.d
         this.set(CraftMangrovePropagule.HANGING, hanging);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftSapling
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftSapling
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty STAGE = getInteger(net.minecraft.world.level.block.MangrovePropaguleBlock.class, "stage");
 
@@ -65,7 +65,7 @@ public final class CraftMangrovePropagule extends org.bukkit.craftbukkit.block.d
         return getMax(CraftMangrovePropagule.STAGE);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.MangrovePropaguleBlock.class, "waterlogged");
 

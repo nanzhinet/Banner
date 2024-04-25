@@ -5,7 +5,7 @@
  import net.minecraft.world.item.Items;
  
 +// CraftBukkit start
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryView;
 +import org.bukkit.inventory.InventoryView;
 +// CraftBukkit end
 +
@@ -17,7 +17,7 @@
      private static final int SLOT_HORSE_INVENTORY_START = 2;
  
 +    // CraftBukkit start
-+    org.bukkit.craftbukkit.inventory.CraftInventoryView bukkitEntity;
++    org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryView bukkitEntity;
 +    PlayerInventory player;
 +
 +    @Override

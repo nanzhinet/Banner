@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftChiseledBookShelf extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.ChiseledBookshelf, org.bukkit.block.data.Directional {
+public final class CraftChiseledBookShelf extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.ChiseledBookshelf, org.bukkit.block.data.Directional {
 
     public CraftChiseledBookShelf() {
         super();
@@ -13,7 +13,7 @@ public final class CraftChiseledBookShelf extends org.bukkit.craftbukkit.block.d
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftChiseledBookshelf
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftChiseledBookshelf
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty[] SLOT_OCCUPIED = new net.minecraft.world.level.block.state.properties.BooleanProperty[]{
         getBoolean(net.minecraft.world.level.block.ChiseledBookShelfBlock.class, "slot_0_occupied"), getBoolean(net.minecraft.world.level.block.ChiseledBookShelfBlock.class, "slot_1_occupied"), getBoolean(net.minecraft.world.level.block.ChiseledBookShelfBlock.class, "slot_2_occupied"),
@@ -48,7 +48,7 @@ public final class CraftChiseledBookShelf extends org.bukkit.craftbukkit.block.d
         return CraftChiseledBookShelf.SLOT_OCCUPIED.length;
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.ChiseledBookShelfBlock.class, "facing");
 

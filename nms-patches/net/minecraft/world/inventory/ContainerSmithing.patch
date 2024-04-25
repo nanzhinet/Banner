@@ -4,7 +4,7 @@
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.state.IBlockData;
  
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView; // CraftBukkit
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryView; // CraftBukkit
 +
  public class ContainerSmithing extends ContainerAnvilAbstract {
  
@@ -51,7 +51,7 @@
 +            return bukkitEntity;
 +        }
 +
-+        org.bukkit.craftbukkit.inventory.CraftInventory inventory = new org.bukkit.craftbukkit.inventory.CraftInventorySmithing(
++        org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventory inventory = new org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventorySmithing(
 +                access.getLocation(), this.inputSlots, this.resultSlots);
 +        bukkitEntity = new CraftInventoryView(this.player.getBukkitEntity(), inventory, this);
 +        return bukkitEntity;

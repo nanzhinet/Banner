@@ -13,7 +13,7 @@
                      ((TileEntityChest) tileentity).setLootTable(this.isLarge ? LootTables.UNDERWATER_RUIN_BIG : LootTables.UNDERWATER_RUIN_SMALL, randomsource.nextLong());
                  }
 +                */
-+                org.bukkit.craftbukkit.block.CraftChest craftChest = (org.bukkit.craftbukkit.block.CraftChest) org.bukkit.craftbukkit.block.CraftBlockStates.getBlockState(worldaccess, blockposition, Blocks.CHEST.defaultBlockState().setValue(BlockChest.WATERLOGGED, worldaccess.getFluidState(blockposition).is(TagsFluid.WATER)), null);
++                org.bukkit.craftbukkit.v1_20_R4.block.CraftChest craftChest = (org.bukkit.craftbukkit.v1_20_R4.block.CraftChest) org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockStates.getBlockState(worldaccess, blockposition, Blocks.CHEST.defaultBlockState().setValue(BlockChest.WATERLOGGED, worldaccess.getFluidState(blockposition).is(TagsFluid.WATER)), null);
 +                craftChest.setSeed(randomsource.nextLong());
 +                craftChest.setLootTable(org.bukkit.craftbukkit.CraftLootTable.minecraftToBukkit(this.isLarge ? LootTables.UNDERWATER_RUIN_BIG : LootTables.UNDERWATER_RUIN_SMALL));
 +                placeCraftBlockEntity(worldaccess, blockposition, craftChest, 2);

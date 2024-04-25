@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftBed extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Bed, org.bukkit.block.data.Directional {
+public final class CraftBed extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Bed, org.bukkit.block.data.Directional {
 
     public CraftBed() {
         super();
@@ -13,7 +13,7 @@ public final class CraftBed extends org.bukkit.craftbukkit.block.data.CraftBlock
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftBed
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftBed
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> PART = getEnum(net.minecraft.world.level.block.BedBlock.class, "part");
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty OCCUPIED = getBoolean(net.minecraft.world.level.block.BedBlock.class, "occupied");
@@ -33,7 +33,7 @@ public final class CraftBed extends org.bukkit.craftbukkit.block.data.CraftBlock
         return this.get(CraftBed.OCCUPIED);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.BedBlock.class, "facing");
 

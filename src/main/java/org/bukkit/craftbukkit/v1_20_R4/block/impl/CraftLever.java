@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftLever extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Switch, org.bukkit.block.data.Directional, org.bukkit.block.data.FaceAttachable, org.bukkit.block.data.Powerable {
+public final class CraftLever extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Switch, org.bukkit.block.data.Directional, org.bukkit.block.data.FaceAttachable, org.bukkit.block.data.Powerable {
 
     public CraftLever() {
         super();
@@ -13,7 +13,7 @@ public final class CraftLever extends org.bukkit.craftbukkit.block.data.CraftBlo
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftSwitch
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftSwitch
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACE = getEnum(net.minecraft.world.level.block.LeverBlock.class, "face");
 
@@ -27,7 +27,7 @@ public final class CraftLever extends org.bukkit.craftbukkit.block.data.CraftBlo
         this.set(CraftLever.FACE, face);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.LeverBlock.class, "facing");
 
@@ -46,7 +46,7 @@ public final class CraftLever extends org.bukkit.craftbukkit.block.data.CraftBlo
         return this.getValues(CraftLever.FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftFaceAttachable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftFaceAttachable
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> ATTACH_FACE = getEnum(net.minecraft.world.level.block.LeverBlock.class, "face");
 
@@ -60,7 +60,7 @@ public final class CraftLever extends org.bukkit.craftbukkit.block.data.CraftBlo
         this.set(CraftLever.ATTACH_FACE, face);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.LeverBlock.class, "powered");
 

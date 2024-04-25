@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftTNT extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.TNT {
+public final class CraftTNT extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.TNT {
 
     public CraftTNT() {
         super();
@@ -13,7 +13,7 @@ public final class CraftTNT extends org.bukkit.craftbukkit.block.data.CraftBlock
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftTNT
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftTNT
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty UNSTABLE = getBoolean(net.minecraft.world.level.block.TntBlock.class, "unstable");
 

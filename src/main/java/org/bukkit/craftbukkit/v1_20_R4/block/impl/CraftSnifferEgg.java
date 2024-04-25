@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftSnifferEgg extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.Hatchable {
+public final class CraftSnifferEgg extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.Hatchable {
 
     public CraftSnifferEgg() {
         super();
@@ -13,7 +13,7 @@ public final class CraftSnifferEgg extends org.bukkit.craftbukkit.block.data.Cra
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftHatchable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftHatchable
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty HATCH = getInteger(net.minecraft.world.level.block.SnifferEggBlock.class, "hatch");
 

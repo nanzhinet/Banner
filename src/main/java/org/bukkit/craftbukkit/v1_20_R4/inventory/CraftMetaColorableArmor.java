@@ -1,6 +1,6 @@
 package org.bukkit.craftbukkit.v1_20_R4.inventory;
 
-import static org.bukkit.craftbukkit.inventory.CraftItemFactory.*;
+import static org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemFactory.*;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Sets;
 import java.util.Map;

@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftAmethystCluster extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.AmethystCluster, org.bukkit.block.data.Directional, org.bukkit.block.data.Waterlogged {
+public final class CraftAmethystCluster extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.AmethystCluster, org.bukkit.block.data.Directional, org.bukkit.block.data.Waterlogged {
 
     public CraftAmethystCluster() {
         super();
@@ -13,7 +13,7 @@ public final class CraftAmethystCluster extends org.bukkit.craftbukkit.block.dat
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.AmethystClusterBlock.class, "facing");
 
@@ -32,7 +32,7 @@ public final class CraftAmethystCluster extends org.bukkit.craftbukkit.block.dat
         return this.getValues(CraftAmethystCluster.FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.AmethystClusterBlock.class, "waterlogged");
 

@@ -6,8 +6,8 @@
  
 +// CraftBukkit start
 +import net.minecraft.world.InventoryLargeChest;
-+import org.bukkit.craftbukkit.inventory.CraftInventory;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventory;
++import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryView;
 +// CraftBukkit end
 +
  public class ContainerChest extends Container {
@@ -27,9 +27,9 @@
 +
 +        CraftInventory inventory;
 +        if (this.container instanceof PlayerInventory) {
-+            inventory = new org.bukkit.craftbukkit.inventory.CraftInventoryPlayer((PlayerInventory) this.container);
++            inventory = new org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryPlayer((PlayerInventory) this.container);
 +        } else if (this.container instanceof InventoryLargeChest) {
-+            inventory = new org.bukkit.craftbukkit.inventory.CraftInventoryDoubleChest((InventoryLargeChest) this.container);
++            inventory = new org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventoryDoubleChest((InventoryLargeChest) this.container);
 +        } else {
 +            inventory = new CraftInventory(this.container);
 +        }

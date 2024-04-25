@@ -152,7 +152,7 @@
          @Nullable
          Packet<?> nextUpdatePacket(MapId mapid) {
              WorldMap.b worldmap_b;
-+            org.bukkit.craftbukkit.map.RenderData render = WorldMap.this.mapView.render((org.bukkit.craftbukkit.entity.CraftPlayer) this.player.getBukkitEntity()); // CraftBukkit
++            org.bukkit.craftbukkit.map.RenderData render = WorldMap.this.mapView.render((org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer) this.player.getBukkitEntity()); // CraftBukkit
  
              if (this.dirtyData) {
                  this.dirtyData = false;

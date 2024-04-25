@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftChorusFruit extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.MultipleFacing {
+public final class CraftChorusFruit extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.MultipleFacing {
 
     public CraftChorusFruit() {
         super();
@@ -13,7 +13,7 @@ public final class CraftChorusFruit extends org.bukkit.craftbukkit.block.data.Cr
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftMultipleFacing
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftMultipleFacing
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty[] FACES = new net.minecraft.world.level.block.state.properties.BooleanProperty[]{
         getBoolean(net.minecraft.world.level.block.ChorusPlantBlock.class, "north", true), getBoolean(net.minecraft.world.level.block.ChorusPlantBlock.class, "east", true), getBoolean(net.minecraft.world.level.block.ChorusPlantBlock.class, "south", true), getBoolean(net.minecraft.world.level.block.ChorusPlantBlock.class, "west", true), getBoolean(net.minecraft.world.level.block.ChorusPlantBlock.class, "up", true), getBoolean(net.minecraft.world.level.block.ChorusPlantBlock.class, "down", true)

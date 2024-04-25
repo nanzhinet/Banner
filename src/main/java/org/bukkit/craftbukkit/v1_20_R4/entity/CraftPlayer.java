@@ -146,10 +146,10 @@ import org.bukkit.craftbukkit.v1_20_R4.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R4.CraftWorldBorder;
 import org.bukkit.craftbukkit.v1_20_R4.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_20_R4.advancement.CraftAdvancementProgress;
-import org.bukkit.craftbukkit.block.CraftBlockEntityState;
-import org.bukkit.craftbukkit.block.CraftBlockState;
-import org.bukkit.craftbukkit.block.CraftSign;
-import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockEntityState;
+import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_20_R4.block.CraftSign;
+import org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R4.conversations.ConversationTracker;
 import org.bukkit.craftbukkit.v1_20_R4.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
@@ -2296,7 +2296,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         ItemStack hand = this.getInventory().getItemInMainHand();
         this.getInventory().setItemInMainHand(book);
-        this.getHandle().openItemGui(org.bukkit.craftbukkit.inventory.CraftItemStack.asNMSCopy(book), net.minecraft.world.InteractionHand.MAIN_HAND);
+        this.getHandle().openItemGui(org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack.asNMSCopy(book), net.minecraft.world.InteractionHand.MAIN_HAND);
         this.getInventory().setItemInMainHand(hand);
     }
 

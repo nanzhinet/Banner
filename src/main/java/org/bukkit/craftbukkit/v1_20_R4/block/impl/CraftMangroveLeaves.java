@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftMangroveLeaves extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Leaves, org.bukkit.block.data.Waterlogged {
+public final class CraftMangroveLeaves extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Leaves, org.bukkit.block.data.Waterlogged {
 
     public CraftMangroveLeaves() {
         super();
@@ -13,7 +13,7 @@ public final class CraftMangroveLeaves extends org.bukkit.craftbukkit.block.data
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftLeaves
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftLeaves
 
     private static final net.minecraft.world.level.block.state.properties.IntegerProperty DISTANCE = getInteger(net.minecraft.world.level.block.MangroveLeavesBlock.class, "distance");
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty PERSISTENT = getBoolean(net.minecraft.world.level.block.MangroveLeavesBlock.class, "persistent");
@@ -38,7 +38,7 @@ public final class CraftMangroveLeaves extends org.bukkit.craftbukkit.block.data
         this.set(CraftMangroveLeaves.DISTANCE, distance);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.MangroveLeavesBlock.class, "waterlogged");
 

@@ -22,8 +22,8 @@
 +import org.bukkit.event.vehicle.VehicleEnterEvent;
 +import org.bukkit.event.vehicle.VehicleExitEvent;
 +import org.bukkit.craftbukkit.CraftWorld;
-+import org.bukkit.craftbukkit.entity.CraftEntity;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
++import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
 +import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.util.CraftLocation;
 +import org.bukkit.entity.Pose;
@@ -243,7 +243,7 @@
 +            // CraftBukkit start - Fallen in lava TODO: this event spams!
 +            if (this instanceof EntityLiving && remainingFireTicks <= 0) {
 +                // not on fire yet
-+                org.bukkit.block.Block damager = (lastLavaContact == null) ? null : org.bukkit.craftbukkit.block.CraftBlock.at(level, lastLavaContact);
++                org.bukkit.block.Block damager = (lastLavaContact == null) ? null : org.bukkit.craftbukkit.v1_20_R4.block.CraftBlock.at(level, lastLavaContact);
 +                org.bukkit.entity.Entity damagee = this.getBukkitEntity();
 +                EntityCombustEvent combustEvent = new org.bukkit.event.entity.EntityCombustByBlockEvent(damager, damagee, 15);
 +                this.level.getCraftServer().getPluginManager().callEvent(combustEvent);
@@ -557,7 +557,7 @@
          } else {
 +            // CraftBukkit start - Capture drops for death event
 +            if (this instanceof EntityLiving && !((EntityLiving) this).forceDrops) {
-+                ((EntityLiving) this).drops.add(org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(itemstack));
++                ((EntityLiving) this).drops.add(org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack.asBukkitCopy(itemstack));
 +                return null;
 +            }
 +            // CraftBukkit end

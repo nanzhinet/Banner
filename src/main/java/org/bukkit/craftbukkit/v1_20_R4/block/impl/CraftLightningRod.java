@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftLightningRod extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.LightningRod, org.bukkit.block.data.Directional, org.bukkit.block.data.Powerable, org.bukkit.block.data.Waterlogged {
+public final class CraftLightningRod extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.LightningRod, org.bukkit.block.data.Directional, org.bukkit.block.data.Powerable, org.bukkit.block.data.Waterlogged {
 
     public CraftLightningRod() {
         super();
@@ -13,7 +13,7 @@ public final class CraftLightningRod extends org.bukkit.craftbukkit.block.data.C
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.LightningRodBlock.class, "facing");
 
@@ -32,7 +32,7 @@ public final class CraftLightningRod extends org.bukkit.craftbukkit.block.data.C
         return this.getValues(CraftLightningRod.FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.LightningRodBlock.class, "powered");
 
@@ -46,7 +46,7 @@ public final class CraftLightningRod extends org.bukkit.craftbukkit.block.data.C
         this.set(CraftLightningRod.POWERED, powered);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftWaterlogged
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftWaterlogged
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty WATERLOGGED = getBoolean(net.minecraft.world.level.block.LightningRodBlock.class, "waterlogged");
 

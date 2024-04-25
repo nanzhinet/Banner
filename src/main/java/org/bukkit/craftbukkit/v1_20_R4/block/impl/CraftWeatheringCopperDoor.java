@@ -3,7 +3,7 @@
  */
 package org.bukkit.craftbukkit.v1_20_R4.block.impl;
 
-public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.block.data.CraftBlockData implements org.bukkit.block.data.type.Door, org.bukkit.block.data.Bisected, org.bukkit.block.data.Directional, org.bukkit.block.data.Openable, org.bukkit.block.data.Powerable {
+public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBlockData implements org.bukkit.block.data.type.Door, org.bukkit.block.data.Bisected, org.bukkit.block.data.Directional, org.bukkit.block.data.Openable, org.bukkit.block.data.Powerable {
 
     public CraftWeatheringCopperDoor() {
         super();
@@ -13,7 +13,7 @@ public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.bloc
         super(state);
     }
 
-    // org.bukkit.craftbukkit.block.data.type.CraftDoor
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.type.CraftDoor
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HINGE = getEnum(net.minecraft.world.level.block.WeatheringCopperDoorBlock.class, "hinge");
 
@@ -27,7 +27,7 @@ public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.bloc
         this.set(CraftWeatheringCopperDoor.HINGE, hinge);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftBisected
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftBisected
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> HALF = getEnum(net.minecraft.world.level.block.WeatheringCopperDoorBlock.class, "half");
 
@@ -41,7 +41,7 @@ public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.bloc
         this.set(CraftWeatheringCopperDoor.HALF, half);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftDirectional
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftDirectional
 
     private static final net.minecraft.world.level.block.state.properties.EnumProperty<?> FACING = getEnum(net.minecraft.world.level.block.WeatheringCopperDoorBlock.class, "facing");
 
@@ -60,7 +60,7 @@ public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.bloc
         return this.getValues(CraftWeatheringCopperDoor.FACING, org.bukkit.block.BlockFace.class);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftOpenable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftOpenable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty OPEN = getBoolean(net.minecraft.world.level.block.WeatheringCopperDoorBlock.class, "open");
 
@@ -74,7 +74,7 @@ public final class CraftWeatheringCopperDoor extends org.bukkit.craftbukkit.bloc
         this.set(CraftWeatheringCopperDoor.OPEN, open);
     }
 
-    // org.bukkit.craftbukkit.block.data.CraftPowerable
+    // org.bukkit.craftbukkit.v1_20_R4.block.data.CraftPowerable
 
     private static final net.minecraft.world.level.block.state.properties.BooleanProperty POWERED = getBoolean(net.minecraft.world.level.block.WeatheringCopperDoorBlock.class, "powered");
 

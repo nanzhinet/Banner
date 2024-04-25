@@ -60,16 +60,16 @@
                          }
 +                        // CraftBukkit start
 +                        if (structureTransformer != null) {
-+                            org.bukkit.craftbukkit.block.CraftBlockState craftBlockState = (org.bukkit.craftbukkit.block.CraftBlockState) org.bukkit.craftbukkit.block.CraftBlockStates.getBlockState(worldaccess, blockposition2, iblockdata, null);
-+                            if (definedstructure_blockinfo.nbt != null && craftBlockState instanceof org.bukkit.craftbukkit.block.CraftBlockEntityState<?> entityState) {
++                            org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockState craftBlockState = (org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockState) org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockStates.getBlockState(worldaccess, blockposition2, iblockdata, null);
++                            if (definedstructure_blockinfo.nbt != null && craftBlockState instanceof org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockEntityState<?> entityState) {
 +                                entityState.loadData(definedstructure_blockinfo.nbt);
-+                                if (craftBlockState instanceof org.bukkit.craftbukkit.block.CraftLootable<?> craftLootable) {
++                                if (craftBlockState instanceof org.bukkit.craftbukkit.v1_20_R4.block.CraftLootable<?> craftLootable) {
 +                                    craftLootable.setSeed(randomsource.nextLong());
 +                                }
 +                            }
 +                            craftBlockState = structureTransformer.transformCraftState(craftBlockState);
 +                            iblockdata = craftBlockState.getHandle();
-+                            definedstructure_blockinfo = new DefinedStructure.BlockInfo(blockposition2, iblockdata, (craftBlockState instanceof org.bukkit.craftbukkit.block.CraftBlockEntityState<?> craftBlockEntityState ? craftBlockEntityState.getSnapshotNBT() : null));
++                            definedstructure_blockinfo = new DefinedStructure.BlockInfo(blockposition2, iblockdata, (craftBlockState instanceof org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockEntityState<?> craftBlockEntityState ? craftBlockEntityState.getSnapshotNBT() : null));
 +                        }
 +                        // CraftBukkit end
  

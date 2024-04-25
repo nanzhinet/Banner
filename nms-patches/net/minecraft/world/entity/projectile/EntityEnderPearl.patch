@@ -22,7 +22,7 @@
 -                    if (this.random.nextFloat() < 0.05F && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
 -                        EntityEndermite entityendermite = (EntityEndermite) EntityTypes.ENDERMITE.create(this.level());
 +                    // CraftBukkit start - Fire PlayerTeleportEvent
-+                    org.bukkit.craftbukkit.entity.CraftPlayer player = entityplayer.getBukkitEntity();
++                    org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer player = entityplayer.getBukkitEntity();
 +                    org.bukkit.Location location = getBukkitEntity().getLocation();
 +                    location.setPitch(player.getLocation().getPitch());
 +                    location.setYaw(player.getLocation().getYaw());
