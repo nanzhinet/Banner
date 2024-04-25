@@ -18,8 +18,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
@@ -48,9 +51,11 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -90,8 +95,6 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Shadow @Final public static EntityDataAccessor<Float> DATA_HEALTH_ID;
 
-    @Shadow public abstract double getAttributeValue(Attribute attribute);
-
     @Shadow @Final private AttributeMap attributes;
 
     @Shadow public abstract SoundEvent getEatingSound(net.minecraft.world.item.ItemStack stack);
@@ -104,9 +107,9 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Shadow public abstract void onEquipItem(EquipmentSlot equipmentSlot, ItemStack itemStack, ItemStack itemStack2);
 
-    @Shadow @Nullable public abstract AttributeInstance getAttribute(Attribute attribute);
+    @Shadow @Nullable public abstract AttributeInstance getAttribute(Holder<Attribute> attribute);
 
-    @Shadow @Final public Map<MobEffect, MobEffectInstance> activeEffects;
+    @Shadow @Final public Map<Holder<MobEffect>, MobEffectInstance> activeEffects;
 
     @Shadow protected abstract void onEffectUpdated(MobEffectInstance effectInstance, boolean forced, @Nullable Entity entity);
 
@@ -116,7 +119,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Shadow protected abstract void updateInvisibilityStatus();
 
-    @Shadow @Final private static EntityDataAccessor<Integer> DATA_EFFECT_COLOR_ID;
+    @Shadow @Final private static EntityDataAccessor<List<ParticleOptions>> DATA_EFFECT_PARTICLES;
 
     @Shadow @Final private static EntityDataAccessor<Boolean> DATA_EFFECT_AMBIENCE_ID;
 
@@ -124,7 +127,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Shadow protected abstract void onEffectAdded(MobEffectInstance instance, @Nullable Entity entity);
 
-    @Shadow @Nullable public abstract MobEffectInstance removeEffectNoUpdate(@Nullable MobEffect effect);
+    @Shadow @Nullable public abstract MobEffectInstance removeEffectNoUpdate(@Nullable Holder<MobEffect> effect);
 
     @Shadow public abstract boolean wasExperienceConsumed();
 
@@ -142,9 +145,9 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Shadow public abstract boolean isDamageSourceBlocked(DamageSource damageSource);
 
-    @Shadow @Nullable public abstract MobEffectInstance getEffect(MobEffect effect);
+    @Shadow @Nullable public abstract MobEffectInstance getEffect(Holder<MobEffect> effect);
 
-    @Shadow public abstract boolean hasEffect(MobEffect effect);
+    @Shadow public abstract boolean hasEffect(Holder<MobEffect> effect);
 
     @Shadow protected abstract float getDamageAfterArmorAbsorb(DamageSource damageSource, float damageAmount);
 
@@ -169,8 +172,6 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     @Shadow public abstract void setHealth(float health);
 
     @Shadow public abstract void heal(float healAmount);
-
-    @Shadow public abstract boolean removeEffect(MobEffect effect);
 
     @Shadow public abstract ItemStack getItemInHand(InteractionHand hand);
 
@@ -230,6 +231,11 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
 
     @Shadow protected int noActionTime;
 
+    @Shadow
+    private void updateGlowingStatus() {
+
+    }
+
     public MixinLivingEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
@@ -258,7 +264,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     private void banner$init(EntityType<? extends LivingEntity> type, Level worldIn, CallbackInfo ci) {
         this.collides = true;
         this.craftAttributes = new CraftAttributeMap(this.attributes);
-        this.entityData.set(DATA_HEALTH_ID, (float) this.getAttributeValue(Attributes.MAX_HEALTH));
+        this.entityData.set(DATA_HEALTH_ID, (float) this.getAttribute(Attributes.MAX_HEALTH).getValue());
     }
 
     @Inject(method = "checkFallDamage", at = @At("HEAD"))
@@ -334,11 +340,11 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     @Overwrite
     protected void tickEffects() {
         this.isTickingEffects = true;
-        Iterator<MobEffect> iterator = this.activeEffects.keySet().iterator();
+        Iterator<Holder<MobEffect>> iterator = this.activeEffects.keySet().iterator();
 
         try {
             while (iterator.hasNext()) {
-                MobEffect effect = iterator.next();
+                Holder<MobEffect> effect = iterator.next();
                 MobEffectInstance effectinstance = this.activeEffects.get(effect);
                 if (!effectinstance.tick((LivingEntity) (Object) this, () -> {
                     onEffectUpdated(effectinstance, true, null);
@@ -367,7 +373,7 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
             if (e.getEffect() != null) {
                 addEffect(e.getEffect(), e.getCause());
             } else {
-                removeEffect(e.getType(), e.getCause());
+                removeEffect(e.getEffect().getEffect(), e.getCause());
             }
         }
         effectsToProcess.clear();
@@ -375,30 +381,19 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         if (this.effectsDirty) {
             if (!this.level().isClientSide) {
                 this.updateInvisibilityStatus();
+                this.updateGlowingStatus();
             }
 
             this.effectsDirty = false;
         }
 
-        int i = this.entityData.get(DATA_EFFECT_COLOR_ID);
-        boolean flag1 = this.entityData.get(DATA_EFFECT_AMBIENCE_ID);
-        if (i > 0) {
-            boolean flag;
-            if (this.isInvisible()) {
-                flag = this.random.nextInt(15) == 0;
-            } else {
-                flag = this.random.nextBoolean();
-            }
-
-            if (flag1) {
-                flag &= this.random.nextInt(5) == 0;
-            }
-
-            if (flag && i > 0) {
-                double d0 = (double) (i >> 16 & 255) / 255.0D;
-                double d1 = (double) (i >> 8 & 255) / 255.0D;
-                double d2 = (double) (i >> 0 & 255) / 255.0D;
-                this.level().addParticle(flag1 ? ParticleTypes.AMBIENT_ENTITY_EFFECT : ParticleTypes.ENTITY_EFFECT, this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getBbWidth(), this.getY() + this.random.nextDouble() * (double) this.getBbHeight(), this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getBbWidth(), d0, d1, d2);
+        List<ParticleOptions> list = (List)this.entityData.get(DATA_EFFECT_PARTICLES);
+        if (!list.isEmpty()) {
+            boolean bl = (Boolean)this.entityData.get(DATA_EFFECT_AMBIENCE_ID);
+            int i = this.isInvisible() ? 15 : 4;
+            int j = bl ? 5 : 1;
+            if (this.random.nextInt(i * j) == 0) {
+                this.level().addParticle((ParticleOptions) Util.getRandom(list, this.random), this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(0.5), 1.0, 1.0, 1.0);
             }
         }
     }
@@ -448,21 +443,21 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     }
 
     @SuppressWarnings("unused") // mock
-    public MobEffectInstance c(@Nullable MobEffect potioneffectin, EntityPotionEffectEvent.Cause cause) {
+    public MobEffectInstance c(@Nullable Holder<MobEffect> potioneffectin, EntityPotionEffectEvent.Cause cause) {
         pushEffectCause(cause);
         return removeEffectNoUpdate(potioneffectin);
     }
 
     @Inject(method = "removeEffectNoUpdate", cancellable = true, at = @At("HEAD"))
-    public void banner$clearActive(MobEffect effect, CallbackInfoReturnable<MobEffectInstance> cir) {
+    public void banner$clearActive(Holder<MobEffect> holder, CallbackInfoReturnable<MobEffectInstance> cir) {
         EntityPotionEffectEvent.Cause cause = getEffectCause().orElse(EntityPotionEffectEvent.Cause.UNKNOWN);
         if (isTickingEffects) {
-            effectsToProcess.add(new ProcessableEffect(effect, cause));
+            effectsToProcess.add(new ProcessableEffect(holder.value(), cause));
             cir.setReturnValue(null);
             return;
         }
 
-        MobEffectInstance effectInstance = this.activeEffects.get(effect);
+        MobEffectInstance effectInstance = this.activeEffects.get(holder.value());
         if (effectInstance == null) {
             cir.setReturnValue(null);
             return;
@@ -870,9 +865,9 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     }
 
     @Override
-    public boolean removeEffect(MobEffect effect, EntityPotionEffectEvent.Cause cause) {
+    public boolean removeEffect(Holder<MobEffect> effect, EntityPotionEffectEvent.Cause cause) {
         pushEffectCause(cause);
-        return removeEffect(effect);
+        return  ((LivingEntity)(Object)this).removeEffect(effect);
     }
 
     @Override
@@ -1012,8 +1007,8 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     }
 
     @Inject(method = "addEatEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;)Z"))
-    public void banner$foodEffectCause(ItemStack food, Level level, LivingEntity livingEntity, CallbackInfo ci) {
-        livingEntity.pushEffectCause(EntityPotionEffectEvent.Cause.FOOD);
+    public void banner$foodEffectCause(FoodProperties foodProperties, CallbackInfo ci) {
+        this.pushEffectCause(EntityPotionEffectEvent.Cause.FOOD);
     }
 
     @Inject(method = "setArrowCount", cancellable = true, at = @At("HEAD"))
@@ -1033,7 +1028,8 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
         if (((LivingEntity) (Object) this) instanceof ServerPlayer && equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
             final org.bukkit.inventory.ItemStack oldItem = CraftItemStack.asBukkitCopy(itemStack);
             final org.bukkit.inventory.ItemStack newItem = CraftItemStack.asBukkitCopy(itemStack2);
-            new PlayerArmorChangeEvent((org.bukkit.entity.Player)this.getBukkitEntity(), PlayerArmorChangeEvent.SlotType.valueOf(equipmentSlot.name()), oldItem, newItem).callEvent();
+            var event = new PlayerArmorChangeEvent((org.bukkit.entity.Player)this.getBukkitEntity(), PlayerArmorChangeEvent.SlotType.valueOf(equipmentSlot.name()), oldItem, newItem);
+            Bukkit.getPluginManager().callEvent(event);
         }
     }
 
@@ -1050,26 +1046,8 @@ public abstract class MixinLivingEntity extends Entity implements InjectionLivin
     }
 
     @Override
-    public void equipEventAndSound(EquipmentSlot slot, ItemStack oldItem, ItemStack newItem, boolean silent) {
-        boolean flag = newItem.isEmpty() && oldItem.isEmpty();
-        if (!flag && !ItemStack.isSameItemSameTags(oldItem, newItem) && !this.firstTick) {
-            Equipable equipable = Equipable.get(newItem);
-            if (equipable != null && !this.isSpectator() && equipable.getEquipmentSlot() == slot) {
-                if (!this.level().isClientSide() && !this.isSilent() && !silent) {
-                    this.level().playSound(null, this.getX(), this.getY(), this.getZ(), equipable.getEquipSound(), this.getSoundSource(), 1.0F, 1.0F);
-                }
-
-                if (this.doesEmitEquipEvent(slot)) {
-                    this.gameEvent(GameEvent.EQUIP);
-                }
-            }
-
-        }
-    }
-
-    @Override
     public void setItemSlot(EquipmentSlot slotIn, ItemStack stack, boolean silent) {
-        this.setItemSlot(slotIn, stack);
+        ((LivingEntity)(Object)this).setItemSlot(slotIn, stack);
     }
 
     @Override

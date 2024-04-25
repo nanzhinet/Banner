@@ -16,8 +16,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TraceableEntity;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
 import org.bukkit.craftbukkit.v1_20_R4.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_20_R4.event.CraftEventFactory;
@@ -30,21 +28,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(AreaEffectCloud.class)
 public abstract class MixinAreaEffectCloud extends Entity implements TraceableEntity, InjectionAreaEffectCloud {
 
-    @Shadow private boolean fixedColor;
-
-    @Shadow private Potion potion;
-
-    @Shadow public List<MobEffectInstance> effects;
-
-    @Shadow public abstract void setPotion(Potion potion);
-
     @Shadow public abstract boolean isWaiting();
 
     @Shadow public abstract float getRadius();
 
     @Shadow public abstract ParticleOptions getParticle();
-
-    @Shadow public abstract int getColor();
 
     @Shadow private int duration;
     @Shadow public int waitTime;
@@ -69,6 +57,7 @@ public abstract class MixinAreaEffectCloud extends Entity implements TraceableEn
      * @author wdog5
      * @reason
      */
+    /*
     @Overwrite
     public void tick() {
         super.tick();
@@ -212,21 +201,5 @@ public abstract class MixinAreaEffectCloud extends Entity implements TraceableEn
         }
 
     }
-
-    @Override
-    public void refreshEffects() {
-        if (!this.fixedColor) {
-            this.getEntityData().set(AreaEffectCloud.DATA_COLOR, PotionUtils.getColor((Collection) PotionUtils.getAllEffects(this.potion, this.effects)));
-        }
-    }
-
-    @Override
-    public String getPotionType() {
-        return ((ResourceLocation) BuiltInRegistries.POTION.getKey(this.potion)).toString();
-    }
-
-    @Override
-    public void setPotionType(String string) {
-        this.setPotion((BuiltInRegistries.POTION.get(new ResourceLocation(string))));
-    }
+    */
 }

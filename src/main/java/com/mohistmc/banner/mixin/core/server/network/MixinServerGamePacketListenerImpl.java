@@ -25,6 +25,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.LastSeenMessages;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.chat.SignableCommand;
@@ -38,6 +39,7 @@ import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundChatSessionUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
@@ -85,6 +87,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.WritableBookContent;
 import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ClipContext;
@@ -157,6 +161,9 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     @Mutable
     @Shadow @Final private FutureChain chatMessageChain;
     @Shadow public abstract void onDisconnect(Component reason);
+    @Shadow private Filterable<String> filterableFromOutgoing(FilteredText filteredText) {
+        return null;
+    }
 
     @Shadow
     private static boolean containsInvalidValues(double x, double y, double z, float yRot, float xRot) {return false;}
@@ -175,8 +182,6 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     @Shadow private double vehicleFirstGoodY;
     @Shadow private double vehicleFirstGoodX;
     @Shadow @Nullable private Vec3 awaitingPositionFromClient;
-
-    @Shadow private Filterable<String> filterableFromOutgoing(FilteredText filteredText);
 
     @Shadow private int tickCount;
 
@@ -201,7 +206,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     @Shadow protected abstract void handleMessageDecodeFailure(SignedMessageChain.DecodeException exception);
     @Shadow protected abstract CompletableFuture<FilteredText> filterTextPacket(String text);
     @Shadow protected abstract ParseResults<CommandSourceStack> parseCommand(String command);
-    @Shadow protected abstract Map<String, PlayerChatMessage> collectSignedArguments(ServerboundChatCommandPacket packet, SignableCommand<?> command, LastSeenMessages lastSeenMessages) throws SignedMessageChain.DecodeException;
+    @Shadow protected abstract <S> Map<String, PlayerChatMessage> collectSignedArguments(ServerboundChatCommandSignedPacket serverboundChatCommandSignedPacket, SignableCommand<S> signableCommand, LastSeenMessages lastSeenMessages) throws SignedMessageChain.DecodeException;
     @Shadow protected abstract void detectRateSpam();
 
     @Shadow private int dropSpamTickCount;
@@ -215,9 +220,12 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
 
     @Shadow public abstract ServerPlayer getPlayer();
 
-    @Shadow protected abstract Optional<LastSeenMessages> tryHandleChat(LastSeenMessages.Update update);
-
     @Shadow public abstract void teleport(double d, double e, double f, float g, float h);
+
+    @Shadow
+    private void tryHandleChat(String string, Runnable runnable) {
+
+    }
 
     private static final int SURVIVAL_PLACE_DISTANCE_SQUARED = 6 * 6;
     private static final int CREATIVE_PLACE_DISTANCE_SQUARED = 7 * 7;
@@ -489,9 +497,10 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     private void updateBookContents(List<FilteredText> list, int slot) {
         ItemStack old = this.player.getInventory().getItem(slot);
         if (old.is(Items.WRITABLE_BOOK)) {
-            ItemStack itemstack = old.copy();
-            this.updateBookPages(list, UnaryOperator.identity(), itemstack);
-            CraftEventFactory.handleEditBookEvent(player, slot, old, itemstack);
+            ItemStack itemStack = old.copy();
+            List<Filterable<String>> list2 = list.stream().map(this::filterableFromOutgoing).toList();
+            itemStack.set(DataComponents.WRITABLE_BOOK_CONTENT, new WritableBookContent(list2));
+            CraftEventFactory.handleEditBookEvent(player, slot, old, itemStack);
         }
     }
 
@@ -505,7 +514,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
         if (itemStack.is(Items.WRITABLE_BOOK)) {
             ItemStack itemStack2 = itemStack.transmuteCopy(Items.WRITTEN_BOOK, 1);
             itemStack2.remove(DataComponents.WRITABLE_BOOK_CONTENT);
-            List<Filterable<Component>> list2 = list.stream().map((filteredTextx) -> {
+            List<Filterable<Component>> list2 = (List<Filterable<Component>>) (List) list.stream().map((filteredTextx) -> {
                 return this.filterableFromOutgoing(filteredTextx).map(Component::literal);
             }).toList();
             itemStack2.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(this.filterableFromOutgoing(filteredText), this.player.getName().getString(), 0, list2, true));
@@ -635,8 +644,8 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
                                 }
 
                                 com.destroystokyo.paper.event.player.PlayerJumpEvent event = new com.destroystokyo.paper.event.player.PlayerJumpEvent(player, from, to);
-
-                                if (event.callEvent()) {
+                                Bukkit.getPluginManager().callEvent(event);
+                                if (event.isCancelled()) {
                                     this.player.jumpFromGround();
                                 } else {
                                     from = event.getFrom();
@@ -869,7 +878,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
             cancelled = event.useItemInHand() == Event.Result.DENY;
         } else {
             BlockHitResult movingobjectpositionblock = movingobjectposition;
-            if (player.gameMode.bridge$isFiredInteract() && player.gameMode.bridge$getinteractPosition().equals(movingobjectpositionblock.getBlockPos()) && player.gameMode.bridge$getinteractHand() == interactionHand && ItemStack.isSameItemSameTags(player.gameMode.bridge$getinteractItemStack(), itemStack)) {
+            if (player.gameMode.bridge$isFiredInteract() && player.gameMode.bridge$getinteractPosition().equals(movingobjectpositionblock.getBlockPos()) && player.gameMode.bridge$getinteractHand() == interactionHand && ItemStack.isSameItemSameComponents(player.gameMode.bridge$getinteractItemStack(), itemStack)) {
                 cancelled = player.gameMode.bridge$getInteractResult();
             } else {
                 org.bukkit.event.player.PlayerInteractEvent event = CraftEventFactory.callPlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, movingobjectpositionblock.getBlockPos(), movingobjectpositionblock.getDirection(), itemStack, true, interactionHand, movingobjectpositionblock.getLocation());
@@ -980,87 +989,6 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
         } else {
             LOGGER.warn("{} tried to set an invalid carried item", this.player.getName().getString());
             this.disconnect("Invalid hotbar selection (Hacking?)");
-        }
-    }
-
-    /**
-     * @author wdog5
-     * @reason
-     */
-    @Overwrite
-    public void handleChat(ServerboundChatPacket packet) {
-        if (this.server.isStopped()) {
-            return;
-        }
-        if (isChatMessageIllegal(packet.message())) {
-            this.disconnect(Component.translatable("multiplayer.disconnect.illegal_characters"));
-        } else {
-            Optional<LastSeenMessages> optional = this.tryHandleChat(packet.lastSeenMessages());
-            if (optional.isPresent()) {
-                PlayerChatMessage playerchatmessage;
-
-                try {
-                    playerchatmessage = this.getSignedMessage(packet, optional.get());
-                } catch (SignedMessageChain.DecodeException e) {
-                    this.handleMessageDecodeFailure(e);
-                    return;
-                }
-
-                CompletableFuture<FilteredText> completablefuture = this.filterTextPacket(playerchatmessage.signedContent());
-                Component ichatbasecomponent = this.server.getChatDecorator().decorate(this.player, playerchatmessage.decoratedContent());
-
-                this.chatMessageChain.append(completablefuture, (text) -> {
-                    if (ichatbasecomponent == null) return;
-                    PlayerChatMessage playerchatmessage1 = playerchatmessage.withUnsignedContent(ichatbasecomponent).filter(completablefuture.join().mask());
-
-                    this.broadcastChatMessage(playerchatmessage1);
-                }
-                );
-            }
-        }
-    }
-
-    /**
-     * @author wdog5
-     * @reason
-     */
-    @Overwrite
-    private void performChatCommand(ServerboundChatCommandPacket packet, LastSeenMessages lastseenmessages) {
-        String command = "/" + packet.command();
-        LOGGER.info(this.player.getScoreboardName() + " issued server command: " + command);
-
-        PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(getCraftPlayer(), command, new LazyPlayerSet(server));
-        this.cserver.getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) {
-            return;
-        }
-        command = event.getMessage().substring(1);
-
-        ParseResults<CommandSourceStack> parseresults = this.parseCommand(command);
-
-        Map<String, PlayerChatMessage> map;
-
-        try {
-            map = (packet.command().equals(command)) ? this.collectSignedArguments(packet, SignableCommand.of(parseresults), lastseenmessages) : Collections.emptyMap(); // CraftBukkit
-        } catch (SignedMessageChain.DecodeException e) {
-            this.handleMessageDecodeFailure(e);
-            return;
-        }
-
-        CommandSigningContext.SignedArguments arguments = new CommandSigningContext.SignedArguments(map);
-
-        parseresults = Commands.mapSource(parseresults, (commandSourceStack) -> {
-            return commandSourceStack.withSigningContext(arguments, this.chatMessageChain);
-        });
-        this.server.getCommands().performCommand(parseresults, command);
-    }
-
-    @Inject(method = "tryHandleChat", cancellable = true, at = @At(value = "INVOKE", shift = At.Shift.AFTER, target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;unpackAndApplyLastSeen(Lnet/minecraft/network/chat/LastSeenMessages$Update;)Ljava/util/Optional;"))
-    private void banner$deadMenTellNoTales(LastSeenMessages.Update update, CallbackInfoReturnable<Optional<LastSeenMessages>> cir) {
-        if (this.player.isRemoved()) {
-            this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), false));
-            cir.setReturnValue(Optional.empty());
         }
     }
 
@@ -1302,7 +1230,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
                                             if (cursor.isEmpty()) {
                                                 action = packet.getButtonNum() == 0 ? InventoryAction.PICKUP_ALL : InventoryAction.PICKUP_HALF;
                                             } else if (slot.mayPlace(cursor)) {
-                                                if (ItemStack.isSameItemSameTags(clickedItem, cursor)) {
+                                                if (ItemStack.isSameItemSameComponents(clickedItem, cursor)) {
                                                     int toPlace = packet.getButtonNum() == 0 ? cursor.getCount() : 1;
                                                     toPlace = Math.min(toPlace, clickedItem.getMaxStackSize() - clickedItem.getCount());
                                                     toPlace = Math.min(toPlace, slot.container.getMaxStackSize() - clickedItem.getCount());
@@ -1318,7 +1246,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
                                                 } else if (cursor.getCount() <= slot.getMaxStackSize()) {
                                                     action = InventoryAction.SWAP_WITH_CURSOR;
                                                 }
-                                            } else if (ItemStack.isSameItemSameTags(cursor, clickedItem)) {
+                                            } else if (ItemStack.isSameItemSameComponents(cursor, clickedItem)) {
                                                 if (clickedItem.getCount() >= 0) {
                                                     if (clickedItem.getCount() + cursor.getCount() <= cursor.getMaxStackSize()) {
                                                         // As of 1.5, this is result slots only
@@ -1572,37 +1500,37 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
     public void handleSetCreativeModeSlot(final ServerboundSetCreativeModeSlotPacket packetplayinsetcreativeslot) {
         PacketUtils.ensureRunningOnSameThread(packetplayinsetcreativeslot, (ServerGamePacketListenerImpl) (Object) this, this.player.serverLevel());
         if (this.player.gameMode.isCreative()) {
-            final boolean flag = packetplayinsetcreativeslot.getSlotNum() < 0;
-            ItemStack itemstack = packetplayinsetcreativeslot.getItem();
+            final boolean flag = packetplayinsetcreativeslot.slotNum() < 0;
+            ItemStack itemstack = packetplayinsetcreativeslot.itemStack();
             if (!itemstack.isItemEnabled(this.player.level().enabledFeatures())) {
                 return;
             }
-            CompoundTag nbttagcompound = BlockItem.getBlockEntityData(itemstack);
-            if (!itemstack.isEmpty() && nbttagcompound != null && nbttagcompound.contains("x") && nbttagcompound.contains("y") && nbttagcompound.contains("z")) {
-                BlockPos blockpos = BlockEntity.getPosFromTag(nbttagcompound);
+            CustomData customData = (CustomData)itemstack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
+            if (!itemstack.isEmpty() && customData != null && customData.contains("x") && customData.contains("y") && customData.contains("z")) {
+                BlockPos blockpos = BlockEntity.getPosFromTag(customData.getUnsafe());
                 if (this.player.level().isLoaded(blockpos)) {
                     BlockEntity blockentity = this.player.level().getBlockEntity(blockpos);
                     if (blockentity != null) {
-                        blockentity.saveToItem(itemstack);
+                        blockentity.saveToItem(itemstack, this.player.level().registryAccess());
                     }
                 }
             }
-            boolean flag1 = packetplayinsetcreativeslot.getSlotNum() >= 1 && packetplayinsetcreativeslot.getSlotNum() <= 45;
+            boolean flag1 = packetplayinsetcreativeslot.slotNum() >= 1 && packetplayinsetcreativeslot.slotNum() <= 45;
             boolean flag2 = itemstack.isEmpty() || itemstack.getDamageValue() >= 0 && itemstack.getCount() <= 64 && !itemstack.isEmpty();
-            if (flag || (flag1 && !ItemStack.matches(this.player.inventoryMenu.getSlot(packetplayinsetcreativeslot.getSlotNum()).getItem(), packetplayinsetcreativeslot.getItem()))) {
+            if (flag || (flag1 && !ItemStack.matches(this.player.inventoryMenu.getSlot(packetplayinsetcreativeslot.slotNum()).getItem(), packetplayinsetcreativeslot.itemStack()))) {
                 InventoryView inventory = this.player.inventoryMenu.getBukkitView();
-                org.bukkit.inventory.ItemStack item = CraftItemStack.asBukkitCopy(packetplayinsetcreativeslot.getItem());
+                org.bukkit.inventory.ItemStack item = CraftItemStack.asBukkitCopy(packetplayinsetcreativeslot.itemStack());
                 InventoryType.SlotType type = InventoryType.SlotType.QUICKBAR;
                 if (flag) {
                     type = InventoryType.SlotType.OUTSIDE;
-                } else if (packetplayinsetcreativeslot.getSlotNum() < 36) {
-                    if (packetplayinsetcreativeslot.getSlotNum() >= 5 && packetplayinsetcreativeslot.getSlotNum() < 9) {
+                } else if (packetplayinsetcreativeslot.slotNum() < 36) {
+                    if (packetplayinsetcreativeslot.slotNum() >= 5 && packetplayinsetcreativeslot.slotNum() < 9) {
                         type = InventoryType.SlotType.ARMOR;
                     } else {
                         type = InventoryType.SlotType.CONTAINER;
                     }
                 }
-                InventoryCreativeEvent event = new InventoryCreativeEvent(inventory, type, flag ? -999 : packetplayinsetcreativeslot.getSlotNum(), item);
+                InventoryCreativeEvent event = new InventoryCreativeEvent(inventory, type, flag ? -999 : packetplayinsetcreativeslot.slotNum(), item);
                 this.cserver.getPluginManager().callEvent(event);
                 itemstack = CraftItemStack.asNMSCopy(event.getCursor());
                 switch (event.getResult()) {
@@ -1613,8 +1541,8 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
                     case DEFAULT:
                         break;
                     case DENY: {
-                        if (packetplayinsetcreativeslot.getSlotNum() >= 0) {
-                            this.player.connection.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packetplayinsetcreativeslot.getSlotNum(), this.player.inventoryMenu.getSlot(packetplayinsetcreativeslot.getSlotNum()).getItem()));
+                        if (packetplayinsetcreativeslot.slotNum() >= 0) {
+                            this.player.connection.send(new ClientboundContainerSetSlotPacket(this.player.inventoryMenu.containerId, this.player.inventoryMenu.incrementStateId(), packetplayinsetcreativeslot.slotNum(), this.player.inventoryMenu.getSlot(packetplayinsetcreativeslot.slotNum()).getItem()));
                             this.player.connection.send(new ClientboundContainerSetSlotPacket(-1, this.player.inventoryMenu.incrementStateId(), -1, ItemStack.EMPTY));
                         }
                         return;
@@ -1622,7 +1550,7 @@ public abstract class MixinServerGamePacketListenerImpl extends MixinServerCommo
                 }
             }
             if (flag1 && flag2) {
-                this.player.inventoryMenu.getSlot(packetplayinsetcreativeslot.getSlotNum()).setByPlayer(itemstack);
+                this.player.inventoryMenu.getSlot(packetplayinsetcreativeslot.slotNum()).setByPlayer(itemstack);
                 this.player.inventoryMenu.broadcastChanges();
             } else if (flag && flag2 && this.dropSpamTickCount < 200) {
                 this.dropSpamTickCount+= 20;
