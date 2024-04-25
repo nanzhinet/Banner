@@ -67,6 +67,7 @@ public class ItemStack implements Cloneable, ConfigurationSerializable, Translat
      * @param damage durability / damage
      * @deprecated see {@link #setDurability(short)}
      */
+    @Deprecated
     public ItemStack(@NotNull final Material type, final int amount, final short damage) {
         this(type, amount, damage, null);
     }
@@ -447,6 +448,17 @@ public class ItemStack implements Cloneable, ConfigurationSerializable, Translat
         }
         meta.removeEnchant(ench);
         return level;
+    }
+
+    /**
+     * Removes all enchantments on this ItemStack.
+     */
+    public void removeEnchantments() {
+        if (meta == null) {
+            return;
+        }
+
+        meta.removeEnchantments();
     }
 
     @Override

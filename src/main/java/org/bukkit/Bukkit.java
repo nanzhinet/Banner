@@ -27,6 +27,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityFactory;
+import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.event.inventory.InventoryType;
@@ -44,6 +46,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootTable;
 import org.bukkit.map.MapView;
 import org.bukkit.packs.DataPackManager;
+import org.bukkit.packs.ResourcePack;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
@@ -260,6 +263,15 @@ public final class Bukkit {
         return server.getAllowNether();
     }
 
+    /**
+     * Gets whether the server is logging the IP addresses of players.
+     *
+     * @return whether the server is logging the IP addresses of players
+     */
+    public static boolean isLoggingIPs() {
+        return server.isLoggingIPs();
+    }
+
     @NotNull
     public static List<String> getInitialEnabledPacks() {
         return server.getInitialEnabledPacks();
@@ -278,6 +290,16 @@ public final class Bukkit {
     @NotNull
     public static DataPackManager getDataPackManager() {
         return server.getDataPackManager();
+    }
+
+    /**
+     * Gets the resource pack configured to be sent to clients by the server.
+     *
+     * @return the resource pack
+     */
+    @Nullable
+    public static ResourcePack getServerResourcePack() {
+        return server.getServerResourcePack();
     }
 
     /**
@@ -982,6 +1004,7 @@ public final class Bukkit {
     public static ItemCraftResult craftItemResult(@NotNull ItemStack[] craftingMatrix, @NotNull World world, @NotNull Player player) {
         return server.craftItemResult(craftingMatrix, world, player);
     }
+
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
      *
@@ -1003,6 +1026,7 @@ public final class Bukkit {
     public static ItemCraftResult craftItemResult(@NotNull ItemStack[] craftingMatrix, @NotNull World world) {
         return server.craftItemResult(craftingMatrix, world);
     }
+
 
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
@@ -1143,6 +1167,16 @@ public final class Bukkit {
      */
     public static boolean isEnforcingSecureProfiles() {
         return server.isEnforcingSecureProfiles();
+    }
+
+    /**
+     * Gets whether this server is allowing connections transferred from other
+     * servers.
+     *
+     * @return true if the server accepts transfers, false otherwise
+     */
+    public static boolean isAcceptingTransfers() {
+        return server.isAcceptingTransfers();
     }
 
     /**
@@ -1692,6 +1726,17 @@ public final class Bukkit {
     }
 
     /**
+     * Gets the instance of the entity factory (for {@link EntitySnapshot}).
+     *
+     * @return the entity factory
+     * @see EntityFactory
+     */
+    @NotNull
+    public static EntityFactory getEntityFactory() {
+        return server.getEntityFactory();
+    }
+
+    /**
      * Gets the instance of the scoreboard manager.
      * <p>
      * This will only exist after the first world has loaded.
@@ -1902,16 +1947,6 @@ public final class Bukkit {
         return server.getEntity(uuid);
     }
 
-    // Paper start
-    /**
-     * Gets the current server TPS
-     * @return current server TPS (1m, 5m, 15m in Paper-Server)
-     */
-    @NotNull
-    public static double[] getTPS() {
-        return server.getTPS();
-    }
-
     /**
      * Get the advancement specified by this key.
      *
@@ -2100,10 +2135,5 @@ public final class Bukkit {
     @NotNull
     public static UnsafeValues getUnsafe() {
         return server.getUnsafe();
-    }
-
-    @NotNull
-    public static Server.Spigot spigot() {
-        return server.spigot();
     }
 }

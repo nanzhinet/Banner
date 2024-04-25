@@ -14,17 +14,20 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.boss.KeyedBossBar;
+import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Cat;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Frog;
 import org.bukkit.entity.Villager;
+import org.bukkit.entity.Wolf;
 import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.generator.structure.Structure;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.loot.LootTables;
+import org.bukkit.map.MapCursor;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.ApiStatus;
@@ -208,6 +211,13 @@ public interface Registry<T extends Keyed> extends Iterable<T> {
     @ApiStatus.Experimental
     Registry<TrimPattern> TRIM_PATTERN = Bukkit.getRegistry(TrimPattern.class);
     /**
+     * Damage types.
+     *
+     * @see DamageType
+     */
+    @ApiStatus.Experimental
+    Registry<DamageType> DAMAGE_TYPE = Objects.requireNonNull(Bukkit.getRegistry(DamageType.class), "No registry present for DamageType. This is a bug.");
+    /**
      * Villager profession.
      *
      * @see Villager.Profession
@@ -256,6 +266,19 @@ public interface Registry<T extends Keyed> extends Iterable<T> {
      * @see Frog.Variant
      */
     Registry<Frog.Variant> FROG_VARIANT = new SimpleRegistry<>(Frog.Variant.class);
+    /**
+     * Wolf variants.
+     *
+     * @see Wolf.Variant
+     */
+    Registry<Wolf.Variant> WOLF_VARIANT = Objects.requireNonNull(Bukkit.getRegistry(Wolf.Variant.class), "No registry present for Wolf Variant. This is a bug.");
+    /**
+     * Map cursor types.
+     *
+     * @see MapCursor.Type
+     */
+    @ApiStatus.Internal
+    Registry<MapCursor.Type> MAP_DECORATION_TYPE = new SimpleRegistry<>(MapCursor.Type.class);
     /**
      * Game events.
      *

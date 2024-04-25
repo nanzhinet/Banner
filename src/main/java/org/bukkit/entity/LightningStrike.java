@@ -1,6 +1,7 @@
 package org.bukkit.entity;
 
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.GameEvent;
+import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -81,21 +82,4 @@ public interface LightningStrike extends Entity {
      */
     public void setCausingPlayer(@Nullable Player player);
 
-    // Spigot start
-    public class Spigot extends Entity.Spigot {
-
-        /*
-         * Returns whether the strike is silent.
-         *
-         * @return whether the strike is silent.
-         */
-        public boolean isSilent() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
-
-    @NotNull
-    @Override
-    Spigot spigot();
-    // Spigot end
 }

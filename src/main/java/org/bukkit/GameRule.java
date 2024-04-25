@@ -271,11 +271,17 @@ public final class GameRule<T> {
      * portal activates.
      */
     public static final GameRule<Integer> PLAYERS_NETHER_PORTAL_DEFAULT_DELAY = new GameRule<>("playersNetherPortalDefaultDelay", Integer.class);
+
     /**
      * The amount of time a player in creative mode must stand in a nether
      * portal before the portal activates.
      */
     public static final GameRule<Integer> PLAYERS_NETHER_PORTAL_CREATIVE_DELAY = new GameRule<>("playersNetherPortalCreativeDelay", Integer.class);
+
+    /**
+     * The number of chunks around spawn which will be kept loaded at all times.
+     */
+    public static final GameRule<Integer> SPAWN_CHUNK_RADIUS = new GameRule<>("spawnChunkRadius", Integer.class);
 
     // All GameRules instantiated above this for organizational purposes
     private final String name;

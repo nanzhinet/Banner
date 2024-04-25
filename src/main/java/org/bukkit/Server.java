@@ -27,6 +27,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityFactory;
+import org.bukkit.entity.EntitySnapshot;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.event.inventory.InventoryType;
@@ -44,6 +46,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.loot.LootTable;
 import org.bukkit.map.MapView;
 import org.bukkit.packs.DataPackManager;
+import org.bukkit.packs.ResourcePack;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
@@ -216,6 +219,13 @@ public interface Server extends PluginMessageRecipient {
     public boolean getAllowNether();
 
     /**
+     * Gets whether the server is logging the IP addresses of players.
+     *
+     * @return whether the server is logging the IP addresses of players
+     */
+    public boolean isLoggingIPs();
+
+    /**
      * Gets a list of packs to be enabled.
      *
      * @return a list of packs names
@@ -246,6 +256,14 @@ public interface Server extends PluginMessageRecipient {
      */
     @NotNull
     public ServerTickManager getServerTickManager();
+
+    /**
+     * Gets the resource pack configured to be sent to clients by the server.
+     *
+     * @return the resource pack
+     */
+    @Nullable
+    public ResourcePack getServerResourcePack();
 
     /**
      * Gets the server resource pack uri, or empty string if not specified.
@@ -864,6 +882,7 @@ public interface Server extends PluginMessageRecipient {
      */
     @NotNull
     public ItemStack craftItem(@NotNull ItemStack[] craftingMatrix, @NotNull World world);
+
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
      *
@@ -890,6 +909,7 @@ public interface Server extends PluginMessageRecipient {
      */
     @NotNull
     public ItemCraftResult craftItemResult(@NotNull ItemStack[] craftingMatrix, @NotNull World world, @NotNull Player player);
+
     /**
      * Get the crafted item using the list of {@link ItemStack} provided.
      *
@@ -979,6 +999,14 @@ public interface Server extends PluginMessageRecipient {
      * @return true if only Mojang-signed players can join, false otherwise
      */
     public boolean isEnforcingSecureProfiles();
+
+    /**
+     * Gets whether this server is allowing connections transferred from other
+     * servers.
+     *
+     * @return true if the server accepts transfers, false otherwise
+     */
+    public boolean isAcceptingTransfers();
 
     /**
      * Gets whether the Server hide online players in server status.
@@ -1436,6 +1464,15 @@ public interface Server extends PluginMessageRecipient {
     ItemFactory getItemFactory();
 
     /**
+     * Gets the instance of the entity factory (for {@link EntitySnapshot}).
+     *
+     * @return the entity factory
+     * @see EntityFactory
+     */
+    @NotNull
+    EntityFactory getEntityFactory();
+
+    /**
      * Gets the instance of the scoreboard manager.
      * <p>
      * This will only exist after the first world has loaded.
@@ -1618,15 +1655,6 @@ public interface Server extends PluginMessageRecipient {
     @Nullable
     Entity getEntity(@NotNull UUID uuid);
 
-    // Paper start
-    /**
-     * Gets the current server TPS
-     *
-     * @return current server TPS (1m, 5m, 15m in Paper-Server)
-     */
-    @NotNull
-    public double[] getTPS();
-
     /**
      * Get the advancement specified by this key.
      *
@@ -1793,62 +1821,4 @@ public interface Server extends PluginMessageRecipient {
     @Deprecated
     @NotNull
     UnsafeValues getUnsafe();
-
-    // Spigot start
-    public class Spigot {
-
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getConfig() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        // Paper start
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getBukkitConfig()
-        {
-            throw new UnsupportedOperationException( "Not supported yet." );
-        }
-
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getSpigotConfig()
-        {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        @NotNull
-        public org.bukkit.configuration.file.YamlConfiguration getPaperConfig()
-        {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-        // Paper end
-
-        /**
-         * Sends the component to the player
-         *
-         * @param component the components to send
-         */
-        public void broadcast(@NotNull net.md_5.bungee.api.chat.BaseComponent component) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        /**
-         * Sends an array of components as a single message to the player
-         *
-         * @param components the components to send
-         */
-        public void broadcast(@NotNull net.md_5.bungee.api.chat.BaseComponent... components) {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-
-        /**
-         * Restart the server. If the server administrator has not configured restarting, the server will stop.
-         */
-        public void restart() {
-            throw new UnsupportedOperationException("Not supported yet.");
-        }
-    }
-
-    @NotNull
-    Spigot spigot();
-    // Spigot end
 }

@@ -1,63 +1,59 @@
 package org.bukkit;
 
 import com.google.common.base.Preconditions;
+import org.bukkit.MinecraftExperimental.Requires;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 
 public enum Particle implements Keyed {
-    EXPLOSION_NORMAL("poof"),
-    EXPLOSION_LARGE("explosion"),
-    EXPLOSION_HUGE("explosion_emitter"),
-    FIREWORKS_SPARK("firework"),
-    WATER_BUBBLE("bubble"),
-    WATER_SPLASH("splash"),
-    WATER_WAKE("fishing"),
-    SUSPENDED("underwater"),
-    SUSPENDED_DEPTH("underwater", false),
+    POOF("poof"),
+    EXPLOSION("explosion"),
+    EXPLOSION_EMITTER("explosion_emitter"),
+    FIREWORK("firework"),
+    BUBBLE("bubble"),
+    SPLASH("splash"),
+    FISHING("fishing"),
+    UNDERWATER("underwater"),
     CRIT("crit"),
-    CRIT_MAGIC("enchanted_hit"),
-    SMOKE_NORMAL("smoke"),
-    SMOKE_LARGE("large_smoke"),
-    SPELL("effect"),
-    SPELL_INSTANT("instant_effect"),
-    SPELL_MOB("entity_effect"),
-    SPELL_MOB_AMBIENT("ambient_entity_effect"),
-    SPELL_WITCH("witch"),
-    DRIP_WATER("dripping_water"),
-    DRIP_LAVA("dripping_lava"),
-    VILLAGER_ANGRY("angry_villager"),
-    VILLAGER_HAPPY("happy_villager"),
-    TOWN_AURA("mycelium"),
+    ENCHANTED_HIT("enchanted_hit"),
+    SMOKE("smoke"),
+    LARGE_SMOKE("large_smoke"),
+    EFFECT("effect"),
+    INSTANT_EFFECT("instant_effect"),
+    /**
+     * Uses {@link Color} as DataType
+     */
+    ENTITY_EFFECT("entity_effect", Color.class),
+    WITCH("witch"),
+    DRIPPING_WATER("dripping_water"),
+    DRIPPING_LAVA("dripping_lava"),
+    ANGRY_VILLAGER("angry_villager"),
+    HAPPY_VILLAGER("happy_villager"),
+    MYCELIUM("mycelium"),
     NOTE("note"),
     PORTAL("portal"),
-    ENCHANTMENT_TABLE("enchant"),
+    ENCHANT("enchant"),
     FLAME("flame"),
     LAVA("lava"),
     CLOUD("cloud"),
     /**
      * Uses {@link Particle.DustOptions} as DataType
      */
-    REDSTONE("dust", DustOptions.class),
-    SNOWBALL("item_snowball"),
-    SNOW_SHOVEL("item_snowball", false),
-    SLIME("item_slime"),
+    DUST("dust", DustOptions.class),
+    ITEM_SNOWBALL("item_snowball"),
+    ITEM_SLIME("item_slime"),
     HEART("heart"),
     /**
      * Uses {@link ItemStack} as DataType
      */
-    ITEM_CRACK("item", ItemStack.class),
+    ITEM("item", ItemStack.class),
     /**
      * Uses {@link BlockData} as DataType
      */
-    BLOCK_CRACK("block", BlockData.class),
-    /**
-     * Uses {@link BlockData} as DataType
-     */
-    BLOCK_DUST("block", BlockData.class, false),
-    WATER_DROP("rain"),
-    MOB_APPEARANCE("elder_guardian"),
+    BLOCK("block", BlockData.class),
+    RAIN("rain"),
+    ELDER_GUARDIAN("elder_guardian"),
     DRAGON_BREATH("dragon_breath"),
     END_ROD("end_rod"),
     DAMAGE_INDICATOR("damage_indicator"),
@@ -66,7 +62,7 @@ public enum Particle implements Keyed {
      * Uses {@link BlockData} as DataType
      */
     FALLING_DUST("falling_dust", BlockData.class),
-    TOTEM("totem_of_undying"),
+    TOTEM_OF_UNDYING("totem_of_undying"),
     SPIT("spit"),
     SQUID_INK("squid_ink"),
     BUBBLE_POP("bubble_pop"),
@@ -133,33 +129,41 @@ public enum Particle implements Keyed {
     EGG_CRACK("egg_crack"),
     DUST_PLUME("dust_plume"),
     WHITE_SMOKE("white_smoke"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     GUST("gust"),
-    @MinecraftExperimental
-    GUST_EMITTER("gust_emitter"),
-    @MinecraftExperimental
-    GUST_DUST("gust_dust"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    SMALL_GUST("small_gust"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    GUST_EMITTER_LARGE("gust_emitter_large"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    GUST_EMITTER_SMALL("gust_emitter_small"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_SPAWNER_DETECTION("trial_spawner_detection"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_SPAWNER_DETECTION_OMINOUS("trial_spawner_detection_ominous"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    VAULT_CONNECTION("vault_connection"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    INFESTED("infested"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    ITEM_COBWEB("item_cobweb"),
     /**
      * Uses {@link BlockData} as DataType
      */
-    BLOCK_MARKER("block_marker", BlockData.class),
-    // ----- Legacy Separator -----
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    DUST_PILLAR("dust_pillar", BlockData.class),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    OMINOUS_SPAWNING("ominous_spawning"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    RAID_OMEN("raid_omen"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_OMEN("trial_omen"),
     /**
-     * Uses {@link MaterialData} as DataType
+     * Uses {@link BlockData} as DataType
      */
-    LEGACY_BLOCK_CRACK(null, MaterialData.class, false),
-    /**
-     * Uses {@link MaterialData} as DataType
-     */
-    LEGACY_BLOCK_DUST(null, MaterialData.class, false),
-    /**
-     * Uses {@link MaterialData} as DataType
-     */
-    LEGACY_FALLING_DUST(null, MaterialData.class, false);
+    BLOCK_MARKER("block_marker", BlockData.class);
 
-    public NamespacedKey key;
+    private final NamespacedKey key;
     private final Class<?> dataType;
     final boolean register;
 

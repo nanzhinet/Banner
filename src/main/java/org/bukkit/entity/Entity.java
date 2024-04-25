@@ -26,6 +26,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a base entity in the world
+ * <p>
+ * Not all methods are guaranteed to work/may have side effects when
+ * {@link #isInWorld()} is false.
  */
 public interface Entity extends Metadatable, CommandSender, Nameable, PersistentDataHolder {
 
@@ -392,7 +395,9 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
      * Record the last {@link EntityDamageEvent} inflicted on this entity
      *
      * @param event a {@link EntityDamageEvent}
+     * @deprecated method is for internal use only and will be removed
      */
+    @Deprecated(forRemoval = true)
     public void setLastDamageCause(@Nullable EntityDamageEvent event);
 
     /**
@@ -531,9 +536,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
      * will need to be called before the entity is visible to a given player.
      *
      * @param visible default visibility status
-     * @apiNote draft API
      */
-    @ApiStatus.Experimental
     public void setVisibleByDefault(boolean visible);
 
     /**
@@ -544,9 +547,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
      * will need to be called before the entity is visible to a given player.
      *
      * @return default visibility status
-     * @apiNote draft API
      */
-    @ApiStatus.Experimental
     public boolean isVisibleByDefault();
 
     /**
@@ -560,7 +561,6 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
      * @return the players tracking this entity, or an empty set if none
      */
     @NotNull
-    @ApiStatus.Experimental
     Set<Player> getTrackedBy();
 
     /**
@@ -709,25 +709,6 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @NotNull
     Pose getPose();
 
-    // Paper start
-    /**
-     * Returns if the entity is in sneak mode
-     *
-     * @return true if the entity is in sneak mode
-     */
-    boolean isSneaking();
-
-    /**
-     * Sets the sneak mode the entity.
-     * <p>
-     * Note: For most Entities this does not update Entity's pose
-     * and just makes its name tag less visible.
-     *
-     * @param sneak true if the entity should be sneaking
-     */
-    void setSneaking(boolean sneak);
-    // Paper end
-
     /**
      * Get the category of spawn to which this entity belongs.
      *
@@ -744,6 +725,18 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
      * @return whether the entity has been spawned in a world
      */
     boolean isInWorld();
+
+    /**
+     * Get this entity as an NBT string.
+     * <p>
+     * This string should not be relied upon as a serializable value.
+     *
+     * @return the NBT string or null if one cannot be made
+     */
+    @Nullable
+    @ApiStatus.Experimental
+    String getAsString();
+
     /**
      * Crates an {@link EntitySnapshot} representing the current state of this entity.
      *
@@ -752,6 +745,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @Nullable
     @ApiStatus.Experimental
     EntitySnapshot createSnapshot();
+
     /**
      * Creates a copy of this entity and all its data. Does not spawn the copy in
      * the world. <br>
@@ -762,6 +756,7 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @NotNull
     @ApiStatus.Experimental
     Entity copy();
+
     /**
      * Creates a copy of this entity and all its data. Spawns the copy at the given location. <br>
      * <b>Note:</b> Players cannot be copied.
@@ -771,14 +766,4 @@ public interface Entity extends Metadatable, CommandSender, Nameable, Persistent
     @NotNull
     @ApiStatus.Experimental
     Entity copy(@NotNull Location to);
-
-    // Spigot start
-    public class Spigot extends CommandSender.Spigot {
-
-    }
-
-    @NotNull
-    @Override
-    Spigot spigot();
-    // Spigot end
 }

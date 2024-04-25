@@ -1,20 +1,13 @@
 package org.bukkit.entity;
 
 import com.google.common.base.Preconditions;
-import com.mohistmc.banner.bukkit.entity.MohistModsAbstractHorse;
-import com.mohistmc.banner.bukkit.entity.MohistModsAnimals;
-import com.mohistmc.banner.bukkit.entity.MohistModsChestHorse;
-import com.mohistmc.banner.bukkit.entity.MohistModsMinecartContainer;
-import com.mohistmc.banner.bukkit.entity.MohistModsMonster;
-import com.mohistmc.banner.bukkit.entity.MohistModsProjectileEntity;
-import com.mohistmc.banner.bukkit.entity.MohistModsTameableEntity;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Location;
 import org.bukkit.MinecraftExperimental;
+import org.bukkit.MinecraftExperimental.Requires;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Translatable;
 import org.bukkit.World;
@@ -41,7 +34,7 @@ public enum EntityType implements Keyed, Translatable {
      * Spawn with {@link World#dropItem(Location, ItemStack)} or {@link
      * World#dropItemNaturally(Location, ItemStack)}
      */
-    DROPPED_ITEM("item", Item.class, 1, false),
+    ITEM("item", Item.class, 1, false),
     /**
      * An experience orb.
      */
@@ -69,7 +62,7 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * A leash attached to a fencepost.
      */
-    LEASH_HITCH("leash_knot", LeashHitch.class, 8),
+    LEASH_KNOT("leash_knot", LeashHitch.class, 8),
     /**
      * A painting on a wall.
      */
@@ -97,15 +90,15 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * An ender eye signal.
      */
-    ENDER_SIGNAL("eye_of_ender", EnderSignal.class, 15),
+    EYE_OF_ENDER("eye_of_ender", EnderSignal.class, 15),
     /**
      * A flying splash potion.
      */
-    SPLASH_POTION("potion", ThrownPotion.class, 16, false),
+    POTION("potion", ThrownPotion.class, 16, false),
     /**
      * A flying experience bottle.
      */
-    THROWN_EXP_BOTTLE("experience_bottle", ThrownExpBottle.class, 17),
+    EXPERIENCE_BOTTLE("experience_bottle", ThrownExpBottle.class, 17),
     /**
      * An item frame on a wall.
      */
@@ -117,7 +110,7 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * Primed TNT that is about to explode.
      */
-    PRIMED_TNT("tnt", TNTPrimed.class, 20),
+    TNT("tnt", TNTPrimed.class, 20),
     /**
      * A block that is going to or is about to fall.
      */
@@ -125,7 +118,7 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * Internal representation of a Firework once it has been launched.
      */
-    FIREWORK("firework_rocket", Firework.class, 22, false),
+    FIREWORK_ROCKET("firework_rocket", Firework.class, 22, false),
     /**
      * @see Husk
      */
@@ -189,7 +182,7 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * @see CommandMinecart
      */
-    MINECART_COMMAND("command_block_minecart", CommandMinecart.class, 40),
+    COMMAND_BLOCK_MINECART("command_block_minecart", CommandMinecart.class, 40),
     /**
      * A placed boat.
      */
@@ -201,23 +194,23 @@ public enum EntityType implements Keyed, Translatable {
     /**
      * @see StorageMinecart
      */
-    MINECART_CHEST("chest_minecart", StorageMinecart.class, 43),
+    CHEST_MINECART("chest_minecart", StorageMinecart.class, 43),
     /**
      * @see PoweredMinecart
      */
-    MINECART_FURNACE("furnace_minecart", PoweredMinecart.class, 44),
+    FURNACE_MINECART("furnace_minecart", PoweredMinecart.class, 44),
     /**
      * @see ExplosiveMinecart
      */
-    MINECART_TNT("tnt_minecart", ExplosiveMinecart.class, 45),
+    TNT_MINECART("tnt_minecart", ExplosiveMinecart.class, 45),
     /**
      * @see HopperMinecart
      */
-    MINECART_HOPPER("hopper_minecart", HopperMinecart.class, 46),
+    HOPPER_MINECART("hopper_minecart", HopperMinecart.class, 46),
     /**
      * @see SpawnerMinecart
      */
-    MINECART_MOB_SPAWNER("spawner_minecart", SpawnerMinecart.class, 47),
+    SPAWNER_MINECART("spawner_minecart", SpawnerMinecart.class, 47),
     CREEPER("creeper", Creeper.class, 50),
     SKELETON("skeleton", Skeleton.class, 51),
     SPIDER("spider", Spider.class, 52),
@@ -244,8 +237,8 @@ public enum EntityType implements Keyed, Translatable {
     CHICKEN("chicken", Chicken.class, 93),
     SQUID("squid", Squid.class, 94),
     WOLF("wolf", Wolf.class, 95),
-    MUSHROOM_COW("mooshroom", MushroomCow.class, 96),
-    SNOWMAN("snow_golem", Snowman.class, 97),
+    MOOSHROOM("mooshroom", MushroomCow.class, 96),
+    SNOW_GOLEM("snow_golem", Snowman.class, 97),
     OCELOT("ocelot", Ocelot.class, 98),
     IRON_GOLEM("iron_golem", IronGolem.class, 99),
     HORSE("horse", Horse.class, 100),
@@ -255,7 +248,7 @@ public enum EntityType implements Keyed, Translatable {
     LLAMA_SPIT("llama_spit", LlamaSpit.class, 104),
     PARROT("parrot", Parrot.class, 105),
     VILLAGER("villager", Villager.class, 120),
-    ENDER_CRYSTAL("end_crystal", EnderCrystal.class, 200),
+    END_CRYSTAL("end_crystal", EnderCrystal.class, 200),
     TURTLE("turtle", Turtle.class, -1),
     PHANTOM("phantom", Phantom.class, -1),
     TRIDENT("trident", Trident.class, -1),
@@ -288,51 +281,52 @@ public enum EntityType implements Keyed, Translatable {
     FROG("frog", Frog.class, -1),
     TADPOLE("tadpole", Tadpole.class, -1),
     WARDEN("warden", Warden.class, -1),
-
     CAMEL("camel", Camel.class, -1),
     BLOCK_DISPLAY("block_display", BlockDisplay.class, -1),
     INTERACTION("interaction", Interaction.class, -1),
     ITEM_DISPLAY("item_display", ItemDisplay.class, -1),
-
     SNIFFER("sniffer", Sniffer.class, -1),
     TEXT_DISPLAY("text_display", TextDisplay.class, -1),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     @ApiStatus.Experimental
     BREEZE("breeze", Breeze.class, -1),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     @ApiStatus.Experimental
     WIND_CHARGE("wind_charge", WindCharge.class, -1),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    @ApiStatus.Experimental
+    BREEZE_WIND_CHARGE("breeze_wind_charge", BreezeWindCharge.class, -1),
+    ARMADILLO("armadillo", Armadillo.class, -1),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    @ApiStatus.Experimental
+    BOGGED("bogged", Bogged.class, -1),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    @ApiStatus.Experimental
+    OMINOUS_ITEM_SPAWNER("ominous_item_spawner", OminousItemSpawner.class, -1),
     /**
      * A fishing line and bobber.
      */
-    FISHING_HOOK("fishing_bobber", FishHook.class, -1, false),
+    FISHING_BOBBER("fishing_bobber", FishHook.class, -1, false),
     /**
      * A bolt of lightning.
      * <p>
      * Spawn with {@link World#strikeLightning(Location)}.
      */
-    LIGHTNING("lightning_bolt", LightningStrike.class, -1, false),
+    LIGHTNING_BOLT("lightning_bolt", LightningStrike.class, -1, false),
     PLAYER("player", Player.class, -1, false),
     /**
      * An unknown entity without an Entity Class
      */
-    UNKNOWN(null, null, -1, false),
-    FORGE_MOD_PROJECTILE("forge_mod_projectile", MohistModsProjectileEntity.class, -1, false),
-    FORGE_MOD_CHEST_HORSE("forge_mod_chest_horse", MohistModsChestHorse.class, -1, false),
-    FORGE_MOD_MINECART_CONTAINER("forge_mod_minecart_container", MohistModsMinecartContainer.class, -1, false),
-    FORGE_MOD_HORSE("forge_mod_horse", MohistModsAbstractHorse.class, -1, false),
-    FORGE_MOD_TAMEABLE_ANIMALS("forge_mod_tameable_animal", MohistModsTameableEntity.class, -1, false ),
-    FORGE_MOD_ANIMAL("forge_mod_animal", MohistModsAnimals.class, -1, false ),
-    FORGE_MOD_MONSTER("forge_mod_monster", MohistModsMonster.class, -1, false);
+    UNKNOWN(null, null, -1, false);
 
     private final String name;
     private final Class<? extends Entity> clazz;
     private final short typeId;
     private final boolean independent, living;
-    public NamespacedKey key;
+    private final NamespacedKey key;
 
-    public static final Map<String, EntityType> NAME_MAP = new HashMap<String, EntityType>();
-    public static final Map<Short, EntityType> ID_MAP = new HashMap<Short, EntityType>();
+    private static final Map<String, EntityType> NAME_MAP = new HashMap<String, EntityType>();
+    private static final Map<Short, EntityType> ID_MAP = new HashMap<Short, EntityType>();
 
     static {
         for (EntityType type : values()) {
@@ -343,21 +337,6 @@ public enum EntityType implements Keyed, Translatable {
                 ID_MAP.put(type.typeId, type);
             }
         }
-
-        // Add legacy names
-        NAME_MAP.put("xp_orb", EXPERIENCE_ORB);
-        NAME_MAP.put("eye_of_ender_signal", ENDER_SIGNAL);
-        NAME_MAP.put("xp_bottle", THROWN_EXP_BOTTLE);
-        NAME_MAP.put("fireworks_rocket", FIREWORK);
-        NAME_MAP.put("evocation_fangs", EVOKER_FANGS);
-        NAME_MAP.put("evocation_illager", EVOKER);
-        NAME_MAP.put("vindication_illager", VINDICATOR);
-        NAME_MAP.put("illusion_illager", ILLUSIONER);
-        NAME_MAP.put("commandblock_minecart", MINECART_COMMAND);
-        NAME_MAP.put("snowman", SNOWMAN);
-        NAME_MAP.put("villager_golem", IRON_GOLEM);
-        NAME_MAP.put("ender_crystal", ENDER_CRYSTAL);
-        NAME_MAP.put("zombie_pigman", ZOMBIFIED_PIGLIN);
     }
 
     private EntityType(/*@Nullable*/ String name, /*@Nullable*/ Class<? extends Entity> clazz, int typeId) {
@@ -382,13 +361,13 @@ public enum EntityType implements Keyed, Translatable {
     @Deprecated
     @Nullable
     public String getName() {
-        return name == null ? name() : name; // Mohist
+        return name;
     }
 
     @NotNull
     @Override
     public NamespacedKey getKey() {
-        Preconditions.checkArgument(key != null, "EntityType doesn't have key! Is it: %s".formatted(name()) );
+        Preconditions.checkArgument(key != null, "EntityType doesn't have key! Is it UNKNOWN?");
 
         return key;
     }
@@ -423,7 +402,7 @@ public enum EntityType implements Keyed, Translatable {
         if (name == null) {
             return null;
         }
-        return Objects.requireNonNullElse(NAME_MAP.get(name.toLowerCase(java.util.Locale.ENGLISH)), EntityType.UNKNOWN);
+        return NAME_MAP.get(name.toLowerCase(java.util.Locale.ENGLISH));
     }
 
     /**

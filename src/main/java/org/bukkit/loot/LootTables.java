@@ -3,6 +3,7 @@ package org.bukkit.loot;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.MinecraftExperimental;
+import org.bukkit.MinecraftExperimental.Requires;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,26 +35,46 @@ public enum LootTables implements Keyed {
     ANCIENT_CITY("chests/ancient_city"),
     ANCIENT_CITY_ICE_BOX("chests/ancient_city_ice_box"),
     RUINED_PORTAL("chests/ruined_portal"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_REWARD("chests/trial_chambers/reward"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_COMMON("chests/trial_chambers/reward_common"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_RARE("chests/trial_chambers/reward_rare"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_UNIQUE("chests/trial_chambers/reward_unique"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_OMINOUS("chests/trial_chambers/reward_ominous"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_OMINOUS_COMMON("chests/trial_chambers/reward_ominous_common"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_OMINOUS_RARE("chests/trial_chambers/reward_ominous_rare"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBERS_REWARD_OMINOUS_UNIQUE("chests/trial_chambers/reward_ominous_unique"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_SUPPLY("chests/trial_chambers/supply"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_CORRIDOR("chests/trial_chambers/corridor"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_INTERSECTION("chests/trial_chambers/intersection"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_INTERSECTION_BARREL("chests/trial_chambers/intersection_barrel"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_ENTRANCE("chests/trial_chambers/entrance"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_CORRIDOR_DISPENSER("dispensers/trial_chambers/corridor"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_CHAMBER_DISPENSER("dispensers/trial_chambers/chamber"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_WATER_DISPENSER("dispensers/trial_chambers/water"),
-    @MinecraftExperimental
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBERS_CORRIDOR_POT("pots/trial_chambers/corridor"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    EQUIPMENT_TRIAL_CHAMBER("equipment/trial_chamber"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    EQUIPMENT_TRIAL_CHAMBER_RANGED("equipment/trial_chamber_ranged"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    EQUIPMENT_TRIAL_CHAMBER_MELEE("equipment/trial_chamber_melee"),
     SHIPWRECK_MAP("chests/shipwreck_map"),
     SHIPWRECK_SUPPLY("chests/shipwreck_supply"),
     SHIPWRECK_TREASURE("chests/shipwreck_treasure"),
@@ -177,10 +198,21 @@ public enum LootTables implements Keyed {
     TOOLSMITH_GIFT("gameplay/hero_of_the_village/toolsmith_gift"),
     WEAPONSMITH_GIFT("gameplay/hero_of_the_village/weaponsmith_gift"),
     SNIFFER_DIGGING("gameplay/sniffer_digging"),
+    PANDA_SNEEZE("gameplay/panda_sneeze"),
     PIGLIN_BARTERING("gameplay/piglin_bartering"),
     // Spawners
+    @MinecraftExperimental(Requires.UPDATE_1_21)
     TRIAL_CHAMBER_KEY("spawners/trial_chamber/key"),
-    RIAL_CHAMBER_CONSUMABLES("spawners/trial_chamber/consumables"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBER_CONSUMABLES("spawners/trial_chamber/consumables"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    OMINOUS_TRIAL_CHAMBER_KEY("spawners/ominous/trial_chamber/key"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    OMINOUS_TRIAL_CHAMBER_CONSUMABLES("spawners/ominous/trial_chamber/consumables"),
+    @MinecraftExperimental(Requires.UPDATE_1_21)
+    TRIAL_CHAMBER_ITEMS_TO_DROP_WHEN_OMINOUS("spawners/trial_chamber/items_to_drop_when_ominous"),
+    // Shearing
+    SHEARING_BOGGED("shearing/bogged"),
     // Archaeology
     DESERT_WELL_ARCHAEOLOGY("archaeology/desert_well"),
     DESERT_PYRAMID_ARCHAEOLOGY("archaeology/desert_pyramid"),

@@ -1,15 +1,13 @@
 package org.bukkit.attribute;
 
 import java.util.Collection;
-
-import com.mohistmc.banner.paper.addon.attribute.AddonAttributeInstance;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a mutable instance of an attribute and its associated modifiers
  * and values.
  */
-public interface AttributeInstance extends AddonAttributeInstance {
+public interface AttributeInstance {
 
     /**
      * The attribute pertaining to this instance.
