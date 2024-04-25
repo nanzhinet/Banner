@@ -2,9 +2,9 @@ package com.mohistmc.banner.bukkit;
 
 import net.minecraft.world.Container;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_20_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockState;
+import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 

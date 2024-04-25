@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.login.ServerLoginPacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import org.bukkit.craftbukkit.v1_20_R3.util.Waitable;
+import org.bukkit.craftbukkit.v1_20_R4.util.Waitable;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.jetbrains.annotations.Nullable;
@@ -81,7 +81,7 @@ public abstract class MixinServerLoginPacketListenerImpl implements ServerLoginP
         String playerName = gameprofile.getName();
         java.net.InetAddress address = ((java.net.InetSocketAddress) connection.getRemoteAddress()).getAddress();
         java.util.UUID uniqueId = gameprofile.getId();
-        final org.bukkit.craftbukkit.v1_20_R3.CraftServer server = this.server.bridge$server();
+        final org.bukkit.craftbukkit.v1_20_R4.CraftServer server = this.server.bridge$server();
 
         AsyncPlayerPreLoginEvent asyncEvent = new AsyncPlayerPreLoginEvent(playerName, address, uniqueId);
         server.getPluginManager().callEvent(asyncEvent);

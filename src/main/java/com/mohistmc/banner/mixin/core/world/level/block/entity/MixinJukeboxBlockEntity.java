@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.ticks.ContainerSingleItem;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

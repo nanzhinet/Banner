@@ -8,7 +8,7 @@ import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
+import org.bukkit.craftbukkit.v1_20_R4.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;

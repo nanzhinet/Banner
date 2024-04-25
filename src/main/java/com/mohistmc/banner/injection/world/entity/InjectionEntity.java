@@ -9,8 +9,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_20_R3.event.CraftPortalEvent;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R4.event.CraftPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.Nullable;
 

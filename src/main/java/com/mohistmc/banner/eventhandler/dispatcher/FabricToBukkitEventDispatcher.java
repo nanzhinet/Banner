@@ -2,8 +2,8 @@ package com.mohistmc.banner.eventhandler.dispatcher;
 
 import com.mohistmc.banner.fabric.FabricHookBukkitEvent;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
 import org.bukkit.event.block.BlockBreakEvent;
 
 public class FabricToBukkitEventDispatcher {

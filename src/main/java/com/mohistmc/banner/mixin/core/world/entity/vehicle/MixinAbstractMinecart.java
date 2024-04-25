@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftLocation;
+import org.bukkit.craftbukkit.v1_20_R4.util.CraftLocation;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.util.Vector;

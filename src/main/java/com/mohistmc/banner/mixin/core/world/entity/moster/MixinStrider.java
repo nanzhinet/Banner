@@ -1,7 +1,7 @@
 package com.mohistmc.banner.mixin.core.world.entity.moster;
 
 import net.minecraft.world.entity.monster.Strider;
-import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R4.event.CraftEventFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

@@ -67,7 +67,7 @@ public abstract class MixinLegacyQueryHandler {
                 SocketAddress socketaddress = channelhandlercontext.channel().remoteAddress();
                 int i = bytebuf.readableBytes();
                 String s;
-                org.bukkit.event.server.ServerListPingEvent event = org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory.callServerListPingEvent(socketaddress, server.getMotd(), server.getPlayerCount(), server.getMaxPlayers()); // CraftBukkit
+                org.bukkit.event.server.ServerListPingEvent event = org.bukkit.craftbukkit.v1_20_R4.event.CraftEventFactory.callServerListPingEvent(socketaddress, server.getMotd(), server.getPlayerCount(), server.getMaxPlayers()); // CraftBukkit
 
                 if (i == 0) {
                     LOGGER.debug("Ping: (<1.3.x) from {}", socketaddress);

@@ -84,8 +84,8 @@ import net.minecraft.world.level.storage.WorldData;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.craftbukkit.Main;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R3.scoreboard.CraftScoreboardManager;
+import org.bukkit.craftbukkit.v1_20_R4.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R4.scoreboard.CraftScoreboardManager;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -231,7 +231,7 @@ public abstract class MixinMinecraftServer extends ReentrantBlockableEventLoop<T
     @Shadow private float smoothedTickTimeMillis;
     // CraftBukkit start
     public WorldLoader.DataLoadContext worldLoader;
-    public org.bukkit.craftbukkit.v1_20_R3.CraftServer server;
+    public org.bukkit.craftbukkit.v1_20_R4.CraftServer server;
     public OptionSet options;
     public org.bukkit.command.ConsoleCommandSender console;
     public ConsoleReader reader;

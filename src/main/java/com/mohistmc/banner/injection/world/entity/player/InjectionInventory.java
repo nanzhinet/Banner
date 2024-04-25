@@ -2,7 +2,7 @@ package com.mohistmc.banner.injection.world.entity.player;
 
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
 
 public interface InjectionInventory {

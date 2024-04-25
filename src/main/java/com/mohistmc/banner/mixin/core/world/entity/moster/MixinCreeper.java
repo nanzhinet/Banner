@@ -13,7 +13,7 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R3.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R4.event.CraftEventFactory;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreeperPowerEvent;
 import org.bukkit.event.entity.ExplosionPrimeEvent;

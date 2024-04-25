@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.bukkit.craftbukkit.v1_20_R3.block.CraftBlockEntityState;
+import org.bukkit.craftbukkit.v1_20_R4.block.CraftBlockEntityState;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 

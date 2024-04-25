@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.InventoryHolder;
 import org.spongepowered.asm.mixin.Final;

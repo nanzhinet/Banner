@@ -4,9 +4,9 @@ import com.mohistmc.banner.bukkit.BukkitExtraConstants;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftShapelessRecipe;
-import org.bukkit.craftbukkit.v1_20_R3.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R4.inventory.CraftShapelessRecipe;
+import org.bukkit.craftbukkit.v1_20_R4.util.CraftNamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 

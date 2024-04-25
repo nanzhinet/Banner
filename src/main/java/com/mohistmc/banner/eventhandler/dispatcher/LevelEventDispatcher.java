@@ -3,7 +3,7 @@ package com.mohistmc.banner.eventhandler.dispatcher;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.server.level.ServerLevel;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R4.CraftServer;
 
 import java.util.Locale;
 

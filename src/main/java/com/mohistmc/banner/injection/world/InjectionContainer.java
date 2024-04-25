@@ -3,7 +3,7 @@ package com.mohistmc.banner.injection.world;
 import java.util.Collections;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftHumanEntity;
 import org.bukkit.inventory.InventoryView;
 
 public interface InjectionContainer {

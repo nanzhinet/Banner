@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftItem;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.objectweb.asm.Opcodes;
