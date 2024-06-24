@@ -35,15 +35,15 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build --console=plain
+      - name: Extract JAR from ZIP
+        run: unzip build/libs/*.zip -d build/libs/extracted
       - name: Upload JAR file
         uses: actions/upload-artifact@v3
         with:
           name: build-jar
-          path: build/libs/*.jar
-      - name: Create zip archive
-        run: zip -j build/libs/build-artifacts.zip build/libs/*.jar
-      - name: Upload zip archive
+          path: build/libs/extracted/*.jar
+      - name: Upload original ZIP archive
         uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts-zip
-          path: build/libs/build-artifacts.zip
+          name: build-zip
+          path: build/libs/*.zip
