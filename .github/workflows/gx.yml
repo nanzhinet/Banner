@@ -41,4 +41,11 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-jar
-          path: build/libs/*.jar
+          path: build/libs/banner-1.21-1.21.jar
+      - name: Upload build artifacts as zip
+        run: zip -j build/libs/build-artifacts.zip build/libs/banner-1.21-1.21.jar
+      - name: Upload ZIP archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-zip
+          path: build/libs/build-artifacts.zip
